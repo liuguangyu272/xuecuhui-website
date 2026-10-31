@@ -25,6 +25,8 @@
 
 ## 运维
 
+部署行为的隔离测试：在 Linux 上运行 `python3 deploy/test_sync.py`，验证正常上线、数据保护、失败回滚与语法错误拦截。测试使用临时目录，不修改真实网站。
+
 服务器使用该仓库专用的只读 Deploy Key，私钥留在 `/root/.ssh/xuecuhui_github_deploy`。部署不依赖本机电脑或 GitHub Actions。
 
 ```sh
