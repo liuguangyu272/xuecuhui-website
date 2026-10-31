@@ -6,3 +6,21 @@ __pycache__/
 *.pyc
 *.bak*
 .DS_Store
+
+# Credentials, panel databases and historical server backups
+*.key
+*.p12
+*.pfx
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+*.log
+*.tgz
+*.tar.gz
+*.bundle
+.htpasswd*
+panel_secret_key.json
+bt-data-backup*/
+backup/
+_versions/

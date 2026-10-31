@@ -1,0 +1,401 @@
+{
+  "snapshot_at": "2026-10-31T15:35:24+08:00",
+  "source": "Current learning website content; credentials and history excluded",
+  "files": [
+    {
+      "path": "assets/docs/477e841f37722e16.md",
+      "bytes": 13998,
+      "sha256": "840d2d4cbe8b210f1f607e2b6bb19ff4789f0e3bad7aa2f21b4abb5acd06cb03"
+    },
+    {
+      "path": "assets/posters/e61cd1f12f1ae3d7.jpg",
+      "bytes": 144468,
+      "sha256": "0d11b8dce4f3ddec047bafc7c5fa39ae1b974f541d33197f343d5442414a45e3"
+    },
+    {
+      "path": "content.json",
+      "bytes": 8889,
+      "sha256": "c8bb79f5e3b1e53e014bfcc9e4197d6065b3c63d1822853397b919fc765df457"
+    },
+    {
+      "path": "editor/content_data.js",
+      "bytes": 532086,
+      "sha256": "9f4715ab0496ebc75afff7542d2bc1dc18d0ff967c384c6b6212877045ff5f10"
+    },
+    {
+      "path": "editor/yaohua/img/useful/alfentanil.png",
+      "bytes": 21504,
+      "sha256": "c62fa7815c84e701072bba2fb636bad79a288053a79ea13596b9c588333719de"
+    },
+    {
+      "path": "editor/yaohua/img/useful/amisulpride.png",
+      "bytes": 10287,
+      "sha256": "24cc92540112197bb6f95437962c8d20a00d6d85d2649fe6f436a7a735a73648"
+    },
+    {
+      "path": "editor/yaohua/img/useful/amitriptyline.jpg",
+      "bytes": 5938,
+      "sha256": "94b4546886f0a1309f2d63a2dadf5f137a0385b4328c4a7346bf7987c4d85aba"
+    },
+    {
+      "path": "editor/yaohua/img/useful/amobarbital.png",
+      "bytes": 14296,
+      "sha256": "ed3b445a4389f6bdc14fb590696ae8c6063e1d5e3e28b7c58b45368a460c6037"
+    },
+    {
+      "path": "editor/yaohua/img/useful/buspirone.png",
+      "bytes": 9260,
+      "sha256": "66f22ee1b6d3ee6ad651300790b138c7589125a90c9f610d1efc14ba2688f55e"
+    },
+    {
+      "path": "editor/yaohua/img/useful/butorphanol.png",
+      "bytes": 13192,
+      "sha256": "e284e26b1a03030cd8b267cd491f459fcdecad3f403d25ffdca11d26be208371"
+    },
+    {
+      "path": "editor/yaohua/img/useful/carbamazepine.png",
+      "bytes": 20251,
+      "sha256": "f2927285415bb98ba7fe713d49b81398fffad135ee5429620e66146391d65b2d"
+    },
+    {
+      "path": "editor/yaohua/img/useful/carbidopa.jpg",
+      "bytes": 8571,
+      "sha256": "3fc612e911169e94643dc607212b8b15c2f4cd2af4d321d5f42ffd79cc0dfde9"
+    },
+    {
+      "path": "editor/yaohua/img/useful/chlorpromazine.png",
+      "bytes": 16033,
+      "sha256": "57e03b82596f8ec8eebd4c388bfe63751a563716316be31b6b7cc2dc51f2e8e9"
+    },
+    {
+      "path": "editor/yaohua/img/useful/chlorprothixene.png",
+      "bytes": 16253,
+      "sha256": "36ec9cc794b82b9f203b74732c0c7fb302eca8d553ca0fd6cee7ef2c8c3a87af"
+    },
+    {
+      "path": "editor/yaohua/img/useful/citalopram.png",
+      "bytes": 17869,
+      "sha256": "d7803f5fd714feeda134c7134b841546c74342fb6057c0f9e95800ecd5faa90c"
+    },
+    {
+      "path": "editor/yaohua/img/useful/clozapine.png",
+      "bytes": 21112,
+      "sha256": "0f89324816ce006d37ed472f27a69f1097dc45ca249accc01d841e92ec840eec"
+    },
+    {
+      "path": "editor/yaohua/img/useful/codeine.png",
+      "bytes": 18012,
+      "sha256": "2f1034d511aaf578c6c3c0c87356313cd6af2d0b94c07a5176e1451b1f956ee1"
+    },
+    {
+      "path": "editor/yaohua/img/useful/diazepam.png",
+      "bytes": 14130,
+      "sha256": "8b1d758ec5d9d215c4527c1fe39e222380f9e7b9782c2e3825943af8e19cbefe"
+    },
+    {
+      "path": "editor/yaohua/img/useful/donepezil.jpg",
+      "bytes": 11142,
+      "sha256": "1ead5b210025c0fa735fc82f05109b5bde2fcbb6efb4f327210c7ba19046e957"
+    },
+    {
+      "path": "editor/yaohua/img/useful/estazolam.png",
+      "bytes": 26859,
+      "sha256": "bcaac1a0bc52d1e6d77be0025d1e64bd351bde8e2053d5e24771644a929d5ac5"
+    },
+    {
+      "path": "editor/yaohua/img/useful/fentanyl.png",
+      "bytes": 15258,
+      "sha256": "2e32099f5a711c6e33a4c4f0ea310ec4192f9eb72282586d21f55d0b514f2e22"
+    },
+    {
+      "path": "editor/yaohua/img/useful/fluoxetine.png",
+      "bytes": 14569,
+      "sha256": "45aa2266d0927e5b0fb06ece2ac247d45fe3c6172d2081c06c035696b6f24abf"
+    },
+    {
+      "path": "editor/yaohua/img/useful/fluphenazine_enanthate.png",
+      "bytes": 20582,
+      "sha256": "997667ba4cedb8bf086b409e9a8922b22ddd3c187c76af78aec62f1e6109689f"
+    },
+    {
+      "path": "editor/yaohua/img/useful/gabapentin.png",
+      "bytes": 7075,
+      "sha256": "91a91073e689ed3227abfd1a567b5f5d49d5aa4cca7844167c86eefb49a0414e"
+    },
+    {
+      "path": "editor/yaohua/img/useful/haloperidol.jpg",
+      "bytes": 5625,
+      "sha256": "dc5691014b73021b76f7b029710a95082e2173cc86ec115c2da2c6632916c8a0"
+    },
+    {
+      "path": "editor/yaohua/img/useful/heroin.png",
+      "bytes": 24234,
+      "sha256": "69e37ba3f08cf132f2690b256b1052f9e4205e7b7b9d1a717d7aa286649a7523"
+    },
+    {
+      "path": "editor/yaohua/img/useful/huperzine.png",
+      "bytes": 22402,
+      "sha256": "cc68bde301e865ad56c118f4daa72518291b7c9512fa00bf45c4770796351750"
+    },
+    {
+      "path": "editor/yaohua/img/useful/lamotrigine.png",
+      "bytes": 24917,
+      "sha256": "abdec2c6ab710767f9bafec7d41cc49edb29b0335f5fac7eb35b8f361ecc9dd6"
+    },
+    {
+      "path": "editor/yaohua/img/useful/levodopa.png",
+      "bytes": 15858,
+      "sha256": "3b4a70c809cf9ccc763d782117433dcd05a377ea4329dd4fe9879f277847f805"
+    },
+    {
+      "path": "editor/yaohua/img/useful/memantine.png",
+      "bytes": 12463,
+      "sha256": "10b80c075c5ed07e3ed6389ed17931d25ec983f561fc5bd6153d4c125c5c7a11"
+    },
+    {
+      "path": "editor/yaohua/img/useful/methadone.png",
+      "bytes": 31605,
+      "sha256": "df8c8c3cb5801190bb81ede5a410360a29ebb9a5a290904a1ae476223551e399"
+    },
+    {
+      "path": "editor/yaohua/img/useful/midazolam.png",
+      "bytes": 17575,
+      "sha256": "4d50fa9966747f1c6d76dc9bd068ee0f5b40ccf70133a95ca8c650760047fda9"
+    },
+    {
+      "path": "editor/yaohua/img/useful/mirtazapine.png",
+      "bytes": 12139,
+      "sha256": "50a88d92cbfbd7cd9e91ece0fea70aa0e6c758350a023f93efd88db2893072d8"
+    },
+    {
+      "path": "editor/yaohua/img/useful/moclobemide.png",
+      "bytes": 10641,
+      "sha256": "e89267c96d8da3450dfd72ca2d7476e2751fc630bcbdf1c67c9f37f465749630"
+    },
+    {
+      "path": "editor/yaohua/img/useful/morphine.png",
+      "bytes": 19552,
+      "sha256": "ce306389cc5b6ecbb2aabaab98076028e89ed270719e57d629a8a0ea44be66c2"
+    },
+    {
+      "path": "editor/yaohua/img/useful/naloxone.png",
+      "bytes": 27067,
+      "sha256": "8ca36b4d6454c845d41f2b6956b0d36fae4ef7246c9d44851d000b22d78df39f"
+    },
+    {
+      "path": "editor/yaohua/img/useful/nitrazepam.png",
+      "bytes": 24668,
+      "sha256": "4036ce0c96d826277fa94f6fed6260844b3fcbc6bc35aab6243842e26767eaf4"
+    },
+    {
+      "path": "editor/yaohua/img/useful/olanzapine.png",
+      "bytes": 11802,
+      "sha256": "b84873c01b51d8fd873b1d625adf36f6acad07250805812f53b61ccdea837071"
+    },
+    {
+      "path": "editor/yaohua/img/useful/oxazepam.png",
+      "bytes": 25710,
+      "sha256": "9ab389625cf599cc347852889e60ac8279ff17e20a84dd3a5040230ef9f39544"
+    },
+    {
+      "path": "editor/yaohua/img/useful/paroxetine.png",
+      "bytes": 14842,
+      "sha256": "64002bf5924d7945e29ec1f8397248043ce4813cbc5cab3ac6f443c1439ff0b7"
+    },
+    {
+      "path": "editor/yaohua/img/useful/pentazocine.jpg",
+      "bytes": 5994,
+      "sha256": "f8b8e741c239975ea6d5a2238a2a201a349434a5c702c5ffa6e2a29c44afd4c1"
+    },
+    {
+      "path": "editor/yaohua/img/useful/perphenazine.png",
+      "bytes": 17676,
+      "sha256": "2c6352cff834144136a946d407eff37c825d44a54e909157c2cc33d1a45318ef"
+    },
+    {
+      "path": "editor/yaohua/img/useful/pethidine.png",
+      "bytes": 18762,
+      "sha256": "08a5aa73a27b4fd0dda49750b9d398b2c5f9ad3734762296342df13278b4f566"
+    },
+    {
+      "path": "editor/yaohua/img/useful/phenobarbital.jpg",
+      "bytes": 5982,
+      "sha256": "69f06da2df9788a65a7b75bc23ab62ebddf11010f6fff891ca4e65f0bae9ae66"
+    },
+    {
+      "path": "editor/yaohua/img/useful/phenytoin.jpg",
+      "bytes": 6540,
+      "sha256": "40be84c0b238f718ea565b8d47f2a83482fa83f63776fb4379a07e9c4c7f3866"
+    },
+    {
+      "path": "editor/yaohua/img/useful/piribedil.png",
+      "bytes": 13531,
+      "sha256": "7dfd9642f2199a0afadd812dd74bbc0d185000bd64083890882908796f5ab0a0"
+    },
+    {
+      "path": "editor/yaohua/img/useful/pramipexole.png",
+      "bytes": 10723,
+      "sha256": "b6673208624755c9480b981978562dfd40c1b3222dae0b7e610728a795cfcc59"
+    },
+    {
+      "path": "editor/yaohua/img/useful/pregabalin.png",
+      "bytes": 19044,
+      "sha256": "7811f1d6357b5c532d73a459eb1eb6ddfd34ae89ac6c2881848226755d249c0d"
+    },
+    {
+      "path": "editor/yaohua/img/useful/ramelteon.png",
+      "bytes": 19848,
+      "sha256": "16cefe9db1659fb6568dffc9a59580d12ef73e3b0dcc2dfb517cff2e2d9ae30a"
+    },
+    {
+      "path": "editor/yaohua/img/useful/rasagiline.png",
+      "bytes": 12255,
+      "sha256": "a5bec0daa03ebeb8b000ba559436e5d1c6f227289aaec2b3c410077d9bf23f6b"
+    },
+    {
+      "path": "editor/yaohua/img/useful/remifentanil.png",
+      "bytes": 12106,
+      "sha256": "22c8adab3bb44e28aa338b79dc30759418164521379caf55b43bca644b501430"
+    },
+    {
+      "path": "editor/yaohua/img/useful/risperidone.jpg",
+      "bytes": 8769,
+      "sha256": "3ae7a24302941b00a4a8f44e71a4134d5fda1ec9c08638a60db8c0ae9b55b2fb"
+    },
+    {
+      "path": "editor/yaohua/img/useful/rivastigmine.png",
+      "bytes": 22637,
+      "sha256": "b25ce50706f36e54cce41e0923bd002e01ad9e73666dd473448cdd89afddf952"
+    },
+    {
+      "path": "editor/yaohua/img/useful/ropinirole.jpg",
+      "bytes": 5526,
+      "sha256": "28611464b6c3c4676dde8d850dbe936c88bbfad67e2f6013253c73a30b03584e"
+    },
+    {
+      "path": "editor/yaohua/img/useful/sertraline.jpg",
+      "bytes": 5814,
+      "sha256": "fedfeb1c5ebd2d87cc8a30da72ba884f44969d46be6e136c3a99a265a12de852"
+    },
+    {
+      "path": "editor/yaohua/img/useful/sulpiride.png",
+      "bytes": 21972,
+      "sha256": "ff935ec926adbf115c058713d9e2bafc4d0eb2f736f15299df1f3316b52132f8"
+    },
+    {
+      "path": "editor/yaohua/img/useful/talipexole.png",
+      "bytes": 18829,
+      "sha256": "fba11e063055e3889926cc53d274fc5b36b6d0fade9a9b28eeceba90d1035ba0"
+    },
+    {
+      "path": "editor/yaohua/img/useful/temazepam.png",
+      "bytes": 29131,
+      "sha256": "bb9b12bdef3065df35a17ff488c58849c09a2b2809f36eb4367d64000f15fc80"
+    },
+    {
+      "path": "editor/yaohua/img/useful/tolcapone.png",
+      "bytes": 19691,
+      "sha256": "8426b0d1cff78872bd8af9297ff1e6a5f5bfbc731af54c62e778eccfa227a3fc"
+    },
+    {
+      "path": "editor/yaohua/img/useful/tramadol.png",
+      "bytes": 15734,
+      "sha256": "1e8b521d5e92795bfb20e8fcf70dee709f389733cafb372aa4124b331746eb57"
+    },
+    {
+      "path": "editor/yaohua/img/useful/triazolam.png",
+      "bytes": 26302,
+      "sha256": "6ba7977d048c567000ba5706256668eac29a4ce074dc47369ba3968dc2d54ba7"
+    },
+    {
+      "path": "editor/yaohua/img/useful/valproate.png",
+      "bytes": 18334,
+      "sha256": "d04b15832da3667c78e3dc8eb9fa58e33dcb00733069254613a1bc6e62da171c"
+    },
+    {
+      "path": "editor/yaohua/img/useful/venlafaxine.png",
+      "bytes": 14771,
+      "sha256": "7b459c10dc93a8ead47a93191ab98b8f6e27f031540c601321d39376cec50449"
+    },
+    {
+      "path": "editor/yaohua/img/useful/zaleplon.png",
+      "bytes": 23037,
+      "sha256": "55d660a357e40718de598f2695f40ab766d95bf4ca2a2477aa16f3f76384fc8c"
+    },
+    {
+      "path": "editor/yaohua/img/useful/zolpidem.png",
+      "bytes": 33560,
+      "sha256": "2fd98628eda25661f3ada98b2d299991a9fe229ffcc57344dd5342c5a13f5076"
+    },
+    {
+      "path": "editor/yaohua/img/useful/zonisamide.png",
+      "bytes": 23481,
+      "sha256": "0214247aca45b2ee26badb31cba56960f7168b15d256367005e6eb88b2de5fc9"
+    },
+    {
+      "path": "editor/yaohua/img/useful/zopiclone.png",
+      "bytes": 26528,
+      "sha256": "857f90d4db5f9ed588f10a78cde3ccd767661033bd957e6c87b21fe61df3778d"
+    },
+    {
+      "path": "editor/yaohua/molecules.js",
+      "bytes": 793102,
+      "sha256": "727e7b2a4c2921cea7734fb9ee829dd62688a9c1bdc5abd9f09f109f3178c076"
+    },
+    {
+      "path": "question-banks/yaofen/data_blank.js",
+      "bytes": 13926,
+      "sha256": "4dcd45b49d18bd9bb9634a02f06f0fc190b31e0624138887d91a6d823248881b"
+    },
+    {
+      "path": "question-banks/yaofen/data_calc.js",
+      "bytes": 21172,
+      "sha256": "8f976b3802d43c1560b27991af86945a84d34eb86513d8f598738497d9ad6929"
+    },
+    {
+      "path": "question-banks/yaofen/data_choice.js",
+      "bytes": 27467,
+      "sha256": "1e52217347b7686d1380f484637046dc571ddcf3cb658521e74a119fbb187178"
+    },
+    {
+      "path": "question-banks/yaofen/data_qa.js",
+      "bytes": 33970,
+      "sha256": "a3b0d825fc528e6049973087e78b3a9c7b377d210808c830d15ee089503e8381"
+    },
+    {
+      "path": "question-banks/yaohua/molecules.js",
+      "bytes": 118091,
+      "sha256": "2f96d8d85d92d291de181f0d904531a5415f08981665d4c521cb8cb5c10cb039"
+    },
+    {
+      "path": "question-banks/yaoji/data_blank.js",
+      "bytes": 63569,
+      "sha256": "2d47243bff169f350c15267142a0014f245a884b1060af51b9da6b767b80060f"
+    },
+    {
+      "path": "question-banks/yaoji/data_choice.js",
+      "bytes": 204923,
+      "sha256": "7b45eee678b5fe8fac8bdb4d184bef2f6c2ad2a25e88a66e4f01859aeb327011"
+    },
+    {
+      "path": "question-banks/yaoji/data_qa.js",
+      "bytes": 84957,
+      "sha256": "b9f32af70249d6fce9550eb1ced1f9835e85a85f8fb720863d673e1e7aa427b7"
+    },
+    {
+      "path": "question-banks/yaoji/data_rx.js",
+      "bytes": 26043,
+      "sha256": "ac6cd4807be10986e8f352943a254edbd974b481fea06de55bbe4d6d0edac05c"
+    },
+    {
+      "path": "question-banks/yaoji/data_term.js",
+      "bytes": 22274,
+      "sha256": "b45033aa3ce7fbf0b79b2e3ce145efbbb2b73344745e02260e722a03f3a1b41f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1422,
+      "sha256": "6790db60d5b6cc0c1a51b08757f83bfef61ea9f36904675a02f51f978f1dfacb"
+    }
+  ]
+}
