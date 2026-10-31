@@ -110,7 +110,8 @@ def main():
         removed=old_files-set(files)
         if any(Path(p).is_symlink() for p in set(changed)|removed): raise RuntimeError('Unexpected symlink target')
         # The content-console generates this page from its live data after UI changes.
-        rebuild='/opt/xuecuhui-console/yaohua-src/index.html' in changed
+        template='/opt/xuecuhui-console/yaohua-src/index.html'
+        rebuild=template in changed and (not Path(template).exists() or Path(template).read_bytes().replace(b'\r\n',b'\n') != changed[template].replace(b'\r\n',b'\n'))
         extra={'/www/wwwroot/xuecuhui/yaohua/index.html'} if rebuild else set()
         stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+sha[:12]
         backup=STATE/'backups'/stamp
