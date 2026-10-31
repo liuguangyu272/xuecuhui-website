@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习小站 · 学生学习促进协会</title>
+<meta name="description" content="学习小站：药学院学生促进协会的公告、资料库、小课堂与学习小帮手。">
+<link rel="icon" href="assets/logo-64.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css?v=20261025j">
+</head>
+<body>
+
+<div class="topline"></div>
+
+<header class="topbar">
+  <div class="wrap topbar__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="assets/logo.png" width="38" height="38" alt="学生学习促进协会标志">
+      <div class="brand__text">
+        <div class="brand__name">学习小站</div>
+        <div class="brand__sub">药学院学促会</div>
+      </div>
+    </a>
+
+    <nav class="topnav">
+      <a href="#notice">公告</a>
+      <a href="activities.html">活动</a>
+      <a href="library.html">资料</a>
+      <a href="#tools">小帮手</a>
+      <a href="join.html">加入我们</a>
+      <a href="console.html" class="btn-console keep">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+        内容台
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="intro">
+    <div class="wrap intro__inner">
+      <div class="intro__text">
+        <div class="intro__eyebrow" id="introEyebrow">Study Center · 2026 秋</div>
+        <h1 id="introTitle">该看的公告、要听的课、要找的资料，放在<em>一个地方</em>。</h1>
+        <p id="introText">药学院学促会的学习入口。公告、小课堂、资料库与小帮手工具，都从这里进。</p>
+      </div>
+      <aside class="intro__meta" id="introMeta" aria-label="站内概况"></aside>
+    </div>
+  </section>
+
+  <!-- 01 公告 -->
+  <section class="section" id="notice">
+    <div class="wrap">
+      <div class="section__head">
+        <div class="section__no">01</div>
+        <div class="section__head-text">
+          <h2 class="section__title">公告</h2>
+          <p class="section__desc">学院通知、活动报名与工具更新</p>
+        </div>
+      </div>
+
+      <div class="notice-list" id="noticeList"></div>
+
+      <div class="section__foot">
+        <a class="link-more" href="announcements.html">
+          更多公告
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 小课堂 · 特别活动 -->
+  <section class="section" id="activities">
+    <div class="wrap">
+      <div class="section__head">
+        <div class="section__no">02</div>
+        <div class="section__head-text">
+          <h2 class="section__title">小课堂 · 特别活动</h2>
+          <p class="section__desc">近期安排与活动回顾，点开看详情与回放</p>
+        </div>
+      </div>
+
+      <div class="act-grid" id="activityList"></div>
+
+      <div class="section__foot">
+        <a class="link-more" href="activities.html">
+          全部活动
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 资料 -->
+  <section class="section" id="library">
+    <div class="wrap">
+      <div class="section__head">
+        <div class="section__no">03</div>
+        <div class="section__head-text">
+          <h2 class="section__title">资料</h2>
+          <p class="section__desc">按年级与学科归档的课程资料</p>
+        </div>
+      </div>
+
+      <a class="library-card" href="library.html">
+        <div class="library-card__main">
+          <div>
+            <div class="library-card__badge">Library</div>
+            <h3 class="library-card__title">课程资料，按年级与学科归档</h3>
+            <p class="library-card__desc">
+              课件、复习提纲、历年真题与实验报告模板，按年级段与学科两级归类。
+              资料由学促会整理，仅供院内学习使用。
+            </p>
+          </div>
+          <span class="library-card__cta">
+            进入资料库
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
+          </span>
+        </div>
+
+        <div class="library-card__aside">
+          <p class="aside__label">年级段</p>
+          <div class="chip-row">
+            <span class="chip">大一</span>
+            <span class="chip">大二</span>
+            <span class="chip">大三</span>
+            <span class="chip">大四</span>
+            <span class="chip">研究生</span>
+          </div>
+          <p class="aside__label">学科</p>
+          <div class="chip-row">
+            <span class="chip">药物化学</span>
+            <span class="chip">药物分析</span>
+            <span class="chip">药剂学</span>
+            <span class="chip">药理学</span>
+            <span class="chip chip--ghost">更多</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 04 小帮手 -->
+  <section class="section" id="tools">
+    <div class="wrap">
+      <div class="section__head">
+        <div class="section__no">04</div>
+        <div class="section__head-text">
+          <h2 class="section__title">小帮手</h2>
+          <p class="section__desc">学习工具与自测小程序，持续增加</p>
+        </div>
+      </div>
+
+      <div class="tool-grid" id="toolGrid"></div>
+    </div>
+  </section>
+
+  <!-- 05 加入我们 -->
+  <section class="section" id="join">
+    <div class="wrap">
+      <div class="section__head">
+        <div class="section__no">05</div>
+        <div class="section__head-text">
+          <h2 class="section__title">加入我们</h2>
+          <p class="section__desc">部门分工与报名方式</p>
+        </div>
+      </div>
+
+      <a class="join-strip" href="join.html">
+        <div class="join-strip__text">
+          <div class="join-strip__eyebrow">Recruiting</div>
+          <h3>欢迎加入学促会！</h3>
+          <p>教学、材料、答疑、网宣、美工——五个部门各自做什么、缺什么样的人，都写在里面。</p>
+        </div>
+        <span class="join-strip__cta">
+          看看部门介绍
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h11M9 4l4 4-4 4"/></svg>
+        </span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div id="footPublication"></div>
+      <div id="footContact"></div>
+      <div id="footSocial"></div>
+    </div>
+    <div class="footer__inner">
+      <div class="footer__copy">© 2026 中国药科大学药学院 · 学生学习促进协会</div>
+      <div class="footer__links">
+        <a href="announcements.html">公告</a>
+        <a href="activities.html">活动</a>
+        <a href="library.html">资料库</a>
+        <a href="join.html">加入我们</a>
+        <a href="console.html">内容台</a>
+      </div>
+    </div>
+        <div class="footer__legal" id="footLegal">
+      <!-- 备案号下来后：去掉这行与下面「END」之间那几个标签的注释符号，并填入真实号码。
+           ICP 备案号形如「苏ICP备2026XXXXXX号-1」（同主体多个网站要带 -1 序号，必须链接工信部系统）；
+           公安联网备案在管局通过后 30 日内办理，形如「苏公网安备 3201XXXXXXXX号」。
+      -->
+      <!-- BEGIN-BEIAN
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">苏ICP备2026XXXXXX号-1</a>
+      <a href="https://beian.mps.gov.cn/" target="_blank" rel="noopener noreferrer">苏公网安备 XXXXXXXXXXXX 号</a>
+      END-BEIAN -->
+    </div>
+  </div>
+</footer>
+
+<script src="assets/app.js?v=20261029a"></script>
+</body>
+</html>

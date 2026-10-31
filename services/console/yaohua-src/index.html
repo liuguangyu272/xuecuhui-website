@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#2f6fb0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="药化脑袋">
+<title>药化脑袋 · 药物分子背诵</title>
+<style>
+  :root{
+    --bg:#f2f5f9; --card:#ffffff; --ink:#1c2430; --sub:#5a6572; --line:#e3e8ee;
+    --blue:#2f6fb0; --blue-d:#255c93; --green:#1a7f47; --red:#c0392b;
+    --radius:16px; --shadow:0 2px 10px rgba(30,45,70,.08);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.65 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    min-height:100vh; min-height:100dvh;
+    display:flex; flex-direction:column;
+    touch-action:manipulation; overscroll-behavior:none;
+  }
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:10px;
+    padding:calc(8px + env(safe-area-inset-top)) 14px 8px;
+    background:rgba(242,245,249,.92); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .backbtn{
+    border:1px solid var(--line); background:#fff; color:var(--blue);
+    font-size:15px; font-weight:600; padding:8px 14px; border-radius:10px;
+    cursor:pointer; flex:0 0 auto;
+  }
+  .backbtn:active{transform:scale(.96)}
+  .topinfo{flex:1; text-align:center; color:var(--sub); font-size:14px; font-variant-numeric:tabular-nums}
+  .topspacer{flex:0 0 74px}
+  .topbtn{
+    border:1px solid var(--line); background:#fff; color:var(--red);
+    font-size:14px; font-weight:700; padding:8px 10px; border-radius:10px;
+    cursor:pointer; flex:0 0 auto; display:flex; align-items:center; gap:5px;
+  }
+  .topbtn:active{transform:scale(.96)}
+  .topbtn .badge{
+    background:var(--red); color:#fff; border-radius:9px; padding:0 6px;
+    font-size:12px; min-width:18px; text-align:center; line-height:18px;
+  }
+  .topbtn.empty{color:var(--sub); border-color:var(--line)}
+  .topbtn.empty .badge{background:#b9c2cc}
+  /* 注意：.btn 在本文件后面才声明 color:#fff，同权重会覆盖 .btn-mark。
+     故此处用 .btn.btn-mark 提高权重，避免白字白底（按钮文字不可见）。 */
+  .btn.btn-mark{
+    background:#f6f7f9; color:var(--sub); border:1.5px solid var(--line); flex:1;
+  }
+  .btn.btn-mark:active{background:#eceef1}
+  .btn.btn-mark.done{background:#e6e9ee; color:var(--sub); border-color:var(--line)}
+  .mb-list{width:100%; max-height:46vh; overflow-y:auto; display:flex; flex-direction:column; gap:8px; -webkit-overflow-scrolling:touch}
+  .mb-item{
+    display:flex; align-items:center; gap:10px; background:#fff8f7;
+    border:1px solid #f3d7d3; border-radius:10px; padding:10px 12px;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .mb-item:active{background:#fdeeeb}
+  .mbnote{
+    font-size:12px; line-height:1.4; color:var(--red); text-align:center;
+    margin:0; min-height:0;
+  }
+  .mb-item .nm{flex:1; font-size:15px; font-weight:600; color:#8c2f23}
+  .mb-item .kl{font-size:12px; color:#a07; display:block; font-weight:400}
+  .mb-item .rm{
+    border:none; background:#fff; color:var(--red); border:1px solid #f0c9c3;
+    border-radius:8px; padding:6px 10px; font-size:13px; cursor:pointer;
+  }
+
+  .stage{flex:1; display:flex; flex-direction:column; padding:14px; max-width:560px; width:100%; margin:0 auto}
+  .card{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:26px 20px; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; border:1px solid var(--line);
+  }
+  .label{color:var(--sub); font-size:13px; letter-spacing:.08em}
+  .drugname{font-size:34px; font-weight:800; letter-spacing:.02em; text-align:center}
+  .drugen{color:var(--sub); font-size:16px; text-align:center; font-style:italic}
+  .structwrap{width:100%; max-width:340px; display:flex; justify-content:center}
+  .structwrap svg, .structwrap img{width:100%; height:auto; background:#fff; border-radius:10px}
+  .hint{color:var(--sub); font-size:14px; text-align:center}
+  .answers{display:flex; gap:12px; margin-top:16px}
+  .btn{
+    border:none; border-radius:14px; padding:16px 0; font-size:18px; font-weight:700;
+    cursor:pointer; flex:1; color:#fff; box-shadow:var(--shadow);
+  }
+  .btn:active{transform:scale(.97)}
+  .btn-know{background:var(--green)}
+  .btn-dont{background:var(--red)}
+  .btn-next{background:var(--blue); flex:1.4}
+  .btn-plain{background:#fff; color:var(--blue); border:1px solid var(--blue)}
+  .answerblock{width:100%; display:flex; flex-direction:column; gap:14px; text-align:left}
+  .row{display:flex; gap:10px; align-items:flex-start}
+  .row .k{flex:0 0 68px; color:var(--sub); font-size:14px; padding-top:2px}
+  .row .v{flex:1}
+  .klass{display:inline-block; background:#eef4fb; color:var(--blue-d); border-radius:8px; padding:4px 10px; font-size:14px; font-weight:600}
+  .effect{font-size:15px; line-height:1.7}
+  .home{gap:16px}
+  .home h1{font-size:26px; margin:6px 0 0; text-align:center}
+  .home p.sub{margin:0; color:var(--sub); text-align:center; font-size:14px}
+  .grp-label{width:100%; text-align:left; color:var(--sub); font-size:13px; letter-spacing:.1em; padding-left:4px}
+  .modebtn{
+    width:100%; text-align:left; background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; box-shadow:var(--shadow); cursor:pointer; display:flex; flex-direction:column; gap:4px;
+  }
+  .modebtn:active{transform:scale(.98)}
+  .modebtn .t{font-size:19px; font-weight:800; color:var(--blue-d)}
+  .modebtn .d{font-size:13.5px; color:var(--sub)}
+  .seg{display:flex; background:#e8edf3; border-radius:12px; padding:4px; gap:4px; width:100%; flex-wrap:wrap}
+  .seg button{flex:1 1 30%; border:none; background:transparent; padding:9px 4px; border-radius:9px; font-size:13.5px; color:var(--sub); font-weight:600; cursor:pointer; white-space:nowrap}
+  .seg button.on{background:#fff; color:var(--blue-d); box-shadow:var(--shadow)}
+  .statsline{width:100%; display:flex; justify-content:space-between; color:var(--sub); font-size:13.5px; padding:0 2px}
+  .prog{height:6px; background:#e3e8ee; border-radius:3px; overflow:hidden; width:100%}
+  .prog>div{height:100%; background:var(--blue); transition:width .25s}
+  .done-list{width:100%; max-height:34vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px; -webkit-overflow-scrolling:touch}
+  .done-item{background:#fff7f6; border:1px solid #f3d7d3; color:#8c2f23; border-radius:10px; padding:9px 12px; font-size:14.5px}
+  .footer-note{color:var(--sub); font-size:12px; text-align:center; padding:10px 0 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="backbtn" id="backBtn">← 返回</button>
+  <div class="topinfo" id="topInfo">药化脑袋</div>
+  <button class="topbtn empty" id="mbBtn">错题本 <span class="badge" id="mbCount">0</span></button>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<script src="molecules.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const stage = $("#stage"), topInfo = $("#topInfo"), backBtn = $("#backBtn");
+
+/* localStorage 在无痕模式、沙箱预览、配额已满时会抛异常。
+   原实现 set 不兜底 → 抛错后点击「加入错题本」静默失败。
+   现改为：写入先进内存，落地失败则标记 LS_BLOCKED，界面照常可用并给出提示。 */
+const MEM = {};
+let LS_BLOCKED = false;
+const LS = {
+  get(k, d){
+    try{
+      const v = JSON.parse(localStorage.getItem(k));
+      if (v === null || v === undefined) return (k in MEM) ? MEM[k] : d;
+      return v;
+    }catch(e){ LS_BLOCKED = true; return (k in MEM) ? MEM[k] : d }
+  },
+  set(k, v){
+    MEM[k] = v;
+    try{ localStorage.setItem(k, JSON.stringify(v)) }
+    catch(e){ LS_BLOCKED = true }
+  }
+};
+const K_MASTER = "yh_unknown_master", K_FAM = "yh_unknown_familiar";  // 旧键，仅用于一次性迁移
+const K_MISTAKE = "yh_mistakes";
+
+const GROUPS = {
+  master:   { key:"master",   t:"掌握组 · 看名识结构", d:"给出药物名称 → 回忆结构与药效 → 自评" },
+  familiar: { key:"familiar", t:"熟悉组 · 看结构识名", d:"给出分子结构 → 想出名称与药效 → 自评" },
+};
+
+let S = null;
+
+function shuffle(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] }
+  return a;
+}
+
+function structHTML(m){
+  if (m.img) return `<img src="${m.img}" alt="${m.cn}结构式" onerror="this.outerHTML=this.dataset.f||''" data-f="${(m.svg||'').replace(/"/g,'&quot;')}">`;
+  return m.svg || "";
+}
+
+function mistakeCountIn(group){
+  const ids = new Set(mistakeIds());
+  return MOLECULES.filter(m => ids.has(m.id) && m.group === group).length;
+}
+function migrateLegacy(){
+  const legacy = [...LS.get(K_MASTER, []), ...LS.get(K_FAM, [])];
+  if (!legacy.length) return;
+  const a = mistakeIds();
+  legacy.forEach(id => { if (!a.includes(id)) a.push(id) });
+  LS.set(K_MISTAKE, a);
+  LS.set(K_MASTER, []); LS.set(K_FAM, []);
+}
+
+function mistakeIds(){ return LS.get(K_MISTAKE, []) }
+function hasMistake(id){ return mistakeIds().includes(id) }
+function addMistake(id){
+  const a = mistakeIds();
+  if (!a.includes(id)){ a.push(id); LS.set(K_MISTAKE, a) }
+  updateBadge();
+}
+function removeMistake(id){
+  LS.set(K_MISTAKE, mistakeIds().filter(x => x !== id));
+  updateBadge();
+}
+function updateBadge(){
+  const n = mistakeIds().length;
+  const b = $("#mbBtn"), c = $("#mbCount");
+  if (!b || !c) return;
+  c.textContent = n;
+  b.classList.toggle("empty", n === 0);
+}
+
+/* 「不会的」已并入错题本：不再有独立的按组列表 */
+
+/* ---------- screens ---------- */
+
+function goHome(){
+  S = null;
+  topInfo.textContent = "药化脑袋";
+  const chapIds = [...new Set(MOLECULES.map(m=>m.chapter))].sort();
+  const chapBtns = [`<button class="on" data-ch="all">全部章节</button>`]
+    .concat(chapIds.map(c=>`<button data-ch="${c}">${CHAPTERS[c].split(" · ")[0]}</button>`)).join("");
+
+  const groupBtns = Object.values(GROUPS).map(g=>{
+    const n = MOLECULES.filter(m=>m.group===g.key).length;
+    const u = mistakeCountIn(g.key);
+    return `<button class="modebtn" data-group="${g.key}">
+      <span class="t">${g.t}（${n} 个）</span>
+      <span class="d">${g.d} · 本组错题：${u} 个</span>
+    </button>`;
+  }).join("");
+
+  stage.innerHTML = `
+    <div class="card home">
+      <h1>药化脑袋 🧪</h1>
+      <p class="sub">教材分组 ${MOLECULES.length} 个药物分子 · 按学促会掌握/熟悉标注</p>
+      <div class="grp-label">章节</div>
+      <div class="seg" id="chapSeg">${chapBtns}</div>
+      <div class="grp-label">范围</div>
+      <div class="seg" id="deckSeg">
+        <button class="on" data-deck="all">全部药物</button>
+        <button data-deck="mistakes">只练错题本</button>
+      </div>
+      <div class="grp-label">选择想测试的组</div>
+      ${groupBtns}
+      <div class="footer-note">结构式来自学促会复习资料原图；数据仅供背诵自测</div>
+    </div>`;
+
+  stage.querySelectorAll(".seg").forEach(seg=>{
+    seg.querySelectorAll("button").forEach(b=>{
+      b.onclick = ()=>{
+        seg.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+        b.classList.add("on");
+      };
+    });
+  });
+  stage.querySelectorAll(".modebtn").forEach(b=>{
+    b.onclick = ()=> startSession(b.dataset.group,
+      $("#chapSeg .on").dataset.ch, $("#deckSeg .on").dataset.deck);
+  });
+  updateBadge();
+}
+
+function wrongBook(){
+  topInfo.textContent = "错题本";
+  const ids = mistakeIds();
+  const items = ids.map(id => MOLECULES.find(m => m.id === id)).filter(Boolean);
+  const rows = items.length
+    ? `<div class="mb-list">${items.map(m => `
+        <div class="mb-item" data-id="${m.id}">
+          <span class="nm">${m.cn}<span class="kl">${m.chapterName.split(" · ")[0]} · ${m.klass}</span></span>
+          <button class="rm" data-id="${m.id}">移除</button>
+        </div>`).join("")}</div>`
+    : `<div class="hint">错题本是空的<br>答「不会」会自动进入这里；也可在答案页点「加入错题本」</div>`;
+  stage.innerHTML = `
+    <div class="card home">
+      <h1>错题本</h1>
+      <p class="sub">共 ${items.length} 个 · 在错题本练习中答「会了」会自动移出</p>
+      ${rows}
+      <div class="answers" style="width:100%; flex-wrap:wrap">
+        ${items.length ? `<button class="btn btn-dont" id="mbPractice">只练错题本</button>` : ""}
+        ${items.length ? `<button class="btn btn-plain" id="mbClear">清空</button>` : ""}
+        <button class="btn btn-plain" id="mbHome">回到首页</button>
+      </div>
+    </div>`;
+  stage.querySelectorAll(".mb-item").forEach(el => {
+    el.onclick = ()=>{
+      const m = MOLECULES.find(x => x.id === Number(el.dataset.id));
+      if (m) openMistake(m);
+    };
+  });
+  stage.querySelectorAll(".rm").forEach(b => {
+    b.onclick = (e)=>{ e.stopPropagation(); removeMistake(Number(b.dataset.id)); wrongBook() };
+  });
+  const p = $("#mbPractice");
+  if (p) p.onclick = ()=>{
+    if (!items.length) return;
+    S = { group: "mixed", deck: shuffle(items.slice()), idx: 0, right: 0, wrong: 0, wrongList: [] };
+    showCard();
+  };
+  const c = $("#mbClear");
+  if (c) c.onclick = ()=>{ if (confirm("清空错题本？")){ LS.set(K_MISTAKE, []); updateBadge(); wrongBook() } };
+  $("#mbHome").onclick = goHome;
+}
+
+function startSession(group, chap, deckSel){
+  let deck = MOLECULES.filter(m => m.group === group);
+  if (chap !== "all") deck = deck.filter(m => m.chapter === Number(chap));
+  if (deckSel === "mistakes"){
+    const ids = new Set(mistakeIds());
+    deck = deck.filter(m => ids.has(m.id));
+    if (!deck.length){ alert("该范围暂无错题"); return }
+  }
+  if (!deck.length){ alert("该章节暂无药物"); return }
+  S = { group, deck: shuffle(deck), idx: 0, right: 0, wrong: 0, wrongList: [] };
+  showCard();
+}
+
+function showCard(){
+  const m = S.deck[S.idx];
+  const mode = S.group === "mixed" ? m.group : S.group;
+  // 掌握组：选择前不泄露任何归类信息（章节名也属于归类提示）
+  topInfo.textContent = mode === "master"
+    ? `${S.idx + 1} / ${S.deck.length}`
+    : `${S.idx + 1} / ${S.deck.length} · ${m.chapterName.split(" · ")[0]}`;
+  const prompt = mode === "master"
+    ? `<div class="label">看名称，回忆结构与药效</div>
+       <div class="drugname">${m.cn}</div>
+       <div class="drugen">${m.en}</div>`
+    : `<div class="label">${m.chapterName} · 看结构，想出名称与药效</div>
+       <div class="structwrap">${structHTML(m)}</div>`;
+  stage.innerHTML = `
+    <div class="prog"><div style="width:${(S.idx/S.deck.length)*100}%"></div></div>
+    <div class="card">
+      ${prompt}
+      <div class="answers">
+        <button class="btn btn-know" id="bKnow">会了</button>
+        <button class="btn btn-dont" id="bDont">不会</button>
+      </div>
+    </div>`;
+  $("#bKnow").onclick = ()=> answer(true);
+  $("#bDont").onclick = ()=> answer(false);
+}
+
+function answer(knew){
+  const m = S.deck[S.idx];
+  if (knew){ S.right++; } else { S.wrong++; S.wrongList.push(m); addMistake(m.id); }
+  const masteredOut = knew && S.group === "mixed";
+  if (masteredOut) removeMistake(m.id);
+
+  const mode = S.group === "mixed" ? m.group : S.group;
+  const marked = hasMistake(m.id);
+  const detail = detailHTML(m, mode);
+
+  stage.innerHTML = `
+    <div class="prog"><div style="width:${((S.idx+1)/S.deck.length)*100}%"></div></div>
+    <div class="card">
+      <div class="label" id="ansLabel" data-knew="${knew ? 1 : 0}" style="align-self:flex-start">${
+        knew ? (masteredOut ? "✅ 会了 · 已从错题本移出" : "✅ 会了")
+             : "📌 已并入错题本"}</div>
+      <div class="answerblock">${detail}</div>
+      <div class="answers" style="width:100%">
+        <button class="btn btn-mark${marked ? " done" : ""}" id="bMark" title="${marked ? "点击撤销" : "加入错题本"}">${marked ? "✓ 已在错题本" : "加入错题本"}</button>
+        <button class="btn btn-next" id="bNext">下一个 →</button>
+      </div>
+      <p class="mbnote" id="mbNote">${LS_BLOCKED ? "⚠ 本机存储不可用，记录仅在当前页面有效" : ""}</p>
+    </div>`;
+  $("#bNext").onclick = next;
+  bindMark(m, $("#bMark"));
+}
+
+/* 界面2 的答案详情（答题页与错题本跳转共用） */
+function detailHTML(m, mode){
+  return mode === "master"
+    ? `<div class="row"><div class="k">结构式</div><div class="v structwrap">${structHTML(m)}</div></div>
+       <div class="row"><div class="k">药效</div><div class="v effect">${m.effect}</div></div>
+       <div class="row"><div class="k">归类</div><div class="v"><span class="klass">${m.klass}</span></div></div>`
+    : `<div class="row"><div class="k">名称</div><div class="v"><span style="font-size:26px;font-weight:800">${m.cn}</span> <span class="drugen">${m.en}</span></div></div>
+       <div class="row"><div class="k">结构式</div><div class="v structwrap">${structHTML(m)}</div></div>
+       <div class="row"><div class="k">药效</div><div class="v effect">${m.effect}</div></div>
+       <div class="row"><div class="k">归类</div><div class="v"><span class="klass">${m.klass}</span></div></div>`;
+}
+
+/* 「加入错题本 / ✓ 已在错题本」是同一按钮的开关：点一下加入，再点一下撤销 */
+function bindMark(m, mb){
+  if (!mb) return;
+  mb.onclick = ()=>{
+    const on = !hasMistake(m.id);
+    if (on) addMistake(m.id); else removeMistake(m.id);
+    // 写入后回读校验：状态必须与点击一致，否则强制按预期纠正
+    if (hasMistake(m.id) !== on){
+      if (on) addMistake(m.id); else removeMistake(m.id);
+    }
+    mb.classList.toggle("done", on);
+    mb.textContent = on ? "✓ 已在错题本" : "加入错题本";
+    mb.title = on ? "点击撤销" : "加入错题本";
+    const al = $("#ansLabel");
+    if (al && al.dataset.knew === "0")
+      al.textContent = on ? "📌 已并入错题本" : "📌 未加入错题本";
+    const note = $("#mbNote");
+    if (note) note.textContent = LS_BLOCKED ? "⚠ 本机存储不可用，记录仅在当前页面有效" : "";
+    updateBadge();
+  };
+}
+
+/* 从错题本点条目，直接进入该药的界面2 */
+function openMistake(m){
+  topInfo.textContent = "错题本 · " + m.cn;
+  const marked = hasMistake(m.id);
+  stage.innerHTML = `
+    <div class="card">
+      <div class="label" style="align-self:flex-start">📌 错题回顾 · ${m.group === "master" ? "掌握组" : "熟悉组"}</div>
+      <div class="answerblock">${detailHTML(m, m.group)}</div>
+      <div class="answers" style="width:100%">
+        <button class="btn btn-mark${marked ? " done" : ""}" id="bMark" title="${marked ? "点击撤销" : "加入错题本"}">${marked ? "✓ 已在错题本" : "加入错题本"}</button>
+        <button class="btn btn-next" id="bBack">返回错题本</button>
+      </div>
+      <p class="mbnote" id="mbNote">${LS_BLOCKED ? "⚠ 本机存储不可用，记录仅在当前页面有效" : ""}</p>
+    </div>`;
+  bindMark(m, $("#bMark"));
+  $("#bBack").onclick = wrongBook;
+}
+
+function next(){
+  S.idx++;
+  if (S.idx >= S.deck.length) return finish();
+  showCard();
+}
+
+function finish(){
+  topInfo.textContent = "本轮完成";
+  const list = S.wrongList.length
+    ? `<div class="done-list">${S.wrongList.map(m=>`<div class="done-item">📌 ${m.cn} <span style="color:#a07">${m.klass}</span></div>`).join("")}</div>`
+    : `<div class="hint">🎉 全对，本轮无错题</div>`;
+  stage.innerHTML = `
+    <div class="card home">
+      <h1>完成</h1>
+      <div class="statsline"><span>总题数</span><b>${S.deck.length}</b></div>
+      <div class="statsline"><span>✅ 会了</span><b style="color:var(--green)">${S.right}</b></div>
+      <div class="statsline"><span>📌 不会</span><b style="color:var(--red)">${S.wrong}</b></div>
+      <div class="prog"><div style="width:${(S.right/S.deck.length)*100}%"></div></div>
+      ${list}
+      <div class="answers" style="width:100%">
+        ${S.wrongList.length ? `<button class="btn btn-dont" id="bRetry">重练本轮错题</button>` : ""}
+        <button class="btn btn-plain" id="bHome">回到首页</button>
+      </div>
+    </div>`;
+  $("#bHome").onclick = goHome;
+  const r = $("#bRetry");
+  if (r) r.onclick = ()=>{
+    S.deck = shuffle(S.wrongList.slice());
+    S.idx = 0; S.right = 0; S.wrong = 0; S.wrongList = [];
+    showCard();
+  };
+}
+
+const mbBtn = $("#mbBtn");
+if (mbBtn) mbBtn.onclick = ()=>{
+  if (S && !confirm("退出本次练习，进入错题本？")) return;
+  S = null;
+  wrongBook();
+};
+backBtn.onclick = ()=>{
+  if (S){ if (confirm("退出本次练习，回到首页？")) goHome(); }
+  else goHome();
+};
+document.addEventListener("keydown", e=>{
+  if (e.key === "ArrowRight" && $("#bNext")) $("#bNext").click();
+});
+
+migrateLegacy();
+goHome();
+
+/* PWA：仅在通过 http(s) 访问时注册（本地 file:// 打开时不注册，避免报错） */
+if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f6f9">
+<title>脑袋内容台 · 药分 / 药化</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#fff; --ink:#1b2430; --sub:#5d6773; --line:#e4e9ef;
+    --blue:#2f6fb0; --blue-d:#245a92; --green:#177a4a; --red:#c0392b; --amber:#a8630a;
+    --teal:#0f7a6c; --purple:#6b4ba8; --indigo:#3d4fa8;
+    --r:14px; --sh:0 2px 10px rgba(28,40,64,.07);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    min-height:100vh; padding-bottom:40px;
+  }
+  button{font-family:inherit}
+  /* ---------- header ---------- */
+  .head{
+    position:sticky; top:0; z-index:20; background:rgba(244,246,249,.95);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
+    padding:10px 16px 0;
+  }
+  .headrow{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .brand{font-size:16px; font-weight:800; letter-spacing:.01em; margin-right:auto; display:flex; align-items:center; gap:7px}
+  .brand span.dot{width:8px; height:8px; border-radius:50%; background:var(--blue)}
+  .goto{display:flex; gap:6px; flex-wrap:wrap}
+  .goto a{
+    font-size:12px; font-weight:700; color:var(--blue-d); text-decoration:none;
+    border:1px solid var(--line); background:#fff; padding:5px 9px; border-radius:8px;
+  }
+  .goto a:hover{border-color:#c8d6e6}
+  .tabs{display:flex; gap:4px; margin-top:10px}
+  .tabs button{
+    border:none; background:transparent; padding:9px 13px 10px; font-size:13.5px; font-weight:700;
+    color:var(--sub); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tabs button.on{color:var(--blue-d); border-bottom-color:var(--blue)}
+  .tabs button .n{font-weight:800; color:#9aa6b4; margin-left:3px; font-size:12px}
+  .tabs button.on .n{color:var(--blue)}
+  /* ---------- layout ---------- */
+  .wrap{max-width:1180px; margin:0 auto; padding:14px 16px 0}
+  .cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,420px); gap:14px; align-items:start}
+  @media (max-width:900px){ .cols{grid-template-columns:1fr} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--sh); padding:14px}
+  .card h2{margin:0 0 10px; font-size:13px; letter-spacing:.06em; color:var(--sub); font-weight:800}
+  .card.sticky{position:sticky; top:112px}
+  @media (max-width:900px){ .card.sticky{position:static} }
+  /* ---------- form ---------- */
+  .seg{display:flex; background:#e8edf3; border-radius:10px; padding:3px; gap:3px; flex-wrap:wrap}
+  .seg button{
+    flex:1 1 auto; border:none; background:transparent; padding:7px 6px; border-radius:8px;
+    font-size:12.5px; font-weight:700; color:var(--sub); cursor:pointer; white-space:nowrap;
+  }
+  .seg button.on{background:#fff; color:var(--blue-d); box-shadow:var(--sh)}
+  .fld{margin-top:12px}
+  .fld > label{display:block; font-size:11.5px; font-weight:800; letter-spacing:.05em; color:var(--sub); margin-bottom:5px}
+  .fld .tip{font-weight:600; color:#98a3b0; letter-spacing:0}
+  input[type=text], select, textarea{
+    width:100%; border:1px solid var(--line); border-radius:9px; padding:8px 10px;
+    font:inherit; font-size:13.5px; color:var(--ink); background:#fff; outline:none;
+  }
+  input[type=text]:focus, select:focus, textarea:focus{border-color:#a9c6e4; box-shadow:0 0 0 3px rgba(47,111,176,.09)}
+  textarea{resize:vertical; min-height:64px; line-height:1.6}
+  textarea.tall{min-height:96px}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  @media (max-width:520px){ .row2{grid-template-columns:1fr} }
+  .optrow{display:flex; align-items:center; gap:7px; margin-bottom:6px}
+  .optrow .pick{
+    flex:0 0 auto; width:26px; height:26px; border-radius:8px; border:1.5px solid #ccd6e2;
+    background:#fff; color:#8b97a5; font-size:12px; font-weight:800; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .optrow .pick.on{background:var(--blue); border-color:var(--blue); color:#fff}
+  .optrow .pick.sq{border-radius:6px}
+  .optrow input{flex:1; min-width:0}
+  .optrow .del{
+    flex:0 0 auto; border:none; background:none; color:#b9c2cc; font-size:16px; cursor:pointer;
+    padding:2px 4px; line-height:1;
+  }
+  .optrow .del:hover{color:var(--red)}
+  .addopt{
+    border:1px dashed #c9d4e0; background:#fbfcfe; color:var(--blue-d); border-radius:9px;
+    padding:7px; width:100%; font-size:12.5px; font-weight:700; cursor:pointer; margin-top:2px;
+  }
+  .btns{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap}
+  .btn{
+    border:none; border-radius:10px; padding:10px 16px; font-size:13.5px; font-weight:800;
+    cursor:pointer; color:#fff; background:var(--blue); box-shadow:var(--sh);
+  }
+  .btn:active{transform:scale(.99)}
+  .btn.ghost{background:#fff; color:var(--blue-d); border:1.5px solid #d3dde8; box-shadow:none}
+  .btn.danger{background:#fff; color:var(--red); border:1.5px solid #f0c9c3; box-shadow:none}
+  .btn:disabled{opacity:.5; cursor:default}
+  .msg{font-size:12.5px; margin-top:9px; min-height:18px; font-weight:700}
+  .msg.ok{color:var(--green)} .msg.err{color:var(--red)}
+  /* ---------- preview ---------- */
+  .pv{border:1px dashed #d8e0e9; border-radius:12px; padding:12px; background:#fbfcfe; margin-top:12px}
+  .pvhead{font-size:11px; font-weight:800; letter-spacing:.08em; color:#9aa6b4; margin-bottom:9px}
+  .pill{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; background:#eef3f9; color:var(--blue-d); margin-right:5px}
+  .pill.a{background:#fbf1e2; color:var(--amber)}
+  .pv .qt{font-size:14.5px; font-weight:700; line-height:1.65; white-space:pre-wrap; margin:0 0 10px}
+  .pv .po{display:flex; gap:8px; align-items:flex-start; border:1.5px solid var(--line); border-radius:10px; padding:9px 10px; background:#fff; margin-bottom:7px; font-size:13.5px}
+  .pv .po .k{flex:0 0 22px; height:22px; border-radius:7px; background:#eef2f7; color:var(--blue-d); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center}
+  .pv .po.sq .k{border-radius:5px}
+  .pv .po.ok{border-color:#9ed4b8; background:#f1faf5}
+  .pv .po.ok .k{background:var(--green); color:#fff}
+  .pv .ansbox{background:#f8fafc; border:1px solid #e6ecf3; border-radius:10px; padding:10px; font-size:13px; line-height:1.7; white-space:pre-wrap; margin-top:8px}
+  .pv .lbl{font-size:10.5px; font-weight:800; letter-spacing:.1em; color:var(--blue-d); margin-bottom:4px}
+  .pv .kn{display:flex; gap:8px; margin-top:4px}
+  .pv .kn span{flex:1; text-align:center; border-radius:10px; padding:9px; color:#fff; font-weight:800; font-size:13.5px}
+  .pv .kn .g{background:var(--green)} .pv .kn .r{background:var(--red)}
+  /* ---------- list ---------- */
+  .tools{display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap}
+  .tools select, .tools input{flex:1 1 110px; min-width:0; padding:6px 8px; font-size:12.5px; border-radius:8px}
+  .tools input{flex:2 1 150px}
+  .cnt{font-size:11.5px; color:#98a3b0; margin-bottom:8px}
+  .list{display:flex; flex-direction:column; gap:6px; max-height:min(62vh,660px); overflow-y:auto; padding-right:2px}
+  .item{
+    display:flex; gap:8px; align-items:flex-start; border:1px solid var(--line); border-radius:10px;
+    padding:8px 10px; background:#fff; cursor:pointer;
+  }
+  .item:hover{border-color:#c8d6e6; background:#fbfdff}
+  .item.on{border-color:var(--blue); background:#f4f9ff}
+  .item.flash{border-color:var(--green); background:#f2fbf5; box-shadow:0 0 0 2px rgba(22,163,74,.15)}
+  .item .body{flex:1; min-width:0}
+  .item .t{font-size:12.5px; line-height:1.5; color:#3c4854; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .item .m{font-size:10.5px; color:#9aa6b4; margin-top:3px; display:flex; gap:6px; flex-wrap:wrap}
+  .tag{font-size:10px; font-weight:800; padding:1px 6px; border-radius:6px; background:#eef3f9; color:var(--blue-d)}
+  .tag.single{background:#eaf1f9; color:var(--blue-d)}
+  .tag.multi{background:#eceefb; color:var(--indigo)}
+  .tag.blank{background:#e7f5f1; color:var(--teal)}
+  .tag.qa{background:#f1ecfa; color:var(--purple)}
+  .tag.calc{background:#fbf1e2; color:var(--amber)}
+  .pager{display:flex; gap:6px; align-items:center; justify-content:center; margin-top:10px; font-size:12px; color:var(--sub)}
+  .pager button{border:1px solid var(--line); background:#fff; border-radius:7px; padding:4px 10px; cursor:pointer; font-size:12px; font-weight:700; color:var(--blue-d)}
+  .pager button:disabled{opacity:.4; cursor:default}
+  /* ---------- export ---------- */
+  .exp{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  @media (max-width:760px){ .exp{grid-template-columns:1fr} }
+  .exp .row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #f0f3f7}
+  .exp .row:last-child{border-bottom:none}
+  .exp .row .nm{flex:1; font-size:13px}
+  .exp .row .nm b{font-weight:800}
+  .exp .row .nm i{font-style:normal; color:#98a3b0; font-size:11.5px; display:block}
+  .note{background:#fbfcfe; border:1px solid var(--line); border-radius:10px; padding:11px; font-size:12.5px; line-height:1.75; color:var(--sub)}
+  .note b{color:#3c4854}
+  .note code{background:#eef3f9; border-radius:4px; padding:1px 5px; font-size:11.5px; color:var(--blue-d)}
+  /* ---------- 一键更新 / 版本留档 ---------- */
+  .tagline{font-size:11.5px; font-weight:700; color:var(--sub); margin-left:8px}
+  .tagline.ok{color:var(--green)} .tagline.off{color:var(--amber)}
+  .btn.big{font-size:13.5px; padding:11px 18px}
+  .btn:disabled{opacity:.5; cursor:not-allowed}
+  .vlist{margin-top:10px; max-height:320px; overflow:auto}
+  .vrow{display:flex; align-items:center; gap:10px; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:#fff; margin-bottom:7px}
+  .vrow .vi{flex:1; min-width:0}
+  .vrow .vt{font-size:12.5px; font-weight:700; color:#3c4854}
+  .vrow .vt code{background:#eef3f9; border-radius:4px; padding:1px 5px; font-size:11px; color:var(--blue-d); font-weight:600}
+  .vrow .vd{font-size:11.5px; color:#8b96a3; margin-top:2px}
+  .vrow .btn{padding:5px 11px; font-size:11.5px}
+  pre.log{margin:10px 0 0; max-height:230px; overflow:auto; background:#0f1720; color:#cfe3f7; border-radius:10px; padding:10px; font:11.5px/1.55 ui-monospace,Menlo,Consolas,monospace; white-space:pre-wrap; word-break:break-all}
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="headrow">
+    <div class="brand"><span class="dot"></span>脑袋内容台<span class="tagline" id="srvTag">检测本地服务…</span></div>
+    <div class="goto" id="goto"></div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-tab="pharm" class="on">药分脑袋题目<span class="n" id="tnP">0</span></button>
+    <button data-tab="yaoji">药剂脑袋题目<span class="n" id="tnJ">0</span></button>
+    <button data-tab="card">药化脑袋卡片<span class="n" id="tnC">0</span></button>
+    <button data-tab="exp">导出与同步</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- ================= 药分 ================= -->
+  <div id="tabPharm" class="cols">
+    <div class="card">
+      <h2>录入 / 编辑题目</h2>
+      <div class="seg" id="typeSeg">
+        <button data-type="single" class="on">单选</button>
+        <button data-type="multi">多选</button>
+        <button data-type="blank">填空</button>
+        <button data-type="qa">问答</button>
+        <button data-type="calc">计算</button>
+        <button data-type="term">名词</button>
+        <button data-type="rx">处方</button>
+      </div>
+
+      <div class="fld">
+        <label>章节 <span class="tip">（按教学日历）</span></label>
+        <select id="pChap"></select>
+      </div>
+
+      <div class="fld">
+        <label>题干 <span class="tip">（填空用 ＿＿ 表示空位）</span></label>
+        <textarea id="pQ" class="tall" placeholder="例如：药物中的杂质限量是指（　）。"></textarea>
+      </div>
+
+      <div class="fld" id="optBox">
+        <label>选项 <span class="tip">（点亮左侧字母=正确答案）</span></label>
+        <div id="optRows"></div>
+        <button class="addopt" id="addOpt">+ 添加选项</button>
+      </div>
+
+      <div class="fld" id="ansBox">
+        <label>参考答案 <span class="tip">（计算题请写清步骤与结果）</span></label>
+        <textarea id="pA" class="tall"></textarea>
+      </div>
+
+      <div class="fld">
+        <label>解析 <span class="tip">（选填）</span></label>
+        <textarea id="pExp"></textarea>
+      </div>
+
+      <div class="row2 fld" style="margin-top:12px">
+        <div>
+          <label>原题号 <span class="tip">（选填）</span></label>
+          <input type="text" id="pNo" placeholder="如 38">
+        </div>
+        <div>
+          <label>当前记录</label>
+          <input type="text" id="pId" placeholder="新题（保存时自动编号）" readonly style="background:#f7f9fb">
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn" id="pSave">保存到题库</button>
+        <button class="btn ghost" id="pClear">清空表单</button>
+        <button class="btn danger hidden" id="pDel">删除这条</button>
+      </div>
+      <div class="msg" id="pMsg"></div>
+
+      <div class="pv">
+        <div class="pvhead">界面一预览</div>
+        <div id="pvBody"></div>
+      </div>
+    </div>
+
+    <div class="card sticky">
+      <h2>题库列表</h2>
+      <div class="tools">
+        <select id="fType">
+          <option value="all">全部题型</option>
+          <option value="single">单选</option>
+          <option value="multi">多选</option>
+          <option value="blank">填空</option>
+          <option value="qa">问答</option>
+          <option value="calc">计算</option>
+          <option value="term">名词</option>
+          <option value="rx">处方</option>
+        </select>
+        <select id="fChap"><option value="all">全部章节</option></select>
+      </div>
+      <div class="tools">
+        <input type="text" id="fQ" placeholder="搜索题干 / 题号 / 答案">
+      </div>
+      <div class="cnt" id="listCnt"></div>
+      <div class="list" id="list"></div>
+      <div class="pager">
+        <button id="prevPg">上一页</button>
+        <span id="pgInfo">1 / 1</span>
+        <button id="nextPg">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 药化 ================= -->
+  <div id="tabCard" class="cols hidden">
+    <div class="card">
+      <h2>录入 / 编辑分子卡片</h2>
+      <div class="row2">
+        <div class="fld" style="margin-top:0">
+          <label>中文名</label>
+          <input type="text" id="cCn" placeholder="如 盐酸哌替啶">
+        </div>
+        <div class="fld" style="margin-top:0">
+          <label>英文名</label>
+          <input type="text" id="cEn" placeholder="如 Pethidine">
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>分组</label>
+        <div class="seg" id="grpSeg">
+          <button data-group="master" class="on">掌握组（看名识结构）</button>
+          <button data-group="familiar">熟悉组（看结构识名）</button>
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>章节</label>
+        <select id="cChap"></select>
+      </div>
+
+      <div class="fld">
+        <label>分类 <span class="tip">（如 镇痛药 · 合成阿片类-苯基哌啶类）</span></label>
+        <input type="text" id="cKlass">
+      </div>
+
+      <div class="fld">
+        <label>药理作用</label>
+        <textarea id="cEffect" class="tall" placeholder="受体/机制；主要用途；特点"></textarea>
+      </div>
+
+      <div class="fld">
+        <label>SMILES <span class="tip">（用于生成结构式，必填）</span></label>
+        <input type="text" id="cSmi" placeholder="CCOC(=O)C1(CCN(CC1)C)C2=CC=CC=C2" style="font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px">
+      </div>
+
+      <div class="row2 fld">
+        <div>
+          <label>当前记录</label>
+          <input type="text" id="cId" readonly style="background:#f7f9fb" placeholder="新卡片">
+        </div>
+        <div>
+          <label>结构图</label>
+          <input type="text" id="cImg" readonly style="background:#f7f9fb" placeholder="导出后由脚本生成">
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn" id="cSave">保存到卡片库</button>
+        <button class="btn ghost" id="cClear">清空表单</button>
+        <button class="btn danger hidden" id="cDel">删除这条</button>
+      </div>
+      <div class="msg" id="cMsg"></div>
+
+      <div class="pv">
+        <div class="pvhead">卡片预览</div>
+        <div id="pvCard"></div>
+      </div>
+    </div>
+
+    <div class="card sticky">
+      <h2>卡片列表</h2>
+      <div class="tools">
+        <select id="gFilter">
+          <option value="all">全部分组</option>
+          <option value="master">掌握组</option>
+          <option value="familiar">熟悉组</option>
+        </select>
+        <select id="cFilter"><option value="all">全部章节</option></select>
+      </div>
+      <div class="tools">
+        <input type="text" id="cQ" placeholder="搜索药名 / 分类 / 作用">
+      </div>
+      <div class="cnt" id="cardCnt"></div>
+      <div class="list" id="cardList"></div>
+    </div>
+  </div>
+
+  <!-- ================= 导出 ================= -->
+  <div id="tabExp" class="hidden">
+    <div class="card">
+      <h2>一键导出并更新 <span class="tagline" id="pubTag">—</span></h2>
+      <div class="note" id="pubHint">
+        把当前题库和卡片直接写进 <code>项目2药分脑袋\data_*.js</code> 与 <code>项目1药化脑袋\molecules.js</code>：
+        写之前自动存档、写完自动校验，校验不过就自动还原。药化卡片会自动渲染结构图。
+      </div>
+      <div class="tools" style="margin-top:10px">
+        <input type="text" id="relNote" placeholder="这次改了什么（选填，会写进版本备注）">
+      </div>
+      <div class="btns">
+        <button class="btn big" id="btnPublish">一键导出并更新</button>
+        <button class="btn ghost" id="btnSnap">只存一版（不更新）</button>
+        <button class="btn ghost" id="btnVers">刷新版本列表</button>
+      </div>
+      <div class="msg" id="pubMsg"></div>
+      <pre class="log hidden" id="pubLog"></pre>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2>版本留档 <span class="tagline" id="verCnt"></span></h2>
+      <div class="note">
+        每次更新都会自动存一份完整快照（4 个 <code>data_*.js</code> + <code>molecules.js</code> + <code>content_data.js</code>），
+        放在 <code>_versions\</code> 里。点「回滚」可把 6 个文件恢复到那一刻；回滚本身也会留档，退错了还能再退回来。
+      </div>
+      <div class="vlist" id="verList"></div>
+    </div>
+
+    <div class="exp" style="margin-top:12px">
+      <div class="card">
+        <h2>药分脑袋 · 题目数据（离线兜底）</h2>
+        <div id="expPharm"></div>
+        <div class="btns">
+          <button class="btn" id="dlAll">下载全部 4 个文件</button>
+          <button class="btn ghost" id="dlJson">导出 JSON</button>
+        </div>
+        <div class="msg" id="expMsg"></div>
+      </div>
+      <div class="card">
+        <h2>药化脑袋 · 卡片数据（离线兜底）</h2>
+        <div id="expCard"></div>
+        <div class="btns">
+          <button class="btn" id="dlCardNew">导出新增卡片 JSON</button>
+          <button class="btn ghost" id="dlCardAll">导出全部卡片 JSON</button>
+        </div>
+        <div class="note" style="margin-top:10px">
+          没有本地服务时用这条路：导出 JSON，然后在内容台文件夹跑
+          <code>python merge_cards.py 新增卡片.json --backup</code>。
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2>怎么用</h2>
+      <div class="note">
+        <b>0. 启动</b>：双击 <code>启动内容台.cmd</code>，浏览器会自动打开 http://127.0.0.1:8788/（关掉黑窗口就停服务）。<br>
+        <b>1. 录入</b>：在「药分脑袋题目」里选章节和题型，填题干、选项/答案，右侧预览没问题就点「保存到题库」。<br>
+        <b>2. 改老题</b>：右侧列表搜出来点一下，右侧会填回表单，改完再保存覆盖。<br>
+        <b>3. 一键更新</b>：本页最上面那个按钮。写完会告诉你新增了什么、存到哪个版本目录。<br>
+        <b>4. 回滚</b>：下面「版本留档」里对着任意一版点「回滚」。<br>
+        <b>5. 本地草稿</b>：录入时改动先存浏览器，点「一键更新」才会真正落盘；换设备或清缓存前记得先更新一次。
+      </div>
+      <div class="btns">
+        <button class="btn danger" id="resetAll">恢复初始数据（清空我的改动）</button>
+      </div>
+      <div class="msg" id="resetMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script src="content_data.js"></script>
+<script>
+const INIT = window.CT_INIT;
+const PHARM_KEYS_YF = "ct_pharm_v1", PHARM_KEYS_YJ = "ct_yaoji_v1", CARD_KEYS = "ct_cards_v1";
+let PHARM_KEYS = PHARM_KEYS_YF;
+
+const TYPES = {
+  single:{name:"单选题", cls:"single", letter:true},
+  multi: {name:"多选题", cls:"multi",  letter:true},
+  blank: {name:"填空题", cls:"blank",  letter:false},
+  qa:    {name:"问答题", cls:"qa",     letter:false},
+  calc:  {name:"计算题", cls:"calc",   letter:false},
+  term:  {name:"名词解释", cls:"term", letter:false},
+  rx:    {name:"处方分析", cls:"rx",   letter:false},
+};
+const LETTER = ["A","B","C","D","E","F"];
+const PREFIX = { single:"c", multi:"c", blank:"b", qa:"q", calc:"n" };
+
+/* ---------- 状态 ---------- */
+function load(key, init){ try{ const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : init }catch(e){ return init } }
+function save(key, v){ try{ localStorage.setItem(key, JSON.stringify(v)) }catch(e){} }
+
+let SUBJ = "yf";
+const PHARM_YF = load(PHARM_KEYS_YF, INIT.pharm.map(x => Object.assign({}, x)));
+const PHARM_YJ = load(PHARM_KEYS_YJ, (INIT.yaoji || []).map(x => Object.assign({}, x)));
+let PHARM = PHARM_YF;
+let CARDS = load(CARD_KEYS, INIT.cards.map(x => Object.assign({}, x)));
+const CHAPS_YF = INIT.chaps, CHAPS_YJ = INIT.chapsYj || [], MCHAPS = INIT.mchaps;
+let CHAPS = CHAPS_YF;
+
+const F = { id:null, type:"single", chap:CHAPS[0].id, q:"", opts:["","","",""], ans:[], a:"", exp:"", no:"" };
+const C = { id:null, cn:"", en:"", group:"master", chapter:1, klass:"", effect:"", smi:"" };
+const L = { type:"all", chap:"all", q:"", page:0, size:15 };
+let flashId = null;   // 刚存进去的条目：列表里高亮一下，方便确认没录错
+
+/* ---------- 工具 ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const chapOf = id => CHAPS.find(c => c.id === id) || {no:0, name:"未分类", short:"未分类", wk:"—"};
+const chapName = id => { const c = chapOf(id); return c.no ? `第${c.no}章 ${c.short}` : c.short };
+const chapFull = id => { const c = chapOf(id); return c.no ? `第${c.no}章 ${c.name}` : c.name };
+
+function nextId(type){
+  const p = PREFIX[type];
+  const nums = PHARM.filter(x => x.id && x.id[0] === p).map(x => parseInt(x.id.slice(1), 10)).filter(n => !isNaN(n));
+  return p + (Math.max(0, ...nums) + 1);
+}
+function nextCardId(){ return Math.max(0, ...CARDS.map(c => Number(c.id) || 0)) + 1 }
+
+/* ---------- 顶栏链接 ---------- */
+const LINKS_KEY = "ct_links_v1";
+const DEF_LINKS = { pharm:"https://pharm-analysis-quiz.app.workbuddy.host/?sharecode=HDK7O6W2DC", card:"" };
+const EXTRA_KEY = "ct_extra_brains";
+const BRAINS = [
+  { name: "药化脑袋", url: "../yaohua/" },
+  { name: "药分脑袋", url: "../yaofen/" },
+  { name: "药剂脑袋", url: "../yaoji/" },
+];
+function renderGoto(){
+  let extra = [];
+  try { extra = JSON.parse(localStorage.getItem(EXTRA_KEY)) || [] } catch(e){}
+  $("#goto").innerHTML =
+    BRAINS.map(b => `<a href="${b.url}" target="_blank" rel="noopener">↗ ${b.name}</a>`).join("") +
+    extra.map(b => `<a href="${esc(b.url)}" target="_blank" rel="noopener">↗ ${esc(b.name)}</a>`).join("") +
+    `<a href="#" id="addBrain">＋ 新增脑袋</a>`;
+  $("#addBrain").onclick = e => {
+    e.preventDefault();
+    const name = (prompt("新脑袋的名称（例如：药理脑袋）：", "") || "").trim();
+    if (!name) return;
+    const url = (prompt("它的访问路径（例如：../yaoli/）：", "../") || "").trim();
+    if (!url) return;
+    extra.push({ name, url });
+    localStorage.setItem(EXTRA_KEY, JSON.stringify(extra));
+    renderGoto();
+  };
+}
+
+/* ---------- tab ---------- */
+function switchSubject(s){
+  SUBJ = s;
+  if (s === "yj"){ PHARM = PHARM_YJ; CHAPS = CHAPS_YJ; GROUPS = GROUPS_YJ; PHARM_KEYS = PHARM_KEYS_YJ; }
+  else { PHARM = PHARM_YF; CHAPS = CHAPS_YF; GROUPS = GROUPS_YF; PHARM_KEYS = PHARM_KEYS_YF; }
+  // 筛选器的章节下拉必须跟着换，否则会显示上一个科目的章节
+  try {
+    $("#fChap").innerHTML = chapOptions("all", true);
+    L.chap = "all"; L.page = 0;
+    $("#pChap").innerHTML = chapOptions("", false);
+  } catch(e){ console.warn(e) }
+}
+function showTab(t){
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  const isQ = (t === "pharm" || t === "yaoji");
+  if (isQ) switchSubject(t === "yaoji" ? "yj" : "yf");
+  $("#tabPharm").classList.toggle("hidden", !isQ);
+  $("#tabCard").classList.toggle("hidden", t !== "card");
+  $("#tabExp").classList.toggle("hidden", t !== "exp");
+  if (t === "exp") renderExp();
+  try{ renderGoto(); renderList(); renderCounts(); }catch(e){ console.warn(e) }
+  try{ window.scrollTo({ top: 0 }) }catch(e){}
+}
+
+/* ---------- 药分表单 ---------- */
+function chapOptions(sel, withAll){
+  return (withAll ? `<option value="all">全部章节</option>` : "") +
+    CHAPS.map(c => `<option value="${c.id}"${c.id === sel ? " selected" : ""}>${esc((c.no ? `第${c.no}章 ` : "") + c.btn + (c.wk !== "—" ? `（周${c.wk}）` : "（教材外）"))}</option>`).join("");
+}
+function renderOptRows(){
+  const isChoice = F.type === "single" || F.type === "multi";
+  $("#optBox").classList.toggle("hidden", !isChoice);
+  $("#ansBox").classList.toggle("hidden", isChoice);
+  if (!isChoice) return;
+  while (F.opts.length < 2) F.opts.push("");
+  $("#optRows").innerHTML = F.opts.map((o, i) => {
+    const on = F.ans.includes(i);
+    return `<div class="optrow">
+      <button class="pick${F.type === "multi" ? " sq" : ""}${on ? " on" : ""}" data-i="${i}" title="标为正确答案">${LETTER[i]}</button>
+      <input type="text" data-i="${i}" value="${esc(o)}" placeholder="选项 ${LETTER[i]}">
+      <button class="del" data-del="${i}" title="删除">×</button>
+    </div>`;
+  }).join("");
+
+  $("#optRows").querySelectorAll(".pick").forEach(b => {
+    b.onclick = () => {
+      const i = Number(b.dataset.i);
+      if (F.type === "single") F.ans = [i];
+      else F.ans = F.ans.includes(i) ? F.ans.filter(x => x !== i) : F.ans.concat(i).sort((a, b) => a - b);
+      renderOptRows(); renderPreview();
+    };
+  });
+  $("#optRows").querySelectorAll("input").forEach(inp => {
+    inp.oninput = () => { F.opts[Number(inp.dataset.i)] = inp.value; renderPreview() };
+  });
+  $("#optRows").querySelectorAll(".del").forEach(b => {
+    b.onclick = () => {
+      if (F.opts.length <= 2) return;
+      const i = Number(b.dataset.del);
+      F.opts.splice(i, 1);
+      F.ans = F.ans.filter(x => x !== i).map(x => x > i ? x - 1 : x);
+      renderOptRows(); renderPreview();
+    };
+  });
+}
+
+function renderPreview(){
+  const isChoice = F.type === "single" || F.type === "multi";
+  const chap = chapName(F.chap);
+  let body = `<div><span class="pill">${TYPES[F.type].name}</span><span class="pill a">${esc(chap)}</span></div>`;
+  body += `<p class="qt">${esc(F.q) || '<span style="color:#b9c2cc">（题干）</span>'}</p>`;
+  if (isChoice){
+    body += F.opts.map((o, i) => {
+      const on = F.ans.includes(i);
+      return `<div class="po${F.type === "multi" ? " sq" : ""}${on ? " ok" : ""}"><span class="k">${LETTER[i]}</span><span>${esc(o) || `<span style="color:#c6cfda">选项 ${LETTER[i]}</span>`}</span></div>`;
+    }).join("");
+    body += `<div class="lbl" style="margin-top:8px">正确答案：${F.ans.length ? F.ans.map(i => LETTER[i]).join("、") : "（未选）"}</div>`;
+    if (F.exp) body += `<div class="ansbox"><div class="lbl">解析</div>${esc(F.exp)}</div>`;
+  } else {
+    body += `<div class="kn"><span class="g">会了</span><span class="r">不会</span></div>`;
+    if (F.a || F.exp) body += `<div class="ansbox">${F.a ? `<div class="lbl">参考答案</div>${esc(F.a)}` : ""}${F.exp ? `<div class="lbl" style="margin-top:8px">解析</div>${esc(F.exp)}` : ""}</div>`;
+  }
+  $("#pvBody").innerHTML = body;
+}
+
+function loadForm(q){
+  F.id = q ? q.id : null;
+  F.type = q ? q.type : "single";
+  F.chap = q ? q.chap : (CHAPS[0] && CHAPS[0].id);
+  F.q = q ? q.q : "";
+  F.opts = q && q.opts ? q.opts.slice() : ["","","",""];
+  F.ans = q && q.ans ? q.ans.slice() : [];
+  F.a = q && q.a ? q.a : "";
+  F.exp = q && q.exp ? q.exp : "";
+  F.no = q && q.no ? String(q.no) : "";
+
+  document.querySelectorAll("#typeSeg button").forEach(b => b.classList.toggle("on", b.dataset.type === F.type));
+  $("#pChap").value = F.chap;
+  $("#pQ").value = F.q;
+  $("#pA").value = F.a;
+  $("#pExp").value = F.exp;
+  $("#pNo").value = F.no;
+  $("#pId").value = F.id ? `已有 · ${F.id}` : "新题（保存时自动编号）";
+  $("#pDel").classList.toggle("hidden", !F.id);
+  $("#pMsg").textContent = "";
+  renderOptRows(); renderPreview(); renderList();
+}
+
+function validatePharm(){
+  if (!F.q.trim()) return "题干不能为空";
+  if (!F.chap) return "请选择章节";
+  const isChoice = F.type === "single" || F.type === "multi";
+  if (isChoice){
+    const filled = F.opts.filter(o => o.trim());
+    if (filled.length < 2) return "至少填 2 个选项";
+    if (F.opts.some((o, i) => !o.trim() && F.ans.includes(i))) return "正确答案指向了空选项";
+    if (!F.ans.length) return "请点亮正确答案";
+    if (F.type === "multi" && F.ans.length < 2) return "多选题至少 2 个正确答案（只有 1 个请改单选）";
+  } else {
+    if (!F.a.trim()) return "参考答案不能为空";
+  }
+  return "";
+}
+
+function savePharm(){
+  const err = validatePharm();
+  if (err){ $("#pMsg").className = "msg err"; $("#pMsg").textContent = "✗ " + err; return }
+
+  const isEdit = !!F.id;                       // 进入表单时是不是在改老题
+  const isChoice = F.type === "single" || F.type === "multi";
+  const item = {
+    id: F.id || nextId(F.type),
+    type: F.type,
+    chap: F.chap,
+    q: F.q.trim(),
+  };
+  if (F.no.trim()) item.no = F.no.trim();
+  if (isChoice){
+    const keep = F.opts.map((o, i) => ({ o: o.trim(), i })).filter(x => x.o);
+    const map = {}; keep.forEach((x, k) => map[x.i] = k);
+    item.opts = keep.map(x => x.o);
+    item.ans = F.ans.map(i => map[i]).filter(v => v !== undefined);
+  } else {
+    item.a = F.a.trim();
+  }
+  if (F.exp.trim()) item.exp = F.exp.trim();
+
+  if (isEdit){
+    const idx = PHARM.findIndex(x => x.id === item.id);
+    if (idx >= 0) PHARM[idx] = item; else PHARM.push(item);
+    save(PHARM_KEYS, PHARM);
+    $("#pMsg").className = "msg ok";
+    $("#pMsg").textContent = `✓ 已更新 ${item.id}（${TYPES[item.type].name}）`;
+    renderList(); renderCounts();
+    setFormField("pId", `已有 · ${item.id}`);
+    return;
+  }
+
+  // 新增：存完立刻回到空表单（保留题型与章节），避免下一题覆盖这一题
+  PHARM.push(item);
+  save(PHARM_KEYS, PHARM);
+  const keptType = F.type, keptChap = F.chap;
+  loadForm(null);
+  F.type = keptType; F.chap = keptChap;
+  document.querySelectorAll("#typeSeg button").forEach(b => b.classList.toggle("on", b.dataset.type === keptType));
+  $("#pChap").value = keptChap;
+  renderOptRows(); renderPreview();
+  $("#pMsg").className = "msg ok";
+  $("#pMsg").textContent = `✓ 已保存 ${item.id}（${TYPES[item.type].name}）· 表单已清空，可继续录下一题`;
+  flashId = item.id;
+  renderList(); renderCounts();
+}
+
+function setFormField(id, v){ const el = document.getElementById(id); if (el) el.value = v }
+
+/* ---------- 药分列表 ---------- */
+function filtered(){
+  const kw = L.q.trim().toLowerCase();
+  return PHARM.filter(q => {
+    if (L.type !== "all" && q.type !== L.type) return false;
+    if (L.chap !== "all" && q.chap !== L.chap) return false;
+    if (kw){
+      const hay = [q.q, q.no, q.id, q.a || "", (q.opts || []).join(" "), q.exp || ""].join(" ").toLowerCase();
+      if (!hay.includes(kw)) return false;
+    }
+    return true;
+  });
+}
+function renderList(){
+  const arr = filtered();
+  const pages = Math.max(1, Math.ceil(arr.length / L.size));
+  if (flashId){                                  // 跳到新条目所在页
+    const i = arr.findIndex(q => q.id === flashId);
+    if (i >= 0) L.page = Math.floor(i / L.size);
+  }
+  if (L.page >= pages) L.page = pages - 1;
+  const cur = arr.slice(L.page * L.size, L.page * L.size + L.size);
+  $("#listCnt").textContent = `共 ${arr.length} 题${arr.length !== PHARM.length ? `（题库 ${PHARM.length}）` : ""} · 点条目可编辑`;
+  $("#list").innerHTML = cur.map(q => `
+    <div class="item${q.id === F.id ? " on" : ""}${q.id === flashId ? " flash" : ""}" data-id="${q.id}">
+      <div class="body">
+        <div class="t">${esc(q.q)}</div>
+        <div class="m"><span class="tag ${q.type}">${TYPES[q.type].name}</span><span>${esc(chapName(q.chap))}</span>${q.no ? `<span>#${esc(q.no)}</span>` : ""}<span>${q.id}</span></div>
+      </div>
+    </div>`).join("") || `<div class="cnt">没有匹配的题目</div>`;
+  $("#list").querySelectorAll(".item").forEach(el => {
+    el.onclick = () => { const q = PHARM.find(x => x.id === el.dataset.id); if (q) loadForm(q) };
+  });
+  $("#pgInfo").textContent = `${L.page + 1} / ${pages}`;
+  $("#prevPg").disabled = L.page === 0;
+  $("#nextPg").disabled = L.page >= pages - 1;
+  if (flashId){
+    const el = $("#list").querySelector(".item.flash");
+    if (el && el.scrollIntoView) try{ el.scrollIntoView({ block:"nearest" }) }catch(e){}
+    flashId = null;
+  }
+}
+
+function renderCounts(){
+  $("#tnP").textContent = PHARM_YF.length;
+  $("#tnJ").textContent = PHARM_YJ.length;
+  $("#tnC").textContent = CARDS.length;
+}
+
+/* ---------- 药化 ---------- */
+function renderCardForm(){
+  document.querySelectorAll("#grpSeg button").forEach(b => b.classList.toggle("on", b.dataset.group === C.group));
+  $("#cChap").value = String(C.chapter);
+  $("#cCn").value = C.cn; $("#cEn").value = C.en; $("#cKlass").value = C.klass;
+  $("#cEffect").value = C.effect; $("#cSmi").value = C.smi;
+  $("#cId").value = C.id ? `已有 · #${C.id}` : "新卡片（保存时自动编号）";
+  $("#cDel").classList.toggle("hidden", !C.id);
+  $("#pvCard").innerHTML = `
+    <div><span class="pill">${C.group === "master" ? "掌握组" : "熟悉组"}</span><span class="pill a">${esc(MCHAPS[String(C.chapter)] || "")}</span></div>
+    <p class="qt">${esc(C.cn) || '<span style="color:#b9c2cc">（中文名）</span>'} <span style="font-weight:600; color:#7b8794; font-size:13px">${esc(C.en)}</span></p>
+    ${C.klass ? `<div class="lbl">分类</div><div class="ansbox">${esc(C.klass)}</div>` : ""}
+    ${C.effect ? `<div class="lbl" style="margin-top:8px">药理作用</div><div class="ansbox">${esc(C.effect)}</div>` : ""}
+    ${C.smi ? `<div class="lbl" style="margin-top:8px">SMILES</div><div class="ansbox" style="font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; word-break:break-all">${esc(C.smi)}</div>` : ""}
+  `;
+}
+function loadCard(m){
+  C.id = m ? m.id : null;
+  C.cn = m ? m.cn : ""; C.en = m ? m.en : "";
+  C.group = m ? m.group : "master";
+  C.chapter = m ? Number(m.chapter) : 1;
+  C.klass = m ? m.klass : ""; C.effect = m ? m.effect : ""; C.smi = m ? m.smi : "";
+  $("#cMsg").textContent = "";
+  renderCardForm(); renderCardList();
+}
+function saveCard(){
+  const msg = $("#cMsg");
+  const isEdit = !!C.id;                      // 进入表单时是不是在改老卡
+  if (!C.cn.trim()){ msg.className = "msg err"; msg.textContent = "✗ 中文名不能为空"; return }
+  const smi = C.smi.trim();
+  if (!smi){ msg.className = "msg err"; msg.textContent = "✗ SMILES 不能为空（结构图要用）"; return }
+  if (/\s/.test(smi)){ msg.className = "msg err"; msg.textContent = "✗ SMILES 里不能有空格或换行"; return }
+  if (CARDS.some(x => x.smi === smi && x.id !== C.id)){
+    msg.className = "msg err"; msg.textContent = "✗ 这个 SMILES 已经录过了（同一结构不重复入库）"; return;
+  }
+  const item = {
+    id: C.id || nextCardId(),
+    cn: C.cn.trim(), en: C.en.trim(), group: C.group,
+    chapter: Number(C.chapter), klass: C.klass.trim(),
+    effect: C.effect.trim(), smi,
+  };
+  if (isEdit){
+    const idx = CARDS.findIndex(x => x.id === item.id);
+    if (idx >= 0) CARDS[idx] = item; else CARDS.push(item);
+    save(CARD_KEYS, CARDS);
+    msg.className = "msg ok";
+    msg.textContent = `✓ 已更新 #${item.id}（${item.cn}）`;
+    renderCardForm(); renderCardList(); renderCounts();
+    return;
+  }
+  // 新增：存完回到空表单（保留分组与章节），避免下一张覆盖这一张
+  CARDS.push(item);
+  save(CARD_KEYS, CARDS);
+  const keptGroup = C.group, keptChap = C.chapter;
+  loadCard(null);
+  C.group = keptGroup; C.chapter = keptChap;
+  renderCardForm();
+  msg.className = "msg ok";
+  msg.textContent = `✓ 已保存 #${item.id}（${item.cn}）· 表单已清空，可继续录下一张`;
+  flashId = item.id;
+  renderCardList(); renderCounts();
+}
+function renderCardList(){
+  const kw = ($("#cQ").value || "").trim().toLowerCase();
+  const g = $("#gFilter").value, ch = $("#cFilter").value;
+  const arr = CARDS.filter(m => {
+    if (g !== "all" && m.group !== g) return false;
+    if (ch !== "all" && String(m.chapter) !== ch) return false;
+    if (kw && ![m.cn, m.en, m.klass, m.effect, m.smi].join(" ").toLowerCase().includes(kw)) return false;
+    return true;
+  });
+  $("#cardCnt").textContent = `共 ${arr.length} 张${arr.length !== CARDS.length ? `（卡片库 ${CARDS.length}）` : ""} · 点条目可编辑`;
+  $("#cardList").innerHTML = arr.map(m => `
+    <div class="item${m.id === C.id ? " on" : ""}${m.id === flashId ? " flash" : ""}" data-id="${m.id}">
+      <div class="body">
+        <div class="t"><b>${esc(m.cn)}</b> <span style="color:#7b8794; font-weight:600">${esc(m.en)}</span></div>
+        <div class="m"><span class="tag ${m.group === "master" ? "qa" : "blank"}">${m.group === "master" ? "掌握" : "熟悉"}</span><span>${esc(MCHAPS[String(m.chapter)] || "")}</span><span>#${m.id}</span></div>
+      </div>
+    </div>`).join("") || `<div class="cnt">没有匹配的卡片</div>`;
+  $("#cardList").querySelectorAll(".item").forEach(el => {
+    el.onclick = () => { const m = CARDS.find(x => String(x.id) === el.dataset.id); if (m) loadCard(m) };
+  });
+  if (flashId){
+    const el = $("#cardList").querySelector(".item.flash");
+    if (el && el.scrollIntoView) try{ el.scrollIntoView({ block:"nearest" }) }catch(e){}
+    flashId = null;
+  }
+}
+
+/* ---------- 导出 ---------- */
+function jsStr(s){ return JSON.stringify(String(s)) }
+function pharmToJS(q){
+  const parts = [`id:${jsStr(q.id)}`, `type:${jsStr(q.type)}`, `chap:${jsStr(q.chap)}`];
+  if (q.ch) parts.push(`ch:${jsStr(q.ch)}`);
+  if (q.no) parts.push(`no:${jsStr(q.no)}`);
+  parts.push(`q:${jsStr(q.q)}`);
+  if (q.opts) parts.push(`opts:[${q.opts.map(jsStr).join(",")}]`);
+  if (q.ans) parts.push(`ans:[${q.ans.join(",")}]`);
+  if (q.a) parts.push(`a:${jsStr(q.a)}`);
+  if (q.exp) parts.push(`exp:${jsStr(q.exp)}`);
+  return "{" + parts.join(",\n ") + "}";
+}
+function buildFile(list, title){
+  return `/* ${title} · 由「脑袋内容台」导出 · 共 ${list.length} 题 */\nwindow.QB = window.QB || [];\nQB.push(\n` +
+    list.map(q => pharmToJS(q)).join(",\n\n") + "\n);\n";
+}
+function download(name, text, mime){
+  const blob = new Blob([text], { type: mime || "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove() }, 500);
+}
+const GROUPS_YF = [
+  { file:"data_choice.js", types:["single","multi"], title:"药物分析复习题 · 选择题" },
+  { file:"data_blank.js",  types:["blank"],          title:"药物分析复习题 · 填空题" },
+  { file:"data_qa.js",     types:["qa"],             title:"药物分析复习题 · 问答题" },
+  { file:"data_calc.js",   types:["calc"],           title:"药物分析复习题 · 计算题" },
+];
+const GROUPS_YJ = [
+  { file:"data_term.js",   types:["term"],           title:"药剂学复习题 · 名词解释" },
+  { file:"data_choice.js", types:["single","multi"], title:"药剂学复习题 · 选择题" },
+  { file:"data_blank.js",  types:["blank"],          title:"药剂学复习题 · 填空题" },
+  { file:"data_qa.js",     types:["qa","calc"],      title:"药剂学复习题 · 问答题" },
+  { file:"data_rx.js",     types:["rx"],             title:"药剂学复习题 · 处方分析" },
+];
+let GROUPS = GROUPS_YF;
+function renderExp(){
+  $("#expPharm").innerHTML = GROUPS.map(g => {
+    const n = PHARM.filter(q => g.types.includes(q.type)).length;
+    return `<div class="row"><div class="nm"><b>${g.file}</b><i>${g.types.map(t => TYPES[t].name).join(" / ")} · ${n} 题</i></div>
+      <button class="btn ghost" data-dl="${g.file}" style="padding:7px 11px; font-size:12.5px">下载</button></div>`;
+  }).join("");
+  $("#expPharm").querySelectorAll("[data-dl]").forEach(b => {
+    b.onclick = () => {
+      const g = GROUPS.find(x => x.file === b.dataset.dl);
+      const list = PHARM.filter(q => g.types.includes(q.type));
+      download(g.file, buildFile(list, g.title), "text/javascript;charset=utf-8");
+      const m = $("#expMsg"); m.className = "msg ok"; m.textContent = `✓ 已下载 ${g.file}（${list.length} 题）`;
+    };
+  });
+  const newCards = CARDS.filter(c => !INIT.cards.some(x => x.id === c.id));
+  $("#expCard").innerHTML = `
+    <div class="row"><div class="nm"><b>新增卡片</b><i>${newCards.length} 张（原有 63 张之外）</i></div></div>
+    <div class="row"><div class="nm"><b>卡片总数</b><i>${CARDS.length} 张</i></div></div>`;
+}
+
+/* ---------- 一键更新 / 版本留档 ---------- */
+let SERVER_OK = false;
+async function api(path, opt){
+  // 部署在子路径 /console3/ 下，把绝对路径转成相对，并带上密令
+  const url = String(path).replace(/^\/api\//, "api/");
+  const r = await fetch(url, Object.assign({
+    headers: { "Content-Type": "application/json", "X-Token": "__SERVER_CONSOLE_TOKEN__" }
+  }, opt || {}));
+  let j;
+  try { j = await r.json() } catch(e){ throw new Error("服务返回了非 JSON，可能是接口未启动") }
+  return j;
+}
+function fmtTime(iso){
+  const d = new Date(iso); if (isNaN(d)) return "";
+  const p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+const sumCounts = c => ["single","multi","blank","qa","calc"].reduce((s,k) => s + (+c[k] || 0), 0);
+
+async function checkServer(){
+  const tag = $("#srvTag"), ptag = $("#pubTag");
+  try{
+    const s = await api("/api/status");
+    if (!s.ok) throw new Error("bad");
+    SERVER_OK = true;
+    tag.className = "tagline ok"; tag.textContent = "本地服务已连接";
+    ptag.className = "tagline ok"; ptag.textContent = "可直接写盘";
+    $("#btnPublish").disabled = false;
+    if (!s.python){
+      $("#pubHint").innerHTML += `<br><b style="color:var(--amber)">注意</b>：这台机器上没找到带 RDKit 的 Python，`
+        + `药化卡片这次不会并进 <code>molecules.js</code>（药分题目照常更新）。`;
+    }
+    return true;
+  }catch(e){
+    SERVER_OK = false;
+    tag.className = "tagline off"; tag.textContent = "离线模式";
+    ptag.className = "tagline off"; ptag.textContent = "需先启动本地服务";
+    $("#btnPublish").disabled = true;
+    $("#pubHint").innerHTML = `没连上本地服务，现在只能「下载文件」手动覆盖。`
+      + `<br>请双击 <code>启动内容台.cmd</code>，再打开 <code>http://127.0.0.1:8788/</code>。`;
+    return false;
+  }
+}
+
+/** 与开机快照相比，内容有变化的卡片（新增或改过） */
+function changedCards(){
+  const orig = new Map(INIT.cards.map(x => [String(x.id), x]));
+  return CARDS.filter(c => {
+    const o = orig.get(String(c.id));
+    if (!o) return true;
+    return ["cn","en","group","chapter","klass","effect","smi"]
+      .some(k => String(o[k] == null ? "" : o[k]) !== String(c[k] == null ? "" : c[k]));
+  });
+}
+function removedCards(){
+  return INIT.cards.filter(o => !CARDS.some(c => String(c.id) === String(o.id))).map(o => o.id);
+}
+
+async function doPublish(){
+  if (!SERVER_OK && !(await checkServer())) return;
+  const btn = $("#btnPublish"), m = $("#pubMsg"), log = $("#pubLog");
+  const note = ($("#relNote").value || "").trim();
+
+  const files = {}, counts = { cards: CARDS.length };
+  GROUPS.forEach(g => {
+    const list = PHARM.filter(q => g.types.includes(q.type));
+    files[SUBJ + "/" + g.file] = buildFile(list, g.title);
+  });
+  ["single","multi","blank","qa","calc"].forEach(t => counts[t] = PHARM.filter(q => q.type === t).length);
+
+  const changed = changedCards(), removed = removedCards();
+  btn.disabled = true; btn.textContent = "写入中…";
+  m.className = "msg"; m.textContent = "正在写盘并校验…" + (changed.length || removed.length ? "（要渲染结构图，几秒）" : "");
+  log.classList.add("hidden");
+  const t0 = Date.now();
+  try{
+    const r = await api("/api/publish", { method:"POST", body: JSON.stringify({ files, counts, note, cards: changed, remove: removed }) });
+    if (!r.ok) throw new Error(r.error || "更新失败");
+    m.className = "msg ok";
+    m.textContent = `✓ 已更新并留档 ${r.version} · 题目 ${sumCounts(counts)} 条 / 卡片 ${counts.cards} 张`
+      + (changed.length ? ` · 并卡 ${changed.length} 张` : "") + (removed.length ? ` · 删卡 ${removed.length} 张` : "")
+      + ` · 用时 ${((Date.now() - t0) / 1000).toFixed(1)}s`;
+    log.classList.remove("hidden");
+    log.textContent = ["【校验结果】\n" + JSON.stringify(r.verify, null, 1), r.mergeLog ? "\n【卡片合并】\n" + r.mergeLog : ""].join("\n");
+    // 这次写入已经包含草稿，清掉本地草稿，让页面与磁盘文件一致
+    localStorage.removeItem(PHARM_KEYS_YF); localStorage.removeItem(PHARM_KEYS_YJ); localStorage.removeItem(CARD_KEYS);
+    INIT.pharm = PHARM.map(x => Object.assign({}, x));
+    INIT.cards = CARDS.map(x => Object.assign({}, x));
+    renderExp();
+    await refreshVersions();
+  }catch(e){
+    m.className = "msg err"; m.textContent = "✗ " + e.message;
+  }finally{
+    btn.disabled = false; btn.textContent = "一键导出并更新";
+  }
+}
+
+async function refreshVersions(){
+  const cnt = $("#verCnt"), box = $("#verList");
+  if (!SERVER_OK){ cnt.textContent = "（离线，读不到）"; box.innerHTML = ` <div class="cnt">启动本地服务后这里会列出版本。</div>`; return }
+  try{
+    const r = await api("/api/versions");
+    const vs = r.versions || [];
+    cnt.textContent = `${vs.length} 个版本`;
+    box.innerHTML = vs.map(v => {
+      const no = "v" + String(v.seq).padStart(3, "0");
+      const meta = v.counts
+        ? `题目 ${sumCounts(v.counts)} / 卡片 ${v.counts.cards == null ? "-" : v.counts.cards}`
+        : "初始存档";
+      return `
+      <div class="vrow" title="${esc(v.id)}">
+        <div class="vi">
+          <div class="vt"><code>${no}</code> ${esc(v.note || "（无备注）")}${v.rolledBackTo ? ` <span style="color:#8b96a3;font-weight:600">· 回滚自 ${esc("v" + String(v.rolledBackTo).slice(1, 4))}</span>` : ""}</div>
+          <div class="vd">${fmtTime(v.at)} · ${meta} · ${(v.size / 1024).toFixed(0)} KB</div>
+        </div>
+        <button class="btn ghost" data-rb="${esc(v.id)}">回滚到这版</button>
+      </div>`}).join("") || `<div class="cnt">还没有版本，点上面的按钮更新一次就会生成第一份存档。</div>`;
+    box.querySelectorAll("[data-rb]").forEach(b => b.onclick = () => doRollback(b.dataset.rb));
+  }catch(e){ cnt.textContent = "（读取失败：请确认本地服务还开着）" }
+}
+
+async function doRollback(vid){
+  if (!confirm(`把 6 个数据文件恢复到「${vid}」？\n\n当前状态会先自动存一份，退错了还能再退回来。`)) return;
+  const m = $("#pubMsg");
+  m.className = "msg"; m.textContent = "正在回滚…";
+  try{
+    const r = await api("/api/rollback", { method:"POST", body: JSON.stringify({ version: vid }) });
+    if (!r.ok) throw new Error(r.error || "回滚失败");
+    localStorage.removeItem(PHARM_KEYS_YF); localStorage.removeItem(PHARM_KEYS_YJ); localStorage.removeItem(CARD_KEYS);
+    m.className = "msg ok";
+    m.textContent = `✓ 已回滚到 ${vid}，并留档为 ${r.version}。2 秒后重载页面…`;
+    setTimeout(() => location.reload(), 1600);
+  }catch(e){
+    m.className = "msg err"; m.textContent = "✗ " + e.message;
+  }
+}
+
+/* ---------- 事件 ---------- */
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+document.querySelectorAll("#typeSeg button").forEach(b => {
+  b.onclick = () => {
+    F.type = b.dataset.type;
+    F.ans = [];
+    document.querySelectorAll("#typeSeg button").forEach(x => x.classList.toggle("on", x === b));
+    renderOptRows(); renderPreview();
+  };
+});
+$("#pChap").onchange = e => { F.chap = e.target.value; renderPreview() };
+$("#pQ").oninput = e => { F.q = e.target.value; renderPreview() };
+$("#pA").oninput = e => { F.a = e.target.value; renderPreview() };
+$("#pExp").oninput = e => { F.exp = e.target.value; renderPreview() };
+$("#pNo").oninput = e => { F.no = e.target.value };
+$("#addOpt").onclick = () => { if (F.opts.length < 6){ F.opts.push(""); renderOptRows() } };
+$("#pSave").onclick = savePharm;
+$("#pClear").onclick = () => loadForm(null);
+$("#pDel").onclick = () => {
+  if (!F.id) return;
+  if (!confirm(`删除 ${F.id}？导出的文件里就不会再有这道题。`)) return;
+  PHARM = PHARM.filter(q => q.id !== F.id);
+  save(PHARM_KEYS, PHARM);
+  const id = F.id;
+  loadForm(null); renderCounts();
+  $("#pMsg").className = "msg ok"; $("#pMsg").textContent = `已删除 ${id}`;
+};
+$("#fType").onchange = e => { L.type = e.target.value; L.page = 0; renderList() };
+$("#fChap").onchange = e => { L.chap = e.target.value; L.page = 0; renderList() };
+$("#fQ").oninput = e => { L.q = e.target.value; L.page = 0; renderList() };
+$("#prevPg").onclick = () => { if (L.page > 0){ L.page--; renderList() } };
+$("#nextPg").onclick = () => { L.page++; renderList() };
+
+document.querySelectorAll("#grpSeg button").forEach(b => {
+  b.onclick = () => {
+    C.group = b.dataset.group;
+    document.querySelectorAll("#grpSeg button").forEach(x => x.classList.toggle("on", x === b));
+    renderCardForm();
+  };
+});
+["cCn","cEn","cKlass","cEffect","cSmi"].forEach(id => {
+  const key = { cCn:"cn", cEn:"en", cKlass:"klass", cEffect:"effect", cSmi:"smi" }[id];
+  $("#" + id).oninput = e => { C[key] = e.target.value; renderCardForm() };
+});
+$("#cChap").onchange = e => { C.chapter = Number(e.target.value); renderCardForm() };
+$("#cSave").onclick = saveCard;
+$("#cClear").onclick = () => loadCard(null);
+$("#cDel").onclick = () => {
+  if (!C.id) return;
+  if (!confirm(`删除卡片 #${C.id}（${C.cn}）？`)) return;
+  const id = C.id;
+  CARDS = CARDS.filter(m => m.id !== id);
+  save(CARD_KEYS, CARDS);
+  loadCard(null); renderCounts();
+  $("#cMsg").className = "msg ok"; $("#cMsg").textContent = `已删除 #${id}`;
+};
+$("#cQ").oninput = renderCardList;
+$("#gFilter").onchange = renderCardList;
+$("#cFilter").onchange = renderCardList;
+
+$("#dlAll").onclick = () => {
+  GROUPS.forEach((g, i) => setTimeout(() => {
+    const list = PHARM.filter(q => g.types.includes(q.type));
+    download(g.file, buildFile(list, g.title), "text/javascript;charset=utf-8");
+  }, i * 350));
+  const m = $("#expMsg"); m.className = "msg ok";
+  m.textContent = "✓ 开始下载 4 个文件（浏览器若询问「允许下载多个文件」请点允许）";
+};
+$("#dlJson").onclick = () => {
+  download("pharm-questions.json", JSON.stringify(PHARM, null, 1), "application/json;charset=utf-8");
+  const m = $("#expMsg"); m.className = "msg ok"; m.textContent = "✓ 已导出 JSON";
+};
+$("#dlCardNew").onclick = () => {
+  const list = CARDS.filter(c => !INIT.cards.some(x => x.id === c.id));
+  download("medchem-new-cards.json", JSON.stringify(list, null, 1), "application/json;charset=utf-8");
+  $("#resetMsg").textContent = "";
+};
+$("#dlCardAll").onclick = () => {
+  download("medchem-all-cards.json", JSON.stringify(CARDS, null, 1), "application/json;charset=utf-8");
+};
+$("#resetAll").onclick = () => {
+  if (!confirm("把所有改动恢复成初始数据？你在本机录入/修改的内容会全部丢失。")) return;
+  localStorage.removeItem(PHARM_KEYS_YF); localStorage.removeItem(PHARM_KEYS_YJ); localStorage.removeItem(CARD_KEYS);
+  PHARM = INIT.pharm.map(x => Object.assign({}, x));
+  CARDS = INIT.cards.map(x => Object.assign({}, x));
+  loadForm(null); loadCard(null); renderCounts(); renderExp();
+  $("#resetMsg").className = "msg ok"; $("#resetMsg").textContent = "✓ 已恢复初始数据";
+};
+
+$("#btnPublish").onclick = doPublish;
+$("#btnSnap").onclick = async () => {
+  const m = $("#pubMsg");
+  if (!SERVER_OK && !(await checkServer())) return;
+  const note = ($("#relNote").value || "").trim();
+  try{
+    const r = await api("/api/snapshot", { method:"POST", body: JSON.stringify({ note }) });
+    if (!r.ok) throw new Error(r.error || "存档失败");
+    m.className = "msg ok"; m.textContent = `✓ 已存档 ${r.version}（磁盘文件没动）`;
+    await refreshVersions();
+  }catch(e){ m.className = "msg err"; m.textContent = "✗ " + e.message }
+};
+$("#btnVers").onclick = refreshVersions;
+
+/* ---------- 启动 ---------- */
+$("#pChap").innerHTML = chapOptions(F.chap, false);
+$("#fChap").innerHTML = chapOptions("all", true);
+$("#cChap").innerHTML = Object.keys(MCHAPS).map(k => `<option value="${k}">第${k}章 ${esc(MCHAPS[k])}</option>`).join("");
+$("#cFilter").innerHTML = `<option value="all">全部章节</option>` + Object.keys(MCHAPS).map(k => `<option value="${k}">${esc(MCHAPS[k])}</option>`).join("");
+renderGoto();
+renderCounts();
+loadForm(null);
+loadCard(null);
+renderExp();
+checkServer().then(ok => { refreshVersions() });
+window.__CT = { get pharm(){ return PHARM }, get cards(){ return CARDS }, get F(){ return F }, get C(){ return C },
+  savePharm, saveCard, loadForm, loadCard, buildFile, GROUPS, nextId, validatePharm,
+  get serverOk(){ return SERVER_OK }, checkServer, refreshVersions, doPublish, doRollback,
+  changedCards, removedCards, sumCounts };
+</script>
+</body>
+</html>

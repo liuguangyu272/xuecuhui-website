@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Xuecuhui GitHub main every minute
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+AccuracySec=1s
+Unit=xuecuhui-sync.service
+
+[Install]
+WantedBy=timers.target

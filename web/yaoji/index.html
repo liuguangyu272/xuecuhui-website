@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f4f6f9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="药剂脑袋">
+<title>药剂脑袋 · 药剂学刷题</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --ink:#1b2430; --sub:#5d6773; --line:#e4e9ef;
+    --blue:#2563a8; --blue-d:#1c4b80; --green:#177a4a; --red:#c0392b; --amber:#a8630a;
+    --teal:#0f7a6c; --purple:#6b4ba8; --indigo:#3d4fa8;
+    --radius:16px; --shadow:0 2px 10px rgba(28,40,64,.07);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.62 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    min-height:100vh; min-height:100dvh; height:100vh; height:100dvh; overflow:hidden;
+    display:flex; flex-direction:column;
+    touch-action:manipulation; overscroll-behavior:none;
+  }
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:8px;
+    padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+    background:rgba(244,246,249,.94); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .backbtn{
+    border:1px solid var(--line); background:#fff; color:var(--blue);
+    font-size:14px; font-weight:600; padding:7px 12px; border-radius:10px;
+    cursor:pointer; flex:0 0 auto;
+  }
+  .backbtn:active{transform:scale(.96)}
+  .topinfo{flex:1; text-align:center; color:var(--sub); font-size:13.5px; font-variant-numeric:tabular-nums; font-weight:600}
+  .topbtn{
+    border:1px solid var(--line); background:#fff; color:var(--red);
+    font-size:13px; font-weight:700; padding:7px 9px; border-radius:10px;
+    cursor:pointer; flex:0 0 auto; display:flex; align-items:center; gap:4px;
+  }
+  .topbtn:active{transform:scale(.96)}
+  .topbtn .badge{
+    background:var(--red); color:#fff; border-radius:9px; padding:0 5px;
+    font-size:11.5px; min-width:17px; text-align:center; line-height:17px;
+  }
+  .topbtn.empty{color:var(--sub)}
+  .topbtn.empty .badge{background:#b9c2cc}
+
+  /* ---------- layout ---------- */
+  .stage{flex:1; display:flex; flex-direction:column; padding:12px; padding-bottom:calc(12px + env(safe-area-inset-bottom)); max-width:600px; width:100%; margin:0 auto; min-height:0}
+  .card{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:20px 16px; flex:1; min-height:0; display:flex; flex-direction:column;
+    gap:14px; border:1px solid var(--line); overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .card.center{align-items:center; justify-content:center; text-align:center}
+  /* 答题/答案页：内容区内部滚动，按钮固定底部 */
+  .card.fixed{overflow:hidden; padding-bottom:12px}
+  .qbody{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column; gap:12px; padding-right:2px}
+  .card.fixed .answers{padding-top:10px; border-top:1px solid var(--line); margin-top:0}
+  .prog{height:5px; background:#e3e8ee; border-radius:3px; overflow:hidden; width:100%}
+  .prog>div{height:100%; background:var(--blue); transition:width .25s}
+
+  /* ---------- home ---------- */
+  .home{gap:12px; overflow-y:auto}
+  h1.title{font-size:25px; margin:2px 0 0; text-align:center; letter-spacing:.01em}
+  .sub{margin:0; color:var(--sub); text-align:center; font-size:13px}
+  .grp-label{width:100%; text-align:left; color:var(--sub); font-size:12.5px; letter-spacing:.1em; padding-left:2px; margin-top:2px}
+  .seg{display:flex; background:#e8edf3; border-radius:12px; padding:4px; gap:4px; width:100%}
+  .seg button{flex:1; border:none; background:transparent; padding:9px 4px; border-radius:9px; font-size:13.5px; color:var(--sub); font-weight:600; cursor:pointer}
+  .seg button.on{background:#fff; color:var(--blue-d); box-shadow:var(--shadow)}
+  /* ---------- 章节选择器（替代横向滚动的 chips） ---------- */
+  .chappick{width:100%; display:flex; flex-direction:column; gap:8px}
+  .chapcur{
+    width:100%; display:flex; align-items:center; gap:8px; text-align:left;
+    background:#fff; border:1px solid var(--line); border-radius:12px;
+    padding:11px 13px; cursor:pointer; font-family:inherit; box-shadow:var(--shadow);
+  }
+  .chapcur:active{transform:scale(.99)}
+  .chapcur .lb{flex:0 0 auto; font-size:11px; font-weight:800; color:var(--blue-d); background:#eef3f9; border-radius:6px; padding:2px 7px}
+  .chapcur .nm{flex:1; min-width:0; font-size:14px; font-weight:700; color:#22303f; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .chapcur .cnt{flex:0 0 auto; font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .chapcur .cv{flex:0 0 auto; color:#a9b4c0; font-size:11px; transition:transform .15s}
+  .chapcur.open .cv{transform:rotate(180deg)}
+  .chappanel{
+    background:#fbfcfe; border:1px solid var(--line); border-radius:12px;
+    padding:11px; display:flex; flex-direction:column; gap:11px;
+  }
+  .chpgrp{display:flex; flex-direction:column; gap:7px}
+  .chpgh{font-size:11px; font-weight:800; color:var(--sub); letter-spacing:.06em; padding-left:2px}
+  .chpgrid{display:grid; grid-template-columns:1fr 1fr; gap:6px; width:100%}
+  .chp{
+    display:flex; flex-direction:column; gap:1px; align-items:flex-start; min-width:0;
+    border:1px solid var(--line); background:#fff; color:var(--sub);
+    padding:8px 10px; border-radius:9px; cursor:pointer; font-family:inherit; text-align:left;
+  }
+  .chp:active{transform:scale(.98)}
+  .chp .cn{font-size:12.5px; font-weight:700; color:#3c4854; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .chp .cm{font-size:10.5px; color:#a9b4c0; font-variant-numeric:tabular-nums}
+  .chp.on{background:var(--blue); border-color:var(--blue)}
+  .chp.on .cn{color:#fff}
+  .chp.on .cm{color:rgba(255,255,255,.82)}
+  .chp.wide{grid-column:1 / -1; flex-direction:row; align-items:center; justify-content:space-between; gap:10px}
+  .chp.wide .cn{flex:1}
+  .chphint{display:flex; align-items:center; justify-content:space-between; gap:8px;
+    font-size:11px; color:var(--sub); padding:0 2px; line-height:1.5}
+  .chpclose{border:none; background:none; color:var(--blue); font-size:11.5px; font-weight:800;
+    cursor:pointer; font-family:inherit; padding:2px 0; flex:0 0 auto}
+  .chpdone{
+    width:100%; border:none; border-radius:10px; background:var(--blue); color:#fff;
+    font-size:13.5px; font-weight:800; padding:11px; cursor:pointer; font-family:inherit;
+    box-shadow:var(--shadow);
+  }
+  .chpdone:active{transform:scale(.99)}
+  .modebtn{
+    width:100%; text-align:left; background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:14px 15px; box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; gap:12px;
+  }
+  .modebtn:active{transform:scale(.985)}
+  .modebtn.dis{opacity:.46; cursor:default; box-shadow:none}
+  .modebtn.dis:active{transform:none}
+  .modebtn .ic{
+    flex:0 0 38px; height:38px; border-radius:11px; display:flex; align-items:center;
+    justify-content:center; font-size:17px; font-weight:800; color:#fff;
+  }
+  .i-term{background:#7c3aed}
+  .i-single{background:var(--blue)} .i-multi{background:var(--indigo)}
+  .i-blank{background:var(--teal)}
+  .i-qa{background:var(--purple)} .i-calc{background:var(--amber)}
+  .i-rx{background:#0f766e}
+  .modebtn .tx{flex:1; display:flex; flex-direction:column; gap:2px; min-width:0}
+  .modebtn .t{font-size:16.5px; font-weight:800; color:#22303f}
+  .modebtn .d{font-size:12.5px; color:var(--sub)}
+  .modebtn .t{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  .uc{font-size:11px; font-weight:700; color:var(--red); background:#fdeceb; border-radius:7px; padding:1px 6px; line-height:16px}
+  .modebtn .ar{color:#b9c2cc; font-size:18px}
+  .footer-note{color:var(--sub); font-size:11.5px; text-align:center; padding:6px 0 2px; line-height:1.5}
+
+  /* ---------- question ---------- */
+  .qhead{display:flex; gap:6px; flex-wrap:wrap; align-items:center}
+  .pill{font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:20px; background:#eef3f9; color:var(--blue-d)}
+  .pill.g{background:#e7f4ee; color:var(--green)}
+  .pill.r{background:#fdeceb; color:var(--red)}
+  .pill.a{background:#fbf1e2; color:var(--amber)}
+  .qtext{font-size:17px; line-height:1.7; font-weight:600; letter-spacing:.01em; white-space:pre-wrap}
+  .qtext.small{font-size:13.5px; font-weight:500; color:var(--sub); line-height:1.6}
+
+  .opts{display:flex; flex-direction:column; gap:9px; width:100%}
+  .opt{
+    display:flex; gap:10px; align-items:flex-start; width:100%; text-align:left;
+    background:#fff; border:1.5px solid var(--line); border-radius:12px;
+    padding:12px 13px; font-size:15.5px; line-height:1.55; color:var(--ink);
+    cursor:pointer; font-family:inherit;
+  }
+  .opt:active{transform:scale(.99)}
+  .opt .k{
+    flex:0 0 24px; height:24px; border-radius:8px; background:#eef2f7; color:var(--blue-d);
+    font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  }
+  .opt .v{flex:1; padding-top:1px}
+  .opt.correct{border-color:#9ed4b8; background:#f1faf5}
+  .opt.correct .k{background:var(--green); color:#fff}
+  .opt.wrong{border-color:#f0bcb5; background:#fdf3f2}
+  .opt.wrong .k{background:var(--red); color:#fff}
+  .opt.idle{opacity:.62}
+  .opt.sel{border-color:var(--blue); background:#eff5fc}
+  .opt.sel .k{background:var(--blue); color:#fff}
+
+  /* ---------- 多选题专属：方形勾选框 ---------- */
+  .opt.sq .k{border-radius:6px; background:#fff; border:1.6px solid #ccd6e2; color:#8b97a5; transition:background .12s,border-color .12s,color .12s}
+  .opt.sq.sel{border-color:var(--indigo); background:#f3f5fd}
+  .opt.sq.sel .k{background:var(--indigo); border-color:var(--indigo); color:#fff}
+  .opt.sq.sel .v{font-weight:700}
+  .opt.sq.correct .k{background:var(--green); border-color:var(--green); color:#fff}
+  .opt.sq.wrong .k{background:var(--red); border-color:var(--red); color:#fff}
+  .multibar{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;
+    background:#f3f5fd; border:1px solid #dee2f6; border-radius:10px; padding:8px 12px;
+  }
+  .multibar .lb{font-size:12.5px; font-weight:800; color:var(--indigo); letter-spacing:.02em}
+  .multibar .ct{font-size:12.5px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .multibar .ct b{color:var(--indigo); font-size:14.5px}
+  .btn-submit[disabled]{background:#c6cfda; color:#fff; box-shadow:none}
+  .picked-line{font-size:13px; color:var(--sub); margin:0}
+  .picked-line b{color:var(--indigo)}
+  .answerhint{text-align:center; font-size:12.5px; color:var(--sub); padding:11px 0 2px; border-top:1px solid var(--line)}
+
+  .answers{display:flex; gap:10px; width:100%; margin-top:2px}
+  .btn{
+    border:none; border-radius:13px; padding:15px 0; font-size:17px; font-weight:800;
+    cursor:pointer; flex:1; color:#fff; box-shadow:var(--shadow); font-family:inherit;
+  }
+  .btn:active{transform:scale(.975)}
+  .btn-know{background:var(--green)}
+  .btn-dont{background:var(--red)}
+  .btn-next{background:var(--blue); flex:1.3}
+  .btn-plain{background:#fff; color:var(--blue); border:1.5px solid var(--blue); box-shadow:none}
+  .btn-mark{background:#f6f7f9; color:var(--sub); border:1.5px solid var(--line); box-shadow:none; font-size:14.5px; line-height:1.25}
+  .btn-mark.done{background:#e9edf2; color:var(--blue-d)}
+  .btn-submit{background:var(--blue)}
+  .hint{color:var(--sub); font-size:13.5px; text-align:center}
+
+  /* ---------- answer ---------- */
+  .verdict{font-size:13.5px; font-weight:800; padding:8px 12px; border-radius:10px; align-self:flex-start}
+  .v-ok{background:#e7f4ee; color:var(--green)}
+  .v-no{background:#fdeceb; color:var(--red)}
+  .ansblock{
+    background:#f8fafc; border:1px solid #e6ecf3; border-radius:12px;
+    padding:14px; display:flex; flex-direction:column; gap:8px;
+  }
+  .anslabel{font-size:11.5px; font-weight:800; letter-spacing:.1em; color:var(--blue-d)}
+  .anstext{font-size:15px; line-height:1.78; white-space:pre-wrap}
+  .anstext.mono{font-variant-numeric:tabular-nums}
+  .explabel{font-size:11.5px; font-weight:800; letter-spacing:.1em; color:var(--sub); margin-top:2px}
+  .exptext{font-size:14px; line-height:1.72; color:#3c4854; white-space:pre-wrap}
+  .divider{height:1px; background:var(--line); width:100%}
+  .mbnote{font-size:12px; color:var(--red); text-align:center; margin:0; min-height:0}
+
+  /* ---------- mistake list ---------- */
+  .mb-list{width:100%; display:flex; flex-direction:column; gap:8px}
+  .mb-item{
+    display:flex; align-items:center; gap:10px; background:#fff8f7;
+    border:1px solid #f3d7d3; border-radius:11px; padding:10px 12px; cursor:pointer; text-align:left;
+  }
+  .mb-item .nm{flex:1; font-size:13.5px; font-weight:600; color:#8c2f23; line-height:1.45;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .mb-item .kl{font-size:11.5px; color:#a07; display:block; font-weight:700; margin-top:2px}
+  .mb-item .rm{
+    border:1px solid #f0c9c3; background:#fff; color:var(--red);
+    border-radius:8px; padding:6px 9px; font-size:12.5px; cursor:pointer; flex:0 0 auto;
+  }
+  .statsline{width:100%; display:flex; justify-content:space-between; color:var(--sub); font-size:14px; padding:0 2px}
+  .done-list{width:100%; max-height:34vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px}
+  .done-item{background:#fff7f6; border:1px solid #f3d7d3; color:#8c2f23; border-radius:10px; padding:8px 11px; font-size:13px; line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="backbtn" id="backBtn">← 返回</button>
+  <div class="topinfo" id="topInfo">药剂脑袋</div>
+  <button class="topbtn empty" id="mbBtn">错题本 <span class="badge" id="mbCount">0</span></button>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<script src="data_term.js"></script>
+<script src="data_choice.js"></script>
+<script src="data_blank.js"></script>
+<script src="data_qa.js"></script>
+<script src="data_rx.js"></script>
+<script>
+const $ = (s, r) => (r || document).querySelector(s);
+const stage = $("#stage"), topInfo = $("#topInfo"), backBtn = $("#backBtn");
+
+/* ---------- 存储（带失败兜底） ---------- */
+const MEM = {};
+let LS_BLOCKED = false;
+const LS = {
+  get(k, d){
+    try{
+      const v = JSON.parse(localStorage.getItem(k));
+      if (v === null || v === undefined) return (k in MEM) ? MEM[k] : d;
+      return v;
+    }catch(e){ LS_BLOCKED = true; return (k in MEM) ? MEM[k] : d }
+  },
+  set(k, v){
+    MEM[k] = v;
+    try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){ LS_BLOCKED = true }
+  }
+};
+const K_MISTAKE = "yj_mistakes";
+const mistakeIds = () => LS.get(K_MISTAKE, []);
+const hasMistake = id => mistakeIds().includes(id);
+function addMistake(id){
+  const a = mistakeIds();
+  if (!a.includes(id)){ a.push(id); LS.set(K_MISTAKE, a) }
+  updateBadge();
+}
+function removeMistake(id){
+  LS.set(K_MISTAKE, mistakeIds().filter(x => x !== id));
+  updateBadge();
+}
+function updateBadge(){
+  const n = mistakeIds().length, b = $("#mbBtn"), c = $("#mbCount");
+  if (!b || !c) return;
+  c.textContent = n;
+  b.classList.toggle("empty", n === 0);
+}
+
+/* ---------- 元数据 ---------- */
+const TYPES = {
+  term:   {key:"term",   name:"名词解释", cls:"i-term",   ic:"词", desc:"看术语（中英文）回忆定义，自评"},
+  single: {key:"single", name:"单选题", cls:"i-single", ic:"单", desc:"选 A/B/C/D，点一下即判对错"},
+  multi:  {key:"multi",  name:"多选题", cls:"i-multi",  ic:"多", desc:"勾选全部正确项，再提交答案"},
+  blank:  {key:"blank",  name:"填空题", cls:"i-blank",  ic:"填", desc:"回想空格内容，自评「会了/不会」"},
+  qa:     {key:"qa",     name:"问答题", cls:"i-qa",     ic:"问", desc:"口述或默写要点，再自评"},
+  rx:     {key:"rx",     name:"处方分析", cls:"i-rx",   ic:"方", desc:"先看处方组成、分析各成分作用，再对照答案"},
+  calc:   {key:"calc",   name:"计算题", cls:"i-calc",   ic:"算", desc:"动笔算完再看答案，再自评"},
+};
+const byType = t => QB.filter(q => q.type === t);
+const isChoice = q => q.type === "single" || q.type === "multi";
+const isMulti = q => q.type === "multi";
+const LETTER = ["A","B","C","D","E","F"];
+
+/* 章节表：按《药剂学》教学日历（2024 级 2026-2027-1，吴正红 第 1 版） */
+const CHAPS = [
+  {id:"c1",  no:1,  wk:"1",     name:"绪论",                     btn:"绪论", short:"绪论"},
+  {id:"c2",  no:2,  wk:"2",     name:"药物制剂的设计",           btn:"制剂设计", short:"药物制剂的设计"},
+  {id:"c3",  no:3,  wk:"3",     name:"药物制剂的稳定性",         btn:"稳定性", short:"药物制剂的稳定性"},
+  {id:"c4",  no:4,  wk:"4",     name:"药用辅料",                 btn:"药用辅料", short:"药用辅料"},
+  {id:"c5",  no:5,  wk:"5–6",   name:"液体制剂",                 btn:"液体制剂", short:"液体制剂"},
+  {id:"c6",  no:6,  wk:"7–8",   name:"无菌制剂",                 btn:"无菌制剂", short:"无菌制剂"},
+  {id:"c7",  no:7,  wk:"8–11",  name:"固体制剂与片剂（散剂·颗粒剂·胶囊剂·滴丸剂·膜剂·栓剂·片剂）", btn:"固体制剂·片剂", short:"固体制剂与片剂"},
+  {id:"c9",  no:9,  wk:"12",    name:"半固体制剂",               btn:"半固体制剂", short:"半固体制剂"},
+  {id:"c10", no:10, wk:"13",    name:"雾化制剂",                 btn:"雾化制剂", short:"雾化制剂"},
+  {id:"c11", no:11, wk:"14",    name:"制剂新技术",               btn:"制剂新技术", short:"制剂新技术"},
+  {id:"c12", no:12, wk:"15–16", name:"缓释与控释制剂",           btn:"缓控释", short:"缓释与控释制剂"},
+  {id:"c13", no:13, wk:"17",    name:"靶向制剂与经皮制剂",       btn:"靶向·经皮", short:"靶向与经皮制剂"},
+];
+const CHAP_BY_ID = CHAPS.reduce((m, c) => (m[c.id] = c, m), {});
+const chapOf = q => CHAP_BY_ID[q.chap] || {no:0, wk:"—", name:"未分类", short:"未分类"};
+const chapLabel = q => { const c = chapOf(q); return c.no ? `第${c.no}章 ${c.short}` : c.short; };
+const chapFull = q => { const c = chapOf(q); return c.no ? `第${c.no}章 ${c.name}` : c.name; };
+
+let S = null;   // 会话状态
+
+function shuffle(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] }
+  return a;
+}
+function eqSet(a,b){
+  if (a.length !== b.length) return false;
+  const x = a.slice().sort().join(), y = b.slice().sort().join();
+  return x === y;
+}
+function typeOf(q){ return TYPES[q.type] }
+
+/* ---------- 首页 ---------- */
+const K_CHAPS = "yj_chaps";
+const HOME = {
+  chaps: (() => {                       // 多选章节；空数组 = 全部
+    const a = LS.get(K_CHAPS, []);
+    return Array.isArray(a) ? a.filter(id => CHAP_BY_ID[id]) : [];
+  })(),
+  deck: "all", open: false
+};
+
+function deckFor(type, chaps, from){
+  let d = type ? byType(type) : QB.slice();
+  if (chaps && chaps.length) d = d.filter(q => chaps.includes(q.chap));
+  if (from === "mistakes") d = d.filter(q => hasMistake(q.id));
+  return d;
+}
+
+function goHome(keepScroll){
+  const prevCard = $(".card.home");
+  const keepTop = keepScroll && prevCard ? prevCard.scrollTop : 0;
+  S = null;
+  topInfo.textContent = "药剂脑袋";
+  const total = QB.length, mb = mistakeIds().length;
+  const scopeN = deckFor(null, HOME.chaps, HOME.deck).length;
+  const picked = HOME.chaps.map(id => CHAP_BY_ID[id]);
+
+  let barName = "全部章节";
+  if (picked.length === 1){
+    const c0 = picked[0];
+    barName = c0.no ? `第${c0.no}章 ${c0.short}` : c0.short;
+  } else if (picked.length > 1){
+    barName = `已选 ${picked.length} 章：` + picked.map(c0 => c0.btn).join("、");
+  }
+
+  const groups = [
+    {label:"教学日历 · 按章（括号内为周次）", items:CHAPS.filter(c => !c.extra)},
+    {label:"现行教材未单列章 / 教学日历未安排", items:CHAPS.filter(c => c.extra)},
+  ].map(g => `
+      <div class="chpgrp">
+        <div class="chpgh">${g.label}</div>
+        <div class="chpgrid">${g.items.map(c => {
+          const n = QB.filter(q => q.chap === c.id).length;
+          const nm = c.no ? `第${c.no}章 ${c.btn}` : c.btn;
+          const meta = (c.wk !== "—" ? `周${c.wk}` : "教材外") + ` · ${n} 题`;
+          return `<button class="chp${HOME.chaps.includes(c.id) ? " on" : ""}" data-chap="${c.id}" title="${c.name}"><span class="cn">${nm}</span><span class="cm">${meta}</span></button>`;
+        }).join("")}</div>
+      </div>`).join("");
+
+  const panel = HOME.open ? `
+      <div class="chappanel">
+        <div class="chphint"><span>可多选 · 不选任何章＝全部 ${total} 题</span><button class="chpclose" id="chapClose">收起 ▴</button></div>
+        <div class="chpgrp">
+          <button class="chp wide${HOME.chaps.length === 0 ? " on" : ""}" data-chap="all"><span class="cn">全部章节</span><span class="cm">${total} 题</span></button>
+        </div>
+        ${groups}
+        <button class="chpdone" id="chapDone">完成 · ${HOME.chaps.length ? `已选 ${HOME.chaps.length} 章` : "全部章节"}，共 ${scopeN} 题</button>
+      </div>` : "";
+
+  const cards = Object.values(TYPES).filter(t => t.key !== "calc" || deckFor(t.key, HOME.chaps, HOME.deck).length > 0).map(t => {
+    const list = deckFor(t.key, HOME.chaps, HOME.deck);
+    const n = list.length, u = list.filter(q => hasMistake(q.id)).length;
+    const dis = n === 0;
+    return `<button class="modebtn${dis ? " dis" : ""}" data-type="${t.key}"${dis ? " disabled" : ""}>
+      <span class="ic ${t.cls}">${t.ic}</span>
+      <span class="tx">
+        <span class="t">${t.name}（${n} 题）${u ? `<span class="uc">错题 ${u}</span>` : ""}</span>
+        <span class="d">${dis ? "本范围暂无此题型" : t.desc}</span>
+      </span>
+      <span class="ar">›</span>
+    </button>`;
+  }).join("");
+
+  stage.innerHTML = `
+    <div class="card home">
+      <h1 class="title">药剂脑袋 💊</h1>
+      <p class="sub">《药剂学》第 1 版 · 共 ${total} 题 · 错题本 ${mb} 题</p>
+
+      <div class="grp-label">范围</div>
+      <div class="seg" id="deckSeg">
+        <button class="${HOME.deck === "all" ? "on" : ""}" data-deck="all">全部题库</button>
+        <button class="${HOME.deck === "mistakes" ? "on" : ""}" data-deck="mistakes">只练错题本</button>
+      </div>
+
+      <div class="grp-label">章节（可多选，按教学日历）</div>
+      <div class="chappick">
+        <button class="chapcur${HOME.open ? " open" : ""}" id="chapBtn">
+          <span class="lb">章节</span>
+          <span class="nm">${barName}</span>
+          <span class="cnt">${scopeN} 题</span>
+          <span class="cv">▾</span>
+        </button>
+        ${panel}
+      </div>
+
+      <div class="grp-label">选择题型开始</div>
+      ${cards}
+      <div class="footer-note">章节按《药剂学》教学日历（2024 级 2026-2027 第一学期 · 吴正红 第 1 版）归并<br>题库仅供自测，答案以教材与现行药典为准</div>
+    </div>`;
+
+  stage.querySelectorAll("#deckSeg button").forEach(b => {
+    b.onclick = () => { HOME.deck = b.dataset.deck; goHome(true) };
+  });
+  $("#chapBtn").onclick = () => { HOME.open = !HOME.open; goHome(true) };
+  stage.querySelectorAll(".chp").forEach(b => {
+    b.onclick = () => {
+      const id = b.dataset.chap;
+      if (id === "all") HOME.chaps = [];
+      else HOME.chaps = HOME.chaps.includes(id)
+        ? HOME.chaps.filter(x => x !== id)
+        : HOME.chaps.concat(id).sort((x, y) => CHAPS.findIndex(c => c.id === x) - CHAPS.findIndex(c => c.id === y));
+      LS.set(K_CHAPS, HOME.chaps);
+      HOME.open = true;
+      goHome(true);
+    };
+  });
+  const closePanel = () => { HOME.open = false; goHome(true) };
+  const done = $("#chapDone");
+  if (done) done.onclick = closePanel;
+  const cls = $("#chapClose");
+  if (cls) cls.onclick = closePanel;
+  stage.querySelectorAll(".modebtn:not(.dis)").forEach(b => {
+    b.onclick = () => startSession(b.dataset.type, HOME.chaps, HOME.deck);
+  });
+
+  const card = $(".card.home");
+  if (card) card.scrollTop = keepTop;
+  updateBadge();
+}
+
+/* ---------- 开始一轮 ---------- */
+function startSession(type, chaps, deckSel){
+  const deck = deckFor(type, chaps, deckSel);
+  if (!deck.length){
+    alert(deckSel === "mistakes" ? "该范围暂无错题" : "该章节暂无此类题目");
+    return;
+  }
+  S = { type, chaps, from: deckSel, deck: shuffle(deck), idx: 0, right: 0, wrong: 0, wrongList: [], picked: [], revealed: false };
+  showQuestion();
+}
+
+/* ---------- 界面一：题目 ---------- */
+function showQuestion(){
+  const q = S.deck[S.idx], t = typeOf(q);
+  S.picked = []; S.revealed = false;
+  topInfo.textContent = `${S.idx + 1} / ${S.deck.length} · ${t.name}`;
+
+  let body, actions = "";
+  if (isChoice(q)){
+    const opts = q.opts.map((o, i) =>
+      `<button class="opt${isMulti(q) ? " sq" : ""}" data-i="${i}"><span class="k">${LETTER[i]}</span><span class="v">${o}</span></button>`).join("");
+    body = `<div class="opts" id="opts">${opts}</div>`;
+    if (isMulti(q)){
+      body += `<div class="multibar"><span class="lb">多选题 · 可多选</span><span class="ct">已选 <b id="pickN">0</b> 项</span></div>`;
+      actions = `<div class="answers"><button class="btn btn-submit" id="bSubmit" disabled>请先勾选答案</button></div>`;
+    } else {
+      actions = `<div class="answerhint">点选项即判对错 · 答错自动进错题本</div>`;
+    }
+  } else {
+    body = `<p class="hint" style="margin:auto 0 0">先自己${q.type === "calc" ? "动笔算" : "在心里过一遍"}，再自评</p>`;
+    actions = `<div class="answers">
+        <button class="btn btn-know" id="bKnow">会了</button>
+        <button class="btn btn-dont" id="bDont">不会</button>
+      </div>`;
+  }
+
+  stage.innerHTML = `
+    <div class="prog"><div style="width:${(S.idx / S.deck.length) * 100}%"></div></div>
+    <div class="card fixed">
+      <div class="qhead">
+        <span class="pill">${t.name}</span>
+        <span class="pill ${q.type === "calc" ? "a" : ""}">${chapLabel(q)}</span>
+        ${hasMistake(q.id) ? `<span class="pill r">错题本中</span>` : ""}
+      </div>
+      <div class="qbody">
+        <div class="qtext">${q.q}</div>
+        ${body}
+      </div>
+      ${actions}
+    </div>`;
+
+  if (isChoice(q)){
+    const buttons = [...stage.querySelectorAll(".opt")];
+    if (isMulti(q)){
+      const sb = $("#bSubmit");
+      const sync = () => {
+        buttons.forEach(x => x.classList.toggle("sel", S.picked.includes(Number(x.dataset.i))));
+        const n = S.picked.length, pn = $("#pickN");
+        if (pn) pn.textContent = n;
+        sb.disabled = n === 0;
+        sb.textContent = n ? `提交答案（已选 ${n} 项）` : "请先勾选答案";
+      };
+      buttons.forEach(b => {
+        b.onclick = () => {
+          if (S.revealed) return;
+          const i = Number(b.dataset.i);
+          S.picked = S.picked.includes(i)
+            ? S.picked.filter(x => x !== i)
+            : S.picked.concat(i).sort((x, y) => x - y);
+          sync();
+        };
+      });
+      sb.onclick = () => { if (S.picked.length) reveal(eqSet(S.picked, q.ans)) };
+      sync();
+    } else {
+      buttons.forEach(b => {
+        b.onclick = () => {
+          if (S.revealed) return;
+          S.picked = [Number(b.dataset.i)];
+          reveal(eqSet(S.picked, q.ans));
+        };
+      });
+    }
+  } else {
+    $("#bKnow").onclick = () => reveal(true, true);
+    $("#bDont").onclick = () => reveal(false, true);
+  }
+}
+
+/* ---------- 判定 + 界面二 ---------- */
+function reveal(correct, selfEval){
+  const q = S.deck[S.idx];
+  S.revealed = true;
+
+  const wasMistake = hasMistake(q.id);
+  if (correct){
+    S.right++;
+    if (S.from === "mistakes" && wasMistake) removeMistake(q.id);
+  } else {
+    S.wrong++;
+    S.wrongList.push(q);
+    if (!wasMistake) addMistake(q.id);   // 选错 / 答「不会」→ 自动加入错题本
+  }
+  showAnswer(correct, selfEval);
+}
+
+function showAnswer(correct, selfEval){
+  const q = S.deck[S.idx], t = typeOf(q);
+  const marked = hasMistake(q.id);
+  const miss = isMulti(q) ? q.ans.filter(i => !S.picked.includes(i)) : [];
+  const extra = isMulti(q) ? S.picked.filter(i => !q.ans.includes(i)) : [];
+  const L = arr => arr.map(i => LETTER[i]).join("、");
+
+  let verdict;
+  if (correct){
+    verdict = S.from === "mistakes" && !marked
+      ? `<div class="verdict v-ok">✅ ${selfEval ? "会了" : "答对"} · 已从错题本移出</div>`
+      : `<div class="verdict v-ok">✅ ${selfEval ? "会了" : "答对"}</div>`;
+  } else if (selfEval){
+    verdict = `<div class="verdict v-no">📌 答「不会」${marked ? " · 已自动加入错题本" : ""}</div>`;
+  } else if (isMulti(q) && !extra.length){
+    verdict = `<div class="verdict v-no">⚠️ 漏选 ${L(miss)}${marked ? " · 已加入错题本" : ""}</div>`;
+  } else if (isMulti(q)){
+    verdict = `<div class="verdict v-no">❌ 多选了 ${L(extra)}${miss.length ? `，漏选 ${L(miss)}` : ""}${marked ? " · 已加入错题本" : ""}</div>`;
+  } else {
+    verdict = `<div class="verdict v-no">❌ 选错了${marked ? " · 已自动加入错题本" : ""}</div>`;
+  }
+
+  let optsHTML = "";
+  if (isChoice(q)){
+    optsHTML = `<div class="opts">${q.opts.map((o, i) => {
+      const isAns = q.ans.includes(i), isPick = S.picked.includes(i);
+      let cls = "idle";
+      if (isAns) cls = "correct";
+      else if (isPick) cls = "wrong";
+      const tag = isAns ? `<span class="pill g" style="flex:0 0 auto">正确答案</span>`
+                  : isPick ? `<span class="pill r" style="flex:0 0 auto">你的选择</span>` : "";
+      return `<div class="opt${isMulti(q) ? " sq" : ""} ${cls}"><span class="k">${LETTER[i]}</span><span class="v">${o}</span>${tag}</div>`;
+    }).join("")}</div>`;
+  }
+
+  const ansLabel = isChoice(q)
+    ? `正确答案：${q.ans.map(i => LETTER[i]).join("、")}${isMulti(q) ? `（共 ${q.ans.length} 项）` : ""}`
+    : "参考答案";
+  const pickedLine = isMulti(q)
+    ? `<p class="picked-line">你勾选了：<b>${S.picked.length ? S.picked.map(i => LETTER[i]).join("、") : "未选择"}</b></p>`
+    : "";
+  const ansHTML = isChoice(q)
+    ? (q.exp ? `<div class="ansblock"><div class="explabel">解析</div><div class="exptext">${q.exp}</div></div>` : "")
+    : `<div class="ansblock">
+         <div class="anslabel">${ansLabel}</div>
+         <div class="anstext">${q.a}</div>
+         ${q.exp ? `<div class="divider"></div><div class="explabel">解析</div><div class="exptext">${q.exp}</div>` : ""}
+       </div>`;
+  const isLast = S.idx + 1 >= S.deck.length;
+
+  stage.innerHTML = `
+    <div class="prog"><div style="width:${((S.idx + 1) / S.deck.length) * 100}%"></div></div>
+    <div class="card fixed">
+      <div class="qbody">
+        ${verdict}
+        ${isChoice(q) ? `<div class="anslabel">${ansLabel}</div>${pickedLine}` : ""}
+        <div class="qtext small">${q.q}</div>
+        ${optsHTML}
+        ${ansHTML}
+        <p class="mbnote">${LS_BLOCKED ? "⚠ 本机存储不可用，记录仅在当前页面有效" : ""}</p>
+      </div>
+      <div class="answers">
+        <button class="btn btn-mark${marked ? " done" : ""}" title="点击可移出错题本" id="bMark">${marked ? "✓ 已在错题本" : "加入错题本"}</button>
+        <button class="btn btn-next" id="bNext">${isLast ? "完成 ✓" : "下一个 →"}</button>
+      </div>
+    </div>`;
+
+  $("#bNext").onclick = next;
+  $("#bMark").onclick = () => {
+    const on = !hasMistake(q.id);
+    if (on) addMistake(q.id); else removeMistake(q.id);
+    const now = hasMistake(q.id);
+    const mb = $("#bMark");
+    mb.classList.toggle("done", now);
+    mb.textContent = now ? "✓ 已在错题本" : "加入错题本";
+    const v = stage.querySelector(".verdict");
+    if (v && v.classList.contains("v-no")){
+      const base = v.textContent.split(" · ")[0];
+      v.textContent = base + (now ? " · 已加入错题本" : " · 未加入错题本");
+    }
+    updateBadge();
+  };
+  updateBadge();
+}
+
+function next(){
+  S.idx++;
+  if (S.idx >= S.deck.length) return finish();
+  showQuestion();
+}
+
+/* ---------- 完成页 ---------- */
+function finish(){
+  topInfo.textContent = "本轮完成";
+  const total = S.deck.length;
+  const list = S.wrongList.length
+    ? `<div class="done-list">${S.wrongList.map(q => `<div class="done-item">📌 ${q.q.slice(0, 42)}${q.q.length > 42 ? "…" : ""} <span style="color:#a07">${chapLabel(q)}</span></div>`).join("")}</div>`
+    : `<div class="hint">🎉 全对，本轮无错题</div>`;
+  stage.innerHTML = `
+    <div class="card home center">
+      <h1 class="title">完成</h1>
+      <div class="statsline"><span>总题数</span><b>${total}</b></div>
+      <div class="statsline"><span>✅ 会了 / 答对</span><b style="color:var(--green)">${S.right}</b></div>
+      <div class="statsline"><span>📌 不会 / 答错</span><b style="color:var(--red)">${S.wrong}</b></div>
+      <div class="prog"><div style="width:${(S.right / total) * 100}%"></div></div>
+      ${list}
+      <div class="answers" style="flex-wrap:wrap">
+        ${S.wrongList.length ? `<button class="btn btn-dont" id="bRetry">重练本轮错题</button>` : ""}
+        <button class="btn btn-plain" id="bHome">回到首页</button>
+      </div>
+    </div>`;
+  $("#bHome").onclick = goHome;
+  const r = $("#bRetry");
+  if (r) r.onclick = () => {
+    S.deck = shuffle(S.wrongList.slice());
+    S.idx = 0; S.right = 0; S.wrong = 0; S.wrongList = [];
+    showQuestion();
+  };
+}
+
+/* ---------- 错题本 ---------- */
+function wrongBook(){
+  topInfo.textContent = "错题本";
+  updateBadge();
+  const items = mistakeIds().map(id => QB.find(q => q.id === id)).filter(Boolean);
+  const rows = items.length
+    ? `<div class="mb-list">${items.map(q => `
+        <div class="mb-item" data-id="${q.id}">
+          <span class="nm">${q.q.slice(0, 46)}${q.q.length > 46 ? "…" : ""}<span class="kl">${typeOf(q).name} · ${chapLabel(q)}</span></span>
+          <button class="rm" data-id="${q.id}">移除</button>
+        </div>`).join("")}</div>`
+    : `<div class="hint">错题本是空的<br>单选、多选答错会自动进入这里；也可在答案页点「加入错题本」</div>`;
+
+  stage.innerHTML = `
+    <div class="card home">
+      <h1 class="title">错题本</h1>
+      <p class="sub">共 ${items.length} 题 · 在「只练错题本」模式中答对会自动移出</p>
+      ${rows}
+      <div class="answers" style="flex-wrap:wrap">
+        ${items.length ? `<button class="btn btn-dont" id="mbPractice">只练错题本</button>` : ""}
+        ${items.length ? `<button class="btn btn-plain" id="mbClear">清空</button>` : ""}
+        <button class="btn btn-plain" id="mbHome">回到首页</button>
+      </div>
+    </div>`;
+
+  stage.querySelectorAll(".mb-item").forEach(el => {
+    el.onclick = () => openOne(QB.find(x => x.id === el.dataset.id));
+  });
+  stage.querySelectorAll(".rm").forEach(b => {
+    b.onclick = e => { e.stopPropagation(); removeMistake(b.dataset.id); wrongBook() };
+  });
+  const p = $("#mbPractice");
+  if (p) p.onclick = () => {
+    S = { type: "mixed", ch: "all", from: "mistakes", deck: shuffle(items.slice()), idx: 0,
+          right: 0, wrong: 0, wrongList: [], picked: [], revealed: false };
+    showQuestion();
+  };
+  const c = $("#mbClear");
+  if (c) c.onclick = () => { if (confirm("清空错题本？")){ LS.set(K_MISTAKE, []); updateBadge(); wrongBook() } };
+  $("#mbHome").onclick = goHome;
+}
+
+/* 从错题本点条目：直接看这一题的界面二 */
+function openOne(q){
+  if (!q) return;
+  S = { type: q.type, chap: q.chap, from: "book", deck: [q], idx: 0, right: 0, wrong: 0,
+        wrongList: [], picked: [], revealed: true };
+  topInfo.textContent = "错题回顾";
+  const marked = hasMistake(q.id);
+  let optsHTML = "";
+  if (isChoice(q)){
+    optsHTML = `<div class="opts">${q.opts.map((o, i) =>
+      `<div class="opt${isMulti(q) ? " sq" : ""} ${q.ans.includes(i) ? "correct" : "idle"}"><span class="k">${LETTER[i]}</span><span class="v">${o}</span>${
+        q.ans.includes(i) ? `<span class="pill g" style="flex:0 0 auto">正确答案</span>` : ""}</div>`).join("")}</div>`;
+  }
+  stage.innerHTML = `
+    <div class="card fixed">
+      <div class="qbody">
+        <div class="qhead"><span class="pill">${typeOf(q).name}</span><span class="pill">${chapLabel(q)}</span></div>
+        <div class="qtext">${q.q}</div>
+        ${optsHTML}
+        ${isChoice(q)
+          ? `<div class="anslabel">正确答案：${q.ans.map(i => LETTER[i]).join("、")}${isMulti(q) ? `（共 ${q.ans.length} 项）` : ""}</div>`
+          : `<div class="ansblock"><div class="anslabel">参考答案</div><div class="anstext">${q.a}</div></div>`}
+        ${q.exp ? `<div class="ansblock"><div class="explabel">解析</div><div class="exptext">${q.exp}</div></div>` : ""}
+      </div>
+      <div class="answers">
+        <button class="btn btn-mark${marked ? " done" : ""}" title="点击可移出错题本" id="bMark">${marked ? "✓ 已在错题本" : "加入错题本"}</button>
+        <button class="btn btn-next" id="bBack">返回错题本</button>
+      </div>
+    </div>`;
+  $("#bBack").onclick = wrongBook;
+  $("#bMark").onclick = () => {
+    const on = !hasMistake(q.id);
+    if (on) addMistake(q.id); else removeMistake(q.id);
+    const now = hasMistake(q.id);
+    const mb = $("#bMark");
+    mb.classList.toggle("done", now);
+    mb.textContent = now ? "✓ 已在错题本" : "加入错题本";
+    updateBadge();
+  };
+}
+
+/* ---------- 顶部按钮 ---------- */
+$("#mbBtn").onclick = () => {
+  if (S && S.idx < S.deck.length && !confirm("退出本次练习，进入错题本？")) return;
+  S = null; wrongBook();
+};
+backBtn.onclick = () => {
+  if (S && S.idx < S.deck.length){ if (confirm("退出本次练习，回到首页？")) goHome(); return; }
+  // 已在本页首页 → 回到学习小站
+  if (document.querySelector(".card.home")){ location.href = "../"; return; }
+  goHome();
+};
+document.addEventListener("keydown", e => {
+  if (!S) return;
+  if (e.key === "ArrowRight" && $("#bNext")) $("#bNext").click();
+  const cur = S.deck[S.idx];
+  if (!cur || S.revealed) return;
+  if (/^[1-6]$/.test(e.key) && isChoice(cur)){
+    const b = stage.querySelector(`.opt[data-i="${Number(e.key) - 1}"]`);
+    if (b) b.click();
+  }
+  const sb = $("#bSubmit");
+  if (e.key === "Enter" && sb && !sb.disabled) sb.click();
+});
+
+goHome();
+</script>
+</body>
+</html>

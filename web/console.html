@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内容台 · 学习小站</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/logo-64.png">
+<link rel="stylesheet" href="assets/style.css?v=20261025j">
+</head>
+<body>
+
+<div class="topline"></div>
+
+<header class="topbar">
+  <div class="wrap topbar__inner">
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="assets/logo.png" width="38" height="38" alt="学生学习促进协会标志">
+      <div class="brand__text">
+        <div class="brand__name">学习小站</div>
+        <div class="brand__sub">内容台</div>
+      </div>
+    </a>
+    <nav class="topnav">
+      <a href="index.html">返回主页</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap console-wrap">
+
+  <!-- 密令闸门 -->
+  <div class="gate" id="gate" style="display:none">
+    <div class="gate__icon">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="7" width="10" height="7" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+    </div>
+    <h2>内容台</h2>
+    <p>统管公告、活动、部门与站点信息的入口。请输入密令后进入，关闭浏览器会话自动退出。</p>
+
+    <div class="field">
+      <label for="codeInput">密令</label>
+      <input class="input input--code" id="codeInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••">
+    </div>
+
+    <button class="btn btn--primary btn--full" id="codeBtn">进入内容台</button>
+    <p class="error-msg" id="codeError">密令不正确，请重试。</p>
+    <p class="hint">当前为本地版本，密令写在前端代码中，只起到遮挡作用，不构成真实权限控制。</p>
+  </div>
+
+  <!-- 内容台主体 -->
+  <div id="consoleApp" style="display:none">
+
+    <div class="console-head">
+      <div>
+        <div class="crumb" style="margin-bottom:8px"><a href="index.html">主页</a><span>/</span>内容台</div>
+        <h1>内容台</h1>
+      </div>
+      <div class="console-head__actions">
+        <span id="saveState" class="save-state"></span>
+        <button class="btn btn--sm" id="btnReset">恢复示例数据</button>
+        <button class="btn btn--sm btn--danger" id="btnLock">退出</button>
+      </div>
+    </div>
+
+    <div class="notice-tip" style="margin-top:22px">
+      <div>
+        <strong>已接入服务器：</strong>这里的改动会直接保存到站点服务器，所有人刷新后都能看到。
+        每次保存前服务器会自动备份上一版，改坏了可以找我回滚。
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat__label">公告</div>
+        <div class="stat__value" id="statAnn">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">活动</div>
+        <div class="stat__value" id="statAct">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">部门 / 模块</div>
+        <div class="stat__value" id="statTool">0</div>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab is-active" data-tab="ann">公告</button>
+      <button class="tab" data-tab="act">活动</button>
+      <button class="tab" data-tab="dept">部门</button>
+      <button class="tab" data-tab="site">站点信息</button>
+      <button class="tab" data-tab="lib">资料分类</button>
+      <button class="tab" data-tab="tool">小帮手模块</button>
+    </div>
+
+    <!-- 公告 -->
+    <section class="panel is-active" id="panel-ann">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+        <button class="btn btn--primary btn--sm" id="btnAddAnn">＋ 新建公告</button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:104px">日期</th>
+            <th>标题</th>
+            <th style="width:64px">分类</th>
+            <th style="width:52px">置顶</th>
+            <th style="width:120px"></th>
+          </tr>
+        </thead>
+        <tbody id="annTable"></tbody>
+      </table>
+    </section>
+
+    <!-- 活动 -->
+    <section class="panel" id="panel-act">
+      <div class="notice-tip">
+        <div><strong>海报规格：</strong>竖版长图，比例约 <b>3:4</b>（建议 1080×1440 或 720×1037），与讲课系列海报一致。
+          填图片地址即可，留空时前台显示「海报待上传」占位块。正文支持换行，前台按段落显示。</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+        <button class="btn btn--primary btn--sm" id="btnAddAct">＋ 新建活动</button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:100px">日期</th>
+            <th>活动</th>
+            <th style="width:70px">海报</th>
+            <th style="width:70px">回放</th>
+            <th style="width:120px"></th>
+          </tr>
+        </thead>
+        <tbody id="actTable"></tbody>
+      </table>
+    </section>
+
+    <!-- 部门 -->
+    <section class="panel" id="panel-dept">
+      <div class="site-block" style="padding-top:6px">
+        <h3 class="site-block__title">页面文字</h3>
+        <p class="site-block__sub">「加入我们」页面上的标题与说明。留空则沿用默认文案。</p>
+        <div class="site-grid">
+          <div class="field"><label>页头标题</label><input class="input" id="joinTitle2" placeholder="欢迎加入学促会！"></div>
+          <div class="field"><label>部门节标题</label><input class="input" id="joinDeptTitle2" placeholder="部门介绍"></div>
+          <div class="field" style="grid-column:1/-1"><label>页头介绍</label><textarea class="input" id="joinIntro2" style="min-height:72px"></textarea></div>
+          <div class="field" style="grid-column:1/-1"><label>部门节副标题</label><input class="input" id="joinDeptDesc2" placeholder="五个部门，按你擅长的事来选"></div>
+          <div class="field"><label>「怎么加入」标题</label><input class="input" id="joinHowTitle2" placeholder="怎么加入"></div>
+          <div class="field"><label>「怎么加入」副标题</label><input class="input" id="joinHowDesc2" placeholder="招新时间与报名流程"></div>
+          <div class="field" style="grid-column:1/-1"><label>「怎么加入」正文（空行分段）</label><textarea class="input" id="joinHowText2" style="min-height:130px"></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:14px">
+          <button class="btn btn--primary" id="btnSaveJoin" type="button">保存页面文字</button>
+        </div>
+      </div>
+
+      <div class="site-block">
+        <h3 class="site-block__title">部门列表</h3>
+        <p class="site-block__sub">每张卡片对应「加入我们」页的一个部门。</p>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+          <button class="btn btn--primary btn--sm" id="btnAddDept" type="button">＋ 新建部门</button>
+        </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:90px">部门</th>
+            <th>一句话职责</th>
+            <th>说明</th>
+            <th style="width:120px"></th>
+          </tr>
+        </thead>
+        <tbody id="deptTable"></tbody>
+      </table>
+      </div>
+    </section>
+
+    <!-- 站点信息 -->
+    <section class="panel" id="panel-site">
+      <div class="site-block" style="padding-top:6px">
+        <h3 class="site-block__title">首页首屏</h3>
+        <p class="site-block__sub">首页最上方那段文字。主标题里用 <code>**两个星号**</code> 包住要绿色高亮的词。</p>
+        <div class="site-grid">
+          <div class="field" style="grid-column:1/-1"><label>小标（英文行）</label><input class="input" id="homeEyebrow2" placeholder="Study Center · 2026 秋"></div>
+          <div class="field" style="grid-column:1/-1"><label>主标题（**词** = 高亮）</label><textarea class="input" id="homeTitle2" style="min-height:76px"></textarea></div>
+          <div class="field" style="grid-column:1/-1"><label>说明文字</label><textarea class="input" id="homeText2" style="min-height:60px"></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:14px">
+          <button class="btn btn--primary" id="btnSaveHome" type="button">保存首屏文案</button>
+        </div>
+      </div>
+
+      <div class="site-block">
+        <h3 class="site-block__title">合作与联系</h3>
+        <p class="site-block__sub">显示在页面底部。留空的项不会显示。</p>
+        <div class="site-grid">
+          <div class="field"><label>小标题</label><input class="input" id="siteContactTitle" placeholder="合作与联系"></div>
+          <div class="field"><label>说明文字</label><input class="input" id="siteContactText" placeholder="一句话说明来意"></div>
+        </div>
+
+        <table class="table" style="margin-top:18px">
+          <thead>
+            <tr>
+              <th style="width:140px">名称</th>
+              <th>内容（支持换行）</th>
+              <th style="width:66px"></th>
+            </tr>
+          </thead>
+          <tbody id="contactTable"></tbody>
+        </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+          <span style="font-size:12px;color:var(--ink-3)">名称和内容都可以自由填写，留空的行不会显示在页脚。</span>
+          <button class="btn btn--sm" id="btnAddContact" type="button">＋ 添加一项</button>
+        </div>
+      </div>
+
+      <div class="site-block">
+        <h3 class="site-block__title">新生刊</h3>
+        <p class="site-block__sub">链接填上后，页底会出现「翻阅」按钮；留空显示「链接待补充」。</p>
+        <div class="site-grid">
+          <div class="field"><label>刊物名</label><input class="input" id="sitePubName" placeholder="新生刊"></div>
+          <div class="field"><label>期号 / 届别</label><input class="input" id="sitePubIssue" placeholder="2026 级"></div>
+          <div class="field" style="grid-column:1/-1"><label>简介</label><input class="input" id="sitePubDesc" placeholder="一句话介绍"></div>
+          <div class="field" style="grid-column:1/-1">
+            <label>新生刊图片</label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <input type="file" id="issueFile" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none">
+              <button class="btn btn--sm" id="btnIssuePick" type="button">选择图片</button>
+              <span id="issueState" style="font-size:12.5px;color:var(--ink-3)">未上传</span>
+              <input type="hidden" id="sitePubUrl">
+            </div>
+            <p class="site-block__sub" style="margin:10px 0 0">上传后立即替换旧图，只保留最新一张。建议用竖版长图，页脚会显示绿色「阅读链接」按钮。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-block">
+        <h3 class="site-block__title">社交账号</h3>
+        <p class="site-block__sub">显示在页面底部「关注我们」。可以增删，平台可选哔哩哔哩 / 小红书 / 微信。</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:96px">平台</th>
+              <th style="width:100px">显示名</th>
+              <th>账号 / 说明</th>
+              <th>链接</th>
+              <th style="width:110px"></th>
+            </tr>
+          </thead>
+          <tbody id="socialTable"></tbody>
+        </table>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px">
+          <button class="btn btn--sm" id="btnAddSocial">＋ 新增账号</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:24px">
+        <button class="btn btn--primary" id="btnSaveSite">保存站点信息</button>
+      </div>
+    </section>
+
+    <!-- 资料分类 -->
+    <section class="panel" id="panel-lib">
+      <div class="site-block" style="padding-top:6px">
+        <h3 class="site-block__title">上传资料</h3>
+        <p class="site-block__sub">支持 PDF / Word / PPT / Excel / 压缩包 / 文本，单文件不超过 50MB。先传文件，再填分类，最后保存。</p>
+
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+          <input type="file" id="docFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z,.txt,.md" style="display:none">
+          <button class="btn btn--sm" id="btnPickDoc" type="button">选择文件</button>
+          <span id="docPickName" style="font-size:12.5px;color:var(--ink-3)">未选择文件</span>
+          <button class="btn btn--primary btn--sm" id="btnDocUpload" type="button" disabled>上传</button>
+          <span id="docUploadState" style="font-size:12.5px;color:var(--ink-3)"></span>
+        </div>
+
+        <div class="site-grid">
+          <div class="field"><label>资料名称</label><input class="input" id="docName" placeholder="如：药剂学期末复习提纲"></div>
+          <div class="field"><label>年级段</label><select class="input" id="docGrade"></select></div>
+          <div class="field"><label>学科</label><select class="input" id="docSubject"></select></div>
+          <div class="field"><label>备注（可选）</label><input class="input" id="docNote" placeholder="如：含 2025 年真题"></div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-top:16px">
+          <button class="btn btn--primary" id="btnDocSave" type="button" disabled>保存到资料库</button>
+        </div>
+      </div>
+
+      <div class="site-block">
+        <h3 class="site-block__title">已上传资料 <span id="docCount" style="font-size:13px;color:var(--ink-3);font-weight:400"></span></h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>资料</th>
+              <th style="width:78px">年级</th>
+              <th style="width:92px">学科</th>
+              <th style="width:66px">大小</th>
+              <th style="width:110px"></th>
+            </tr>
+          </thead>
+          <tbody id="docTable"></tbody>
+        </table>
+      </div>
+
+      <div class="site-block">
+        <h3 class="site-block__title">分类维度</h3>
+        <p class="site-block__sub">年级段与学科决定资料库页面的筛选项。</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+        <div>
+          <p class="lib-side__label">年级段</p>
+          <div class="chip-row" id="gradeChips"></div>
+          <div style="display:flex;gap:8px">
+            <input class="input" id="gradeInput" placeholder="新增年级段，如「博士」">
+            <button class="btn btn--sm" id="btnAddGrade">添加</button>
+          </div>
+        </div>
+        <div>
+          <p class="lib-side__label">学科</p>
+          <div class="chip-row" id="subjectChips"></div>
+          <div style="display:flex;gap:8px">
+            <input class="input" id="subjectInput" placeholder="新增学科，如「药物代谢」">
+            <button class="btn btn--sm" id="btnAddSubject">添加</button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- 模块 -->
+    <section class="panel" id="panel-tool">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+        <button class="btn btn--primary btn--sm" id="btnAddTool">＋ 新增模块</button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:56px">标识</th>
+            <th>名称与说明</th>
+            <th style="width:80px">状态</th>
+            <th style="width:120px"></th>
+          </tr>
+        </thead>
+        <tbody id="toolTable"></tbody>
+      </table>
+      <p class="hint">模块链接填上真实地址后，主页卡片点击即可跳转。药化脑袋填 <code>yaohua/</code>，药分脑袋填 <code>yaofen/</code>。</p>
+    </section>
+
+  </div>
+</main>
+
+<!-- 通用弹窗 -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <h3 id="modalTitle">新建</h3>
+    <p class="modal__sub" id="modalSub"></p>
+    <div id="modalFields"></div>
+    <div class="modal__foot">
+      <button class="btn btn--sm" id="modalCancel">取消</button>
+      <button class="btn btn--primary btn--sm" id="modalSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <div class="footer__copy">© 2026 中国药科大学药学院 · 学生学习促进协会 · 内容台</div>
+    <div class="footer__links"><a href="index.html">返回主页</a></div>
+        <div class="footer__legal" id="footLegal">
+      <!-- 备案号下来后：去掉这行与下面「END」之间那几个标签的注释符号，并填入真实号码。
+           ICP 备案号形如「苏ICP备2026XXXXXX号-1」（同主体多个网站要带 -1 序号，必须链接工信部系统）；
+           公安联网备案在管局通过后 30 日内办理，形如「苏公网安备 3201XXXXXXXX号」。
+      -->
+      <!-- BEGIN-BEIAN
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">苏ICP备2026XXXXXX号-1</a>
+      <a href="https://beian.mps.gov.cn/" target="_blank" rel="noopener noreferrer">苏公网安备 XXXXXXXXXXXX 号</a>
+      END-BEIAN -->
+    </div>
+  </div>
+</footer>
+
+<script src="assets/app.js?v=20261025j"></script>
+<script src="assets/console.js?v=20261025j"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /console.html
+Disallow: /api/
+Allow: /
+
+# 内容台为管理入口，不对搜索引擎开放
