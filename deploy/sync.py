@@ -69,7 +69,7 @@ def main():
     lock=(STATE/'lock').open('w')
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     env=dict(os.environ, GIT_SSH_COMMAND='ssh -i '+KEY+' -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15')
-    run('git','-C',str(REPO),'fetch','--quiet','origin','main',env=env,timeout=90)
+    run('git','-C',str(REPO),'fetch','--quiet','origin','main',env=env,timeout=240)
     sha=run('git','-C',str(REPO),'rev-parse','FETCH_HEAD').decode().strip()
     previous=json.loads((STATE/'deployed.json').read_text()) if (STATE/'deployed.json').exists() else {'files':[]}
     if previous.get('commit') == sha: return

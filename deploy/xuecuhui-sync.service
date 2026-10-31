@@ -6,6 +6,6 @@ After=network-online.target
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/python3 /usr/local/libexec/xuecuhui-sync.py
-TimeoutStartSec=300
+TimeoutStartSec=600
 UMask=0077
 
