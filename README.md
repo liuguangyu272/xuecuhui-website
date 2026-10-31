@@ -1,43 +1,102 @@
 # 学习小站 · 药学院学促会
 
-现有服务器 http://123.206.117.192/ 的网站源码与[当前公开学习资料](resources/README.md)。GitHub 是代码来源，服务器每 60 秒拉取 `main`；拉取、语法检查和健康检查成功后上线。网络和部署耗时会增加延迟，这不是逐秒同步。
+面向药学院学生的学习平台，将学院公告、活动信息、学习资料与药学课程练习集中在一个入口。网站提供药物分析、药剂学题库和药物化学分子记忆卡片，并配有网站内容台与题库内容台，供维护者更新内容。
 
-## 目录
+[访问网站](http://123.206.117.192/) · [浏览公开学习资料](resources/README.md) · [部署与运维](docs/operations.md)
 
-- `web/`：首页、公告、活动、资料页面和静态资源。
-- `services/console/`：题库内容台 Node 服务及药化页面源模板。
-- `services/upload/`：公告数据与上传文件 Python 服务。
-- `deploy/`：部署脚本和 systemd 单元。
+## 整体架构
 
-在 GitHub 修改 `web/index.html`、`web/assets/style.css` 等文件并提交到 `main`，等待约一分钟后刷新网站。其他分支不会部署。网站继续在现有服务器运行，没有启用 GitHub Pages。
+网站采用**原生多页面前端 + Nginx + Python / Node.js 双后端服务**。前端由 HTML、CSS 和 JavaScript 组成，Nginx 直接提供页面与静态资源，同时将 API 请求转发给对应的本机服务。站点内容使用 JSON 文件保存，课程题库使用 JavaScript 数据文件保存。
 
-## 数据与口令
-
-以下运行数据继续由服务器管理，不被代码更新覆盖；经筛选的当前公开副本位于 `resources/`，是本次导出的快照：
-
-- `/opt/xuecuhui-upload/data/` 的公告、活动、部门等 JSON。
-- 网站的 `assets/posters/`、`assets/docs/`、`assets/issue/` 上传文件。
-- 药分、药剂的 `data_*.js` 和单文件导出版。
-- 题库后台的 `content_data.js`、`_versions/` 和药化分子数据、图片。
-- `yaohua/index.html` 是生成页；修改后台 `yaohua-src/index.html` 模板会结合服务器现有分子数据重新生成。
-
-仓库不含 SSH 私钥、服务器管理口令或完整服务器状态；`resources/` 包含本次筛选的公开数据快照，单独克隆不能恢复完整服务器。迁移到另一台机器需要另外转移这些数据与 Python RDKit 环境。现有后台配置和登录方式沿用服务器。前端中的 `__SERVER_CONSOLE_TOKEN__` 在部署时从服务器的 systemd 环境填入；请勿在 GitHub 填写真实口令。当前应用的旧设计会将管理口令发到浏览器，这一机制本次没有重构；建议后续改为服务端会话认证。
-
-## 运维
-
-部署行为的隔离测试：在 Linux 上运行 `python3 deploy/test_sync.py`，验证正常上线、数据保护、失败回滚与语法错误拦截。测试使用临时目录，不修改真实网站。
-
-服务器使用该仓库专用的只读 Deploy Key，私钥留在 `/root/.ssh/xuecuhui_github_deploy`。部署不依赖本机电脑或 GitHub Actions。
-
-```sh
-systemctl status xuecuhui-sync.timer
-journalctl -u xuecuhui-sync.service -n 40 --no-pager
-systemctl start xuecuhui-sync.service  # 立即检查一次
-systemctl disable --now xuecuhui-sync.timer  # 暂停自动更新
+```mermaid
+flowchart TD
+    Browser[浏览器：学生 / 内容维护者] --> Nginx[Nginx：页面托管与反向代理]
+    Nginx -->|页面、样式、脚本、图片| Web[多页面前端]
+    Nginx -->|/api/| Python[Python：网站内容与上传服务]
+    Nginx -->|/console3/| Node[Node.js：题库内容台]
+    Python --> Content[公告、活动、部门等 JSON 内容]
+    Python --> Uploads[海报、资料与刊物文件]
+    Node --> Banks[课程题库与版本快照]
+    Node --> Builder[Python / RDKit：药化卡片处理与页面生成]
+    Builder --> Chemistry[药化分子数据与生成页面]
 ```
 
-访问 `/deployment-status.json` 查看已部署提交和 UTC 时间。内部状态在 `/var/lib/xuecuhui-deploy/deployed.json`，每次变更的代码备份在同目录 `backups/`；安装前的完整备份另存服务器 `/root/backup/`。健康检查失败自动还原本次代码更新。恢复某次历史版本：在 GitHub revert 对应代码提交，提交到 `main` 后自动部署。数据备份独立于此部署，不会因 Git revert 恢复。
+Nginx 的反向代理负责把同一个网站地址下的不同请求转交给不同服务。两个后端均监听服务器本机地址，由 Nginx 统一提供外部访问入口。
 
-部署程序和 systemd 单元安装在仓库目录之外，避免运行中自行覆盖。修改 `deploy/` 后需管理员手动安装到 `/usr/local/libexec/xuecuhui-sync.py` 与 `/etc/systemd/system/`，执行 `systemctl daemon-reload`。部署代码以 root 执行，仅向可信人员开放仓库写权限。
+## 功能与模块
 
-参考：[GitHub Deploy Keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys)、[systemd timers](https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html)。
+| 模块 | 主要功能 | 代码位置 |
+| --- | --- | --- |
+| 网站门户 | 首页、公告、活动详情、资料检索、部门介绍与加入入口 | `web/*.html`、`web/assets/app.js` |
+| 网站内容台 | 编辑站点信息、公告、活动、部门和资料，上传海报及文件 | `web/console.html`、`web/assets/console.js` |
+| 网站内容服务 | 读取和保存站点 JSON 内容，接收图片、资料及刊物上传 | `services/upload/server.py` |
+| 课程练习 | 药分、药剂课程题目练习，以及药化分子背诵 | `web/yaofen/`、`web/yaoji/`、`web/yaohua/` |
+| 题库内容台 | 编辑题目和药化卡片、发布更新、保存快照及回滚 | `services/console/` |
+| 代码部署 | 拉取主分支、校验代码、更新文件、健康检查与失败回滚 | `deploy/` |
+| 公开资料 | 当前学习文档、题库、卡片数据和配图的导出快照 | `resources/` |
+
+两个内容台承担不同的工作：网站内容台管理公告和资料等门户内容；题库内容台管理课程题目和分子卡片。
+
+## 请求与数据流
+
+### 网站内容
+
+页面启动后，`app.js` 请求 `GET /api/data`，取得服务器上的公告、活动、资料目录和站点设置。读取失败时使用代码内置的示例数据。维护者在网站内容台保存修改时，通过 `POST /api/data` 写回 JSON；上传接口将文件保存到对应目录，并返回供页面引用的地址。
+
+| 外部接口 | 用途 | 后端 |
+| --- | --- | --- |
+| `GET /api/data` | 获取公开站点内容 | Python，默认本机端口 `8788` |
+| `POST /api/data` | 保存站点内容，要求管理口令 | Python |
+| `POST /api/upload` | 上传海报图片 | Python |
+| `POST /api/upload-doc` | 上传学习资料 | Python |
+| `POST /api/upload-issue` | 更新刊物图片 | Python |
+| `GET /api/health` | 查询内容服务状态 | Python |
+
+### 题库与药化卡片
+
+药分、药剂页面加载各自的 `data_*.js` 题库文件。题库内容台经 `/console3/` 访问 Node.js 服务：发布操作校验并写入数据，生成内容台启动数据，同时保存版本快照。药化卡片处理会调用 Python / RDKit，页面生成脚本将源模板、分子数据和图片打包为线上页面。学习工具的本地练习记录由浏览器存储，与服务器上的题库内容分开管理。
+
+题库后台的路由经 Nginx 去掉 `/console3/` 前缀后转发，例如外部的 `/console3/api/publish` 对应 Node.js 内部的 `/api/publish`。状态、版本列表、快照和回滚接口也使用这个入口。
+
+## 技术组成
+
+| 层次 | 技术 | 作用 |
+| --- | --- | --- |
+| 前端 | HTML、CSS、原生 JavaScript | 页面、内容渲染、管理界面与课程练习 |
+| 网站入口 | Nginx | 静态文件托管、缓存策略、后台访问控制与反向代理 |
+| 内容后端 | Python 标准库 HTTP 服务 | JSON 内容读写与文件上传 |
+| 题库后端 | Node.js 原生 HTTP、文件系统与子进程模块 | 题库发布、校验、快照与回滚 |
+| 药化处理 | Python、RDKit | 分子结构处理与药化页面生成 |
+| 持久化 | JSON、JavaScript 数据文件、上传目录 | 保存站点内容、题库和附件 |
+| 进程管理 | systemd | 后台服务运行与定时部署 |
+
+当前前端无需框架打包即可部署。后端通过文件系统保存业务数据，现有业务代码未使用关系型数据库。
+
+## 仓库结构
+
+```text
+.
+├── web/                    # 网站页面、样式、浏览器脚本与静态资源
+│   ├── assets/
+│   ├── yaofen/             # 药物分析练习页面
+│   ├── yaoji/              # 药剂学练习页面
+│   └── yaohua/             # 药化工具资源；线上入口由后台生成
+├── services/
+│   ├── upload/             # Python 网站内容与文件上传服务
+│   └── console/            # Node.js 题库内容台、药化源模板与处理脚本
+├── resources/              # 当前公开资料快照，含文件校验清单
+├── deploy/                 # 代码同步脚本、systemd 单元与部署测试
+└── docs/                   # 部署和运维说明
+```
+
+## 代码、运行数据与资料快照
+
+`web/`、`services/` 保存应用代码。服务器上的内容 JSON、上传附件、题库数据、内容台快照和生成页面由后台维护，代码部署会保护这些运行数据，避免用仓库文件覆盖内容台的新修改。
+
+`resources/` 是供公开阅读和下载的资料快照。修改这个目录不会直接修改线上题库；内容台后续产生的变化也不会自动回写该目录。仓库未收录私钥、真实管理口令、宝塔面板数据库或完整服务器状态，因此克隆仓库后仍需配置后端环境和运行数据，才能复现完整线上服务。
+
+## 协作与上线
+
+贡献者通过 **Fork → 修改 → Pull Request → 维护者审核合并** 提交改动。服务器上的 systemd 定时任务每 60 秒检查 `main`，取得新提交后执行语法校验、更新受管理的代码并进行健康检查，失败时恢复本次代码变更。实际延迟还取决于网络和检查耗时。
+
+部署入口、数据路径、认证配置及运维命令见[部署与运维说明](docs/operations.md)。
