@@ -1,0 +1,15 @@
+[Unit]
+Description=Durable CMS content snapshots to GitHub API
+Wants=network-online.target
+After=network-online.target xuecuhui-upload.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/xuecuhui/cms-sync.env
+ExecStart=/usr/bin/python3 /opt/xuecuhui-upload/cms_sync.py worker
+Restart=always
+RestartSec=15
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

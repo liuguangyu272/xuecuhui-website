@@ -29,6 +29,10 @@ import cgi
 import shutil
 import secrets
 import warnings
+import hashlib
+import threading
+import time
+import cms_sync
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -48,6 +52,12 @@ MAX_FORM = 512 * 1024
 
 LIST_KEYS = ('announcements', 'activities', 'departments', 'tools')
 DICT_KEYS = ('site', 'library')
+CONTENT_LOCK = threading.RLock()
+
+def revision():
+    try:
+        with open(DATA_FILE, 'rb') as f: return hashlib.sha256(f.read()).hexdigest()
+    except FileNotFoundError: return ''
 
 # 允许的资料文件类型
 DOC_EXT = {
@@ -184,10 +194,16 @@ class Handler(BaseHTTPRequestHandler):
 
         if p == '/api/data':
             try:
-                data = read_content()
+                with CONTENT_LOCK:
+                    data = read_content()
+                    version = revision()
             except Exception as e:
                 return self._json(500, {'ok': False, 'error': '读取失败: %s' % e})
-            return self._json(200, {'ok': True, 'data': data})
+            return self._json(200, {'ok': True, 'data': data, 'revision': version})
+
+        if p == '/api/sync-status':
+            if not self._auth_ok(): return self._json(403, {'ok': False, 'error': '密令不正确'})
+            return self._json(200, {'ok': True, 'sync': cms_sync.status()})
 
         return self._json(404, {'ok': False, 'error': 'not found'})
 
@@ -218,14 +234,25 @@ class Handler(BaseHTTPRequestHandler):
         if err:
             return self._json(400, {'ok': False, 'error': err})
 
-        data['updatedAt'] = datetime.now().isoformat(timespec='seconds')
-
         try:
-            write_content(data)
+            with CONTENT_LOCK:
+                if self.headers.get('If-Match', '').strip('"') != revision():
+                    return self._json(409, {'ok': False, 'error': '内容已被其他管理员修改。你的编辑仍留在当前页面，请先导出或复制后再刷新合并。'})
+                data['updatedAt'] = datetime.now().isoformat(timespec='microseconds')
+                previous = open(DATA_FILE, 'rb').read() if os.path.exists(DATA_FILE) else None
+                write_content(data)
+                try:
+                    job = cms_sync.enqueue() if os.environ.get('CMS_GITHUB_SYNC') == '1' else None
+                except Exception:
+                    if previous is not None: cms_sync.atomic(cms_sync.Path(DATA_FILE), previous)
+                    else: os.unlink(DATA_FILE)
+                    raise RuntimeError('发布快照保存失败，已保留原有内容，请重试')
+                version = revision()
         except Exception as e:
             return self._json(500, {'ok': False, 'error': '写入失败: %s' % e})
 
-        return self._json(200, {'ok': True, 'updatedAt': data['updatedAt']})
+        return self._json(200, {'ok': True, 'updatedAt': data['updatedAt'], 'revision': version,
+                               'sync': {'status': 'queued' if job else 'unchanged', 'job': job}})
 
     def _post_upload(self):
         if not self._auth_ok():
@@ -420,18 +447,11 @@ class Handler(BaseHTTPRequestHandler):
 
         try:
             os.makedirs(ISSUE_DIR, exist_ok=True)
-            # 覆盖式：先清掉目录里所有旧图，只留这一张
-            for f in os.listdir(ISSUE_DIR):
-                fp = os.path.join(ISSUE_DIR, f)
-                if os.path.isfile(fp):
-                    try:
-                        os.remove(fp)
-                    except Exception:
-                        pass
         except Exception as e:
             return self._json(500, {'ok': False, 'error': '无法准备目录: %s' % e})
 
-        fname = 'issue.' + ext
+        # A new name preserves the published image until its content JSON is saved.
+        fname = 'issue-' + secrets.token_hex(8) + '.' + ext
         path = os.path.join(ISSUE_DIR, fname)
         tmp = path + '.part'
         try:

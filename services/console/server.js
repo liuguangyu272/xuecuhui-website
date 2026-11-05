@@ -362,6 +362,21 @@ function publish(payload) {
   };
 }
 
+
+// The outbox is local and durable; GitHub network I/O runs in a separate worker.
+function publishWithSync(action) {
+  const marker = path.join(ROOT, '.cms-publishing');
+  fs.writeFileSync(marker, String(process.pid));
+  let result;
+  try { result = action(); }
+  finally { fs.unlinkSync(marker); }
+  if (result.ok && process.env.CMS_GITHUB_SYNC === '1') {
+    const r = spawnSync('/usr/bin/python3', ['/opt/xuecuhui-upload/cms_sync.py', 'capture'], {timeout: 30000});
+    result.sync = {status: r.status === 0 ? 'queued' : 'pending_recovery'};
+  }
+  return result;
+}
+
 function rollback(id) {
   const dir = path.join(VDIR, id);
   if (!exists(dir) || !exists(path.join(dir, 'manifest.json'))) {
@@ -449,7 +464,7 @@ const server = http.createServer(async (req, res) => {
       if (!ct.includes('application/json')) return json(res, 415, { ok: false, error: '需要 application/json' });
       const body = await readBody(req);
       BUSY = true;
-      try { return json(res, 200, publish(body)) }
+      try { return json(res, 200, publishWithSync(() => publish(body))) }
       finally { BUSY = false }
     }
     if (req.method === 'POST' && p === '/api/snapshot') {
@@ -462,7 +477,7 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       if (!body.version) return json(res, 400, { ok: false, error: '缺少 version' });
       BUSY = true;
-      try { return json(res, 200, rollback(String(body.version))) }
+      try { return json(res, 200, publishWithSync(() => rollback(String(body.version)))) }
       finally { BUSY = false }
     }
     return json(res, 404, { ok: false, error: '没有这个接口' });

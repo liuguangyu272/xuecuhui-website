@@ -243,6 +243,7 @@ const SEED = {
 
 const Store = {
   _cache: null,
+  _revision: '',
 
   /** 页面启动时调用一次；失败则退回内置示例数据，站点仍可浏览 */
   async load() {
@@ -250,6 +251,7 @@ const Store = {
       const r = await fetch('api/data', { cache: 'no-store' });
       const j = await r.json();
       if (j && j.ok && j.data) {
+        this._revision = j.revision || '';
         this._cache = this._merge(j.data);
         return this._cache;
       }
@@ -285,6 +287,7 @@ const Store = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'If-Match': this._revision,
         'X-Token': CONFIG.consoleCode
       },
       body: JSON.stringify(data)
@@ -295,6 +298,7 @@ const Store = {
       throw new Error((j && j.error) || ('保存失败 ' + r.status));
     }
     this._cache = data;
+    this._revision = j.revision || this._revision;
     return j;
   },
 
@@ -847,8 +851,7 @@ function mountGate(onPass) {
 
 /* ---------- 启动 ---------- */
 
-document.addEventListener('DOMContentLoaded', async () => {
-  await Store.load();
+function renderPublicContent() {
   renderIntroMeta();
   renderHomeNotices(4);
   renderHomeActivities();
@@ -858,8 +861,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderJoinPage();
   renderHomeIntro();
   renderAnnouncements();
-  initAnnouncementFilters();
   renderActivityList();
   renderActivityDetail();
   renderLibrary();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await Store.load();
+  renderPublicContent();
+  initAnnouncementFilters();
+  // Keep open public pages current without touching an administrator's draft.
+  if (document.getElementById('consoleApp')) return;
+  let refreshing = false;
+  const refresh = async () => {
+    if (document.hidden || refreshing) return;
+    refreshing = true;
+    try {
+      const response = await fetch('api/data', {cache: 'no-store'});
+      const update = await response.json();
+      if (response.ok && update.ok && update.data && update.revision !== Store._revision) {
+        Store._cache = Store._merge(update.data);
+        Store._revision = update.revision;
+        renderPublicContent();
+      }
+    } catch (error) { /* Keep the last successfully loaded content. */ }
+    finally { refreshing = false; }
+  };
+  setInterval(refresh, 5000);
+  document.addEventListener('visibilitychange', refresh);
 });
