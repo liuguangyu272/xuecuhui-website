@@ -149,18 +149,6 @@
    "poster": "",
    "videoUrl": "",
    "tags": []
-  },
-  {
-   "id": "e1792933190983",
-   "title": "7",
-   "date": "2026-10-25",
-   "timePlace": "",
-   "reward": "",
-   "excerpt": "",
-   "content": "",
-   "poster": "",
-   "videoUrl": "",
-   "tags": []
   }
  ],
  "departments": [
@@ -287,5 +275,5 @@
    "href": "#"
   }
  ],
- "updatedAt": "2026-11-05T23:40:52.509492"
+ "updatedAt": "2026-11-06T09:19:32.721625"
 }
