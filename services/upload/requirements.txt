@@ -1,0 +1,2 @@
+# Excel import/export for private activity registrations
+openpyxl==3.1.5

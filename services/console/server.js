@@ -440,6 +440,19 @@ const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://127.0.0.1');
   const p = u.pathname;
 
+  // Nginx Basic Auth protects /console3/ before this server-only proxy.
+  if (p.startsWith('/api/registrations/') && req.method === 'POST') {
+    const secret = process.env.REGISTRATION_ADMIN_SECRET;
+    if (!secret) return json(res, 503, {ok:false,error:'报名管理未配置'});
+    const allowed = new Set(['/api/registrations/list','/api/registrations/export','/api/registrations/import']);
+    if (!allowed.has(p)) return json(res,404,{ok:false,error:'未知操作'});
+    const upstream = http.request({hostname:'127.0.0.1',port:8788,path:p.replace('/api/registrations/','/api/registration-admin/'),method:'POST',headers:{'Content-Type':'application/json','Content-Length':req.headers['content-length'] || '0','X-Registration-Admin':secret}}, reply => {
+      res.writeHead(reply.statusCode, {'Content-Type':'application/json','Cache-Control':'no-store'}); reply.pipe(res);
+    });
+    upstream.setTimeout(60000, () => upstream.destroy());
+    upstream.on('error', () => { if (!res.headersSent) json(res,502,{ok:false,error:'报名服务暂不可用'}); else res.destroy(); });
+    req.pipe(upstream); return;
+  }
   if (!p.startsWith('/api/')) return serveStatic(req, res, p);
 
   // 鉴权：经 nginx 反代后 Host 不再是 127.0.0.1，改用口令校验

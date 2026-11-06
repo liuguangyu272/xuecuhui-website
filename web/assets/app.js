@@ -403,9 +403,7 @@ function renderHomeNotices(limit) {
 
 function activityCard(a, large) {
   const d = fmtDate(a.date);
-  const poster = a.poster
-    ? `<div class="act-card__poster" style="background-image:url('${esc(a.poster)}')"></div>`
-    : `<div class="act-card__poster act-card__poster--empty">${ICON_IMAGE}<span>海报待上传</span></div>`;
+  const poster = renderPromotionalMedia(a.poster, false);
 
   return `
     <a class="act-card ${large ? 'act-card--large' : ''}" href="activity.html?id=${encodeURIComponent(a.id)}">
@@ -451,6 +449,7 @@ function renderActivityList() {
 }
 
 function renderActivityDetail() {
+  if (document.querySelector('#registrationForm [data-dirty="true"]')) return;
   const box = document.getElementById('activityDetail');
   if (!box) return;
   const id = qs('id');
@@ -464,9 +463,7 @@ function renderActivityDetail() {
   document.title = a.title + ' · 学习小站';
 
   const d = fmtDate(a.date);
-  const poster = a.poster
-    ? `<div class="post__poster" style="background-image:url('${esc(a.poster)}')"></div>`
-    : `<div class="post__poster post__poster--empty">${ICON_IMAGE}<span>海报待上传</span></div>`;
+  const poster = renderPromotionalMedia(a.poster, true);
 
   box.innerHTML = `
     <article class="post">
@@ -490,6 +487,7 @@ function renderActivityDetail() {
         </div>
 
         <div class="post__content">${nl2br(a.content)}</div>
+        <div id="registrationArea"></div>
 
         ${a.videoUrl ? `
           <a class="post__video" href="${esc(a.videoUrl)}" target="_blank" rel="noopener">
@@ -509,6 +507,7 @@ function renderActivityDetail() {
         返回活动列表
       </a>
     </div>`;
+  mountRegistration(a);
 }
 
 /* ---------- 加入我们 ---------- */
@@ -890,3 +889,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   setInterval(refresh, 5000);
   document.addEventListener('visibilitychange', refresh);
 });
+
+
+function renderPromotionalMedia(url,detail){
+  const cls=detail?'post__poster':'act-card__poster';
+  if(!url)return `<div class="${cls} ${cls}--empty">宣传资料待上传</div>`;
+  if(!/^(https?:\/\/|assets\/|\/assets\/)/i.test(url))return '';
+  if(/\.(png|jpe?g|gif|webp)(?:[?#]|$)/i.test(url))return `<div class="${cls}" style="background-image:url('${esc(url).replace(/'/g,'%27')}')"></div>`;
+  if(!detail)return `<div class="${cls} ${cls}--empty">宣传文档 · 点击查看</div>`;
+  return `<section style="padding:18px">${/\.pdf(?:[?#]|$)/i.test(url)?`<iframe title="宣传资料 PDF" src="${esc(url)}" style="width:100%;height:65vh;border:0" loading="lazy"></iframe>`:''}<a class="btn" href="${esc(url)}" target="_blank" rel="noopener">阅读 / 下载宣传资料</a></section>`;
+}
+
+function mountRegistration(activity){
+  const area=document.getElementById('registrationArea'),c=activity.registration;
+  if(!area||!c?.enabled)return;
+  const closed=c.deadline&&Date.now()>=Date.parse(c.deadline+( /Z|[+-]\d\d:\d\d$/.test(c.deadline)?'':'+08:00'));
+  area.innerHTML=`<section style="padding:20px 0;border-top:1px solid #dde5df"><h2>活动报名</h2><p>报名信息仅供活动组织者使用，不公开展示。${c.capacity?'名额上限：'+Number(c.capacity):''}${c.deadline?' · 截止：'+esc(c.deadline.replace('T',' ')):''}</p><button class="btn btn--primary" id="openRegistration" ${closed?'disabled':''}>${closed?'报名已截止':'立即报名'}</button><form id="registrationForm" hidden style="margin-top:16px">${c.fields.map(f=>`<label style="display:block;margin:12px 0">${esc(f.label)}${f.required?' *':''}${f.type==='select'?`<select class="input" name="${esc(f.key)}" ${f.required?'required':''}><option value="">请选择</option>${(f.options||[]).map(o=>`<option>${esc(o)}</option>`).join('')}</select>`:f.type==='textarea'?`<textarea class="input" maxlength="2000" name="${esc(f.key)}" ${f.required?'required':''}></textarea>`:`<input class="input" type="${esc(f.type||'text')}" name="${esc(f.key)}" maxlength="2000" ${f.required?'required':''}>`}</label>`).join('')}<button class="btn btn--primary" type="submit">提交报名</button></form><p id="registrationMessage" role="status"></p></section>`;
+  const form=document.getElementById('registrationForm');
+  document.getElementById('openRegistration').onclick=()=>{form.hidden=false;form.querySelector('input,select,textarea')?.focus();};
+  form.addEventListener('input',e=>{e.target.dataset.dirty='true';});
+  const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);const requestId=[...bytes].map(v=>v.toString(16).padStart(2,'0')).join('');
+  form.onsubmit=async e=>{e.preventDefault();const b=form.querySelector('button'),msg=document.getElementById('registrationMessage');b.disabled=true;try{const r=await fetch('api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({activity:activity.id,formVersion:c.version,requestId,answers:Object.fromEntries(new FormData(form))})});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'报名失败');msg.textContent=j.message;form.hidden=true;document.getElementById('openRegistration').hidden=true;}catch(e){msg.textContent=e.message;b.disabled=false;}};
+}

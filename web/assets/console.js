@@ -24,12 +24,12 @@ function buildModal(opts) {
           <div class="img-picker__ctrl">
             <div class="img-picker__row">
               <input class="input" id="${id}" data-key="${f.key}" value="${esc(f.value || '')}" placeholder="${ph}">
-              <button class="btn btn--sm" type="button" data-pick="${f.key}">选择图片</button>
+              <button class="btn btn--sm" type="button" data-pick="${f.key}">选择文件</button>
             </div>
-            <p class="img-picker__hint">支持 PNG / JPG / GIF / WEBP，单张 ≤ 8MB。点「选择图片」上传后会自动填好地址；也可以直接粘外链。</p>
+            <p class="img-picker__hint">支持 常见图片、PDF、Word、PPT、Excel、ZIP、TXT、Markdown，单文件 ≤ 50MB。点「选择文件」上传后会自动填好地址；也可以直接粘外链。</p>
           </div>
         </div>
-        <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" hidden id="file_${f.key}">
+        <input type="file" accept="image/png,image/jpeg,image/gif,image/webp,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z,.txt,.md" hidden id="file_${f.key}">
       </div>`;
     }
 
@@ -68,6 +68,9 @@ function buildModal(opts) {
 function updatePreview(el, url) {
   if (!el) return;
   const u = (url || '').trim();
+  if (u && !/\.(png|jpe?g|gif|webp)(?:[?#]|$)/i.test(u)) {
+    el.style.backgroundImage = ''; el.textContent = '文档 / 附件'; el.classList.remove('has-img'); return;
+  }
   if (u) {
     el.style.backgroundImage = "url('" + u.replace(/'/g, "%27") + "')";
     el.textContent = '';
@@ -196,6 +199,7 @@ function renderActTable() {
       <td class="cell-dim" data-label="海报">${a.poster ? '有' : '—'}</td>
       <td class="cell-dim" data-label="回放">${a.videoUrl ? '有' : '—'}</td>
       <td class="table__actions">
+        <button class="btn btn--sm" data-signups="${esc(a.id)}">报名名单 / Excel</button>
         <button class="btn btn--sm" data-act-edit="${esc(a.id)}">编辑</button>
         <button class="btn btn--sm btn--danger" data-act-del="${esc(a.id)}">删除</button>
       </td>
@@ -394,7 +398,7 @@ function fillSiteForm() {
   const issueState = document.getElementById('issueState');
   if (issueState) {
     issueState.style.color = p.image ? 'var(--green)' : 'var(--ink-3)';
-    issueState.textContent = p.image ? '已有图片（重新上传会直接替换）' : '未上传';
+    issueState.textContent = p.image ? '已有宣传资料（可重新上传）' : '未上传';
   }
   pendingIssue = p.image || null;
 }
@@ -681,15 +685,32 @@ function editActivity(id) {
       { key: 'reward', label: '参与奖励 / 限额', value: item.reward, placeholder: '参与可得学习积分 2 分' },
       { key: 'excerpt', label: '一句话简介', type: 'textarea', value: item.excerpt, placeholder: '列表卡片上显示的两行摘要' },
       { key: 'content', label: '正文', type: 'textarea', tall: true, value: item.content, placeholder: '支持换行，前台按段落显示' },
-      { key: 'poster', label: '海报图片', type: 'image', value: item.poster, placeholder: '点右侧按钮上传，或粘贴图片地址' },
+      { key: 'poster', label: '海报 / 宣传资料', type: 'image', value: item.poster, placeholder: '点右侧按钮上传，或粘贴图片地址' },
       { key: 'videoUrl', label: '视频回放链接', value: item.videoUrl, placeholder: 'https://www.bilibili.com/video/…' },
+      { key: 'signupEnabled', label: '开放在线报名', type: 'checkbox', value: !!item.registration?.enabled },
+      { key: 'signupDeadline', label: '报名截止时间（可留空）', type: 'datetime-local', value: item.registration?.deadline || '' },
+      { key: 'signupCapacity', label: '人数上限（0 表示不限）', type: 'number', value: item.registration?.capacity || 0 },
+      { key: 'signupFields', label: '报名字段：每行 名称 | 类型 | 必填/选填 | 选项（逗号分隔）。类型支持 text、tel、email、number、textarea、select', type: 'textarea', tall: true, value: (item.registration?.fields || [{key:'name',label:'姓名',required:true},{key:'student',label:'学号',required:true},{key:'class',label:'班级',required:true}]).map(f=>[f.label,f.type||'text',f.required?'必填':'选填',(f.options||[]).join(',')].join(' | ')).join('\n') },
       { key: 'tags', label: '标签（逗号分隔）', value: (item.tags || []).join(','), placeholder: '药化,期中' }
     ],
     onSave() {
       const v = readModal();
       if (!v.title) { alert('活动标题不能为空'); return; }
+      let fields;
+      try {
+        fields = v.signupFields.split('\n').filter(x=>x.trim()).map((line,i)=>{
+          const [label,type='text',required='必填',options=''] = line.split('|').map(x=>x.trim());
+          if(!label || !['text','tel','email','number','textarea','select'].includes(type)) throw Error('请检查第 '+(i+1)+' 行字段名称和类型');
+          const old=item.registration?.fields?.find(f=>f.label===label);
+          return {key:old?.key || 'f'+Date.now()+'_'+i,label,type,required:required==='必填',...(type==='select'?{options:options.split(/[,，]/).map(x=>x.trim()).filter(Boolean)}:{})};
+        });
+        if(!fields.length || new Set(fields.map(f=>f.label)).size!==fields.length) throw Error('报名字段不能为空或重名');
+        if(!Number.isInteger(Number(v.signupCapacity)) || Number(v.signupCapacity)<0) throw Error('人数上限需要非负整数');
+      } catch(e){alert(e.message);return;}
+
       const payload = {
         title: v.title,
+        registration: {enabled:!!v.signupEnabled,deadline:v.signupDeadline,capacity:Number(v.signupCapacity)||0,fields},
         date: v.date || item.date,
         timePlace: v.timePlace,
         reward: v.reward,
@@ -856,6 +877,7 @@ async function initConsole() {
   });
 
   document.getElementById('actTable').addEventListener('click', e => {
+    if(e.target.dataset.signups){window.open('console3/registration.html?activity='+encodeURIComponent(e.target.dataset.signups),'_blank','noopener');return;}
     const eid = e.target.dataset.actEdit, did = e.target.dataset.actDel;
     if (eid) editActivity(eid);
     if (did) {

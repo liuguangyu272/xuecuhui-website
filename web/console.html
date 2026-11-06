@@ -221,14 +221,14 @@
           <div class="field"><label>期号 / 届别</label><input class="input" id="sitePubIssue" placeholder="2026 级"></div>
           <div class="field" style="grid-column:1/-1"><label>简介</label><input class="input" id="sitePubDesc" placeholder="一句话介绍"></div>
           <div class="field" style="grid-column:1/-1">
-            <label>新生刊图片</label>
+            <label>新生刊文件</label>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-              <input type="file" id="issueFile" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none">
-              <button class="btn btn--sm" id="btnIssuePick" type="button">选择图片</button>
+              <input type="file" id="issueFile" accept="image/png,image/jpeg,image/gif,image/webp,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z,.txt,.md" style="display:none">
+              <button class="btn btn--sm" id="btnIssuePick" type="button">选择文件</button>
               <span id="issueState" style="font-size:12.5px;color:var(--ink-3)">未上传</span>
               <input type="hidden" id="sitePubUrl">
             </div>
-            <p class="site-block__sub" style="margin:10px 0 0">上传后立即替换旧图，只保留最新一张。建议用竖版长图，页脚会显示绿色「阅读链接」按钮。</p>
+            <p class="site-block__sub" style="margin:10px 0 0">支持常见图片、PDF、Office、压缩包及文本文档，最大 50MB。保存站点信息后生效，页脚提供阅读或下载链接。旧文件保留用于恢复。</p>
           </div>
         </div>
       </div>

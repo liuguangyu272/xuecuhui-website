@@ -33,6 +33,7 @@ import hashlib
 import threading
 import time
 import cms_sync
+import registrations
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -47,7 +48,7 @@ PORT = int(os.environ.get('UPLOAD_PORT', '8788'))
 
 MAX_IMAGE = 8 * 1024 * 1024
 MAX_DOC = 50 * 1024 * 1024
-MAX_JSON = 4 * 1024 * 1024
+MAX_JSON = 8 * 1024 * 1024
 MAX_FORM = 512 * 1024
 
 LIST_KEYS = ('announcements', 'activities', 'departments', 'tools')
@@ -119,6 +120,13 @@ def validate_content(d):
             return '%s 必须是对象' % k
     if 'announcements' not in d and 'activities' not in d:
         return '缺少 announcements / activities'
+    for activity in d.get('activities', []):
+        if activity.get('registration'):
+            try:
+                conf, _ = registrations.config(activity)
+                conf.pop('version', None)
+                conf['version'] = registrations.version(activity)
+            except ValueError as e: return str(e)
     return None
 
 
@@ -169,7 +177,7 @@ class Handler(BaseHTTPRequestHandler):
         if n <= 0:
             raise ValueError('请求体为空')
         if n > MAX_JSON:
-            raise ValueError('内容过大（上限 2MB）')
+            raise ValueError('内容过大（上限 8MB）')
         raw = self.rfile.read(n)
         try:
             return json.loads(raw.decode('utf-8'))
@@ -209,8 +217,12 @@ class Handler(BaseHTTPRequestHandler):
 
     # ---- POST ----
 
+    def registration_content(self):
+        return read_content() or {}
+
     def do_POST(self):
         p = self.path.split('?')[0].rstrip('/')
+        if registrations.route(self, p): return
 
         if p == '/api/data':
             return self._post_data()
@@ -269,8 +281,8 @@ class Handler(BaseHTTPRequestHandler):
 
         if length <= 0:
             return self._json(400, {'ok': False, 'error': '请求体为空'})
-        if length > MAX_IMAGE + MAX_FORM:
-            return self._json(413, {'ok': False, 'error': '文件超过 8MB'})
+        if length > MAX_DOC + MAX_FORM:
+            return self._json(413, {'ok': False, 'error': '文件超过 50MB'})
 
         try:
             form = cgi.FieldStorage(
@@ -292,15 +304,16 @@ class Handler(BaseHTTPRequestHandler):
         if not getattr(item, 'file', None):
             return self._json(400, {'ok': False, 'error': '文件字段格式不对'})
 
-        data = item.file.read(MAX_IMAGE + 1)
-        if len(data) > MAX_IMAGE:
-            return self._json(413, {'ok': False, 'error': '文件超过 8MB'})
+        data = item.file.read(MAX_DOC + 1)
+        if len(data) > MAX_DOC:
+            return self._json(413, {'ok': False, 'error': '文件超过 50MB'})
         if not data:
             return self._json(400, {'ok': False, 'error': '文件为空'})
 
         ext = detect_image(data[:16])
         if not ext:
-            return self._json(415, {'ok': False, 'error': '只支持 PNG / JPG / GIF / WEBP 图片'})
+            ext, error = detect_doc(getattr(item, 'filename', ''), data[:16])
+            if error: return self._json(415, {'ok': False, 'error': error})
 
         try:
             os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -416,8 +429,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(400, {'ok': False, 'error': 'Content-Length 无效'})
         if length <= 0:
             return self._json(400, {'ok': False, 'error': '请求体为空'})
-        if length > MAX_IMAGE + MAX_FORM:
-            return self._json(413, {'ok': False, 'error': '图片超过 8MB'})
+        if length > MAX_DOC + MAX_FORM:
+            return self._json(413, {'ok': False, 'error': '文件超过 50MB'})
 
         try:
             form = cgi.FieldStorage(
@@ -435,15 +448,16 @@ class Handler(BaseHTTPRequestHandler):
         if not getattr(item, 'file', None):
             return self._json(400, {'ok': False, 'error': '文件字段格式不对'})
 
-        data = item.file.read(MAX_IMAGE + 1)
-        if len(data) > MAX_IMAGE:
-            return self._json(413, {'ok': False, 'error': '图片超过 8MB'})
+        data = item.file.read(MAX_DOC + 1)
+        if len(data) > MAX_DOC:
+            return self._json(413, {'ok': False, 'error': '文件超过 50MB'})
         if not data:
             return self._json(400, {'ok': False, 'error': '文件为空'})
 
         ext = detect_image(data[:16])
         if not ext:
-            return self._json(415, {'ok': False, 'error': '只支持 PNG / JPG / GIF / WEBP 图片'})
+            ext, error = detect_doc(getattr(item, 'filename', ''), data[:16])
+            if error: return self._json(415, {'ok': False, 'error': error})
 
         try:
             os.makedirs(ISSUE_DIR, exist_ok=True)
