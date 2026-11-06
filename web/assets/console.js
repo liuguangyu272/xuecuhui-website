@@ -829,23 +829,14 @@ function editTool(id) {
 /* ---------- 初始化 ---------- */
 
 async function initConsole() {
+  const exitLink = document.getElementById('btnLock');
+  exitLink.textContent = '退出并返回主页';
+  exitLink.addEventListener('click', event => { event.preventDefault(); lockConsole(); });
+
   setSaveState('saving', '读取中…');
   await Store.load();
   DATA = Store.read();
   setSaveState('saved', '');
-
-  document.getElementById('btnReset').addEventListener('click', async () => {
-    if (!confirm('恢复为内置示例数据？\n\n服务器上当前的内容会被覆盖，其他人刷新后也会看到示例数据。')) return;
-    try {
-      DATA = await Store.reset();
-      refreshAll();
-      setSaveState('saved', '已恢复示例数据');
-    } catch (e) {
-      alert('恢复失败：' + e.message);
-    }
-  });
-
-  document.getElementById('btnLock').addEventListener('click', () => lockConsole());
 
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {

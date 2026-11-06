@@ -302,14 +302,6 @@ const Store = {
     return j;
   },
 
-  /** 恢复为内置示例数据（会写回服务器） */
-  async reset() {
-    const fresh = JSON.parse(JSON.stringify(SEED));
-    await this.save(fresh);
-    this._cache = fresh;
-    return fresh;
-  },
-
   announcements() {
     return this.read().announcements.slice().sort((a, b) => {
       if (!!b.pinned !== !!a.pinned) return b.pinned ? 1 : -1;
