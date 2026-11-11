@@ -73,10 +73,30 @@ const server = http.createServer(async (req, res) => {
     assert.ok(await page.locator('.katex').count()>50);
     assert.equal(await page.locator('.katex-error').count(),0);
     assert.equal(await page.locator('.reader-watermark').count(),1);
+    assert.equal(await page.locator('#tocLinks .katex').count(),2,'headings keep typeset math in the TOC');
+    assert.doesNotMatch(await page.locator('#tocLinks').innerText(),/\\boldsymbol|\\varepsilon|\\delta/);
+    assert.equal(await page.locator('#tocLinks .katex-mathml').count(),0,'no duplicated TeX annotations in navigation');
     await page.screenshot({path:path.join(out,'markdown-desktop.png')});
     await page.setViewportSize({width:390,height:844});
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    assert.equal(await page.locator('#tocToggle').getAttribute('aria-expanded'),'false');
+    assert.ok(await page.locator('#readerToc').evaluate(el=>el.getBoundingClientRect().height<=52),'closed directory is a compact bar');
     await page.screenshot({path:path.join(out,'markdown-mobile.png')});
+    await page.click('#tocToggle');
+    assert.equal(await page.locator('#tocToggle').getAttribute('aria-expanded'),'true');
+    await page.screenshot({path:path.join(out,'contents-mobile.png')});
+    await page.locator('#tocLinks a[href="#section-8"]').click();
+    assert.equal(await page.locator('#tocToggle').getAttribute('aria-expanded'),'false','choosing a heading closes mobile TOC');
+    await page.waitForFunction(()=>location.hash==='#section-8');
+    await page.waitForFunction(()=>document.querySelector('#tocLinks a[href="#section-8"]').getAttribute('aria-current')==='location');
+    assert.ok(await page.locator('#section-8').evaluate(el=>el.getBoundingClientRect().top>=120),'sticky controls must not cover the target');
+    assert.equal(await page.locator('#tocLinks a[aria-current]').count(),1);
+    await page.screenshot({path:path.join(out,'formula-mobile.png')});
+    for (const width of [320,375,430,768]) {
+      await page.setViewportSize({width,height:844});
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no page overflow at '+width);
+      assert.ok(await page.locator('#readerContent').evaluate(el=>el.getBoundingClientRect().width>=innerWidth-26),'mobile reading surface uses available width');
+    }
     await page.setViewportSize({width:1280,height:950});
     await page.goto(base+'/reader.html?id=mixed');
     await page.waitForFunction(()=>document.querySelector('#readerStatus').hidden);
@@ -103,6 +123,7 @@ const server = http.createServer(async (req, res) => {
     await page.setViewportSize({width:390,height:844}); await page.click('#pdfFit');
     await page.waitForFunction(()=>document.querySelector('#pdfZoom').textContent==='适合宽度'&&document.querySelector('#readerStatus').hidden);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    assert.ok(await page.locator('#pdfNext').evaluate(el=>el.getBoundingClientRect().height>=44),'mobile PDF buttons are touch-sized');
     await page.screenshot({path:path.join(out,'pdf-mobile.png')});
     await page.setViewportSize({width:1280,height:950});
     await page.goto(base+'/reader.html?id=does-not-exist');

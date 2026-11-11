@@ -3,6 +3,43 @@
   const $ = id => document.getElementById(id);
   const status = message => { $('readerStatus').textContent = message; $('readerStatus').hidden = !message; };
 
+  function mountContents(headings) {
+    const toc = $('readerToc'), nav = $('tocLinks'), toggle = $('tocToggle');
+    if (!headings.length) { toc.hidden = true; return; }
+    $('tocCount').textContent = headings.length + ' 节';
+    function setOpen(open) {
+      toc.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.querySelector('.reader-toc-action').textContent = open ? '收起' : '展开';
+    }
+    toggle.onclick = () => setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    headings.forEach(heading => {
+      const link = document.createElement('a'); link.href = '#' + heading.id;
+      link.innerHTML = heading.html; link.dataset.level = heading.level;
+      link.setAttribute('aria-label', heading.text);
+      link.onclick = () => {
+        if (matchMedia('(max-width: 900px)').matches) { setOpen(false); toggle.focus({preventScroll: true}); }
+      };
+      nav.appendChild(link);
+    });
+    toc.addEventListener('keydown', event => { if (event.key === 'Escape') {setOpen(false); toggle.focus({preventScroll:true});} });
+    // Track the last heading above the reading line, including after hash jumps.
+    const titles = headings.map(item => $(item.id));
+    let scheduled = false;
+    function markCurrent() {
+      scheduled = false;
+      const line = matchMedia('(max-width: 900px)').matches ? 135 : 110;
+      let current = titles[0];
+      for (const title of titles) { if (title.getBoundingClientRect().top > line) break; current = title; }
+      nav.querySelectorAll('a').forEach(link => {
+        if (link.hash === '#' + current.id) link.setAttribute('aria-current','location');
+        else link.removeAttribute('aria-current');
+      });
+    }
+    window.addEventListener('scroll', () => { if (!scheduled) {scheduled = true; requestAnimationFrame(markCurrent);} }, {passive: true});
+    markCurrent();
+  }
+
   async function openPDF(url, watermark) {
     const pdfjs = await import('./vendor/pdfjs/pdf.min.js');
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdfjs/pdf.worker.min.js', new URL('assets/reader.js', location.href)).href;
@@ -103,12 +140,7 @@
       const source = await response.text();
       if (source.length > 5 * 1024 * 1024) throw Error('文档较大，请下载原文件阅读。');
       const headings = ReaderEngine.renderMarkdown($('readerContent'), source, url.href);
-      headings.forEach(heading => {
-        const link = document.createElement('a'); link.href = '#' + heading.id;
-        link.textContent = heading.text; link.dataset.level = heading.level;
-        $('tocLinks').appendChild(link);
-      });
-      if (!headings.length) $('readerToc').hidden = true;
+      mountContents(headings);
       ReaderEngine.applyWatermark($('readerSheet'), watermark);
       status('');
     } catch (error) {

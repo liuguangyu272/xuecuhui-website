@@ -66,7 +66,7 @@ export function renderMarkdown(container, source, baseURL) {
     }
     return fence(tokens, i, options, env, self);
   };
-  const safe = DOMPurify.sanitize(md.render(source), {USE_PROFILES: {html: true, svg: true, mathMl: true}, ADD_TAGS: ['eq', 'eqn'], SANITIZE_NAMED_PROPS: true});
+  const safe = DOMPurify.sanitize(md.render(source), {USE_PROFILES: {html: true, svg: true, mathMl: true}, ADD_TAGS: ['eq', 'eqn', 'semantics', 'annotation'], ADD_ATTR: ['encoding'], SANITIZE_NAMED_PROPS: true});
   container.innerHTML = safe;
   // Resolve Markdown attachments against the original document, not the reader page.
   container.querySelectorAll('a[href],img[src]').forEach(el => {
@@ -85,12 +85,14 @@ export function renderMarkdown(container, source, baseURL) {
   container.querySelectorAll('h1,h2,h3').forEach((el, i) => {
     el.id = 'section-' + i;
     const label = el.cloneNode(true);
-    label.querySelectorAll('.katex').forEach(formula => {
-      const math = formula.querySelector('math')?.cloneNode(true);
-      math?.querySelectorAll('annotation').forEach(annotation => annotation.remove());
-      formula.replaceWith(document.createTextNode(math?.textContent || formula.textContent));
-    });
-    headings.push({id: el.id, text: label.textContent, level: Number(el.tagName[1])});
+    // The visual KaTeX tree is already sanitized. Preserve it in the TOC;
+    // MathML textContent can also contain the original TeX annotation.
+    label.querySelectorAll('.katex-mathml').forEach(math => math.remove());
+    label.querySelectorAll('[aria-hidden]').forEach(node => node.removeAttribute('aria-hidden'));
+    label.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+    label.querySelectorAll('a').forEach(link => link.replaceWith(...link.childNodes));
+    label.querySelectorAll('img').forEach(image => image.replaceWith(document.createTextNode(image.alt)));
+    headings.push({id: el.id, text: label.textContent, html: label.innerHTML, level: Number(el.tagName[1])});
   });
   container.querySelectorAll('[data-molecule]').forEach(el => {
     const smiles = molecules[Number(el.dataset.molecule)];
