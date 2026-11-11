@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资料阅读 · 学习小站</title>
+<link rel="icon" href="assets/logo-64.png">
+<link rel="stylesheet" href="assets/style.css?v=20261025j">
+<link rel="stylesheet" href="assets/vendor/reader/katex.min.css">
+<link rel="stylesheet" href="assets/vendor/reader/highlight.css">
+<link rel="stylesheet" href="assets/vendor/pdfjs/pdf_viewer.css">
+<link rel="stylesheet" href="assets/reader.css?v=20261111a">
+</head>
+<body>
+<div class="topline"></div>
+<header class="topbar"><div class="wrap topbar__inner">
+  <a class="brand" href="index.html"><img class="brand__logo" src="assets/logo.png" width="38" height="38" alt="学促会"><div class="brand__text"><div class="brand__name">学习小站</div><div class="brand__sub">药学院学促会</div></div></a>
+  <nav class="topnav"><a class="keep" href="library.html">返回资料库</a></nav>
+</div></header>
+<main class="wrap reader-wrap">
+  <div class="crumb"><a href="library.html">资料库</a><span>/</span>在线阅读</div>
+  <header class="reader-heading"><div><p class="reader-kicker" id="readerType">学习资料</p><h1 id="readerTitle">正在读取资料…</h1><p id="readerMeta" class="reader-meta"></p></div><a class="btn btn--sm" id="readerDownload" hidden download>下载原文件</a></header>
+  <p id="readerStatus" class="reader-status" role="status" aria-live="polite">正在加载…</p>
+  <div class="reader-layout" id="readerLayout" hidden>
+    <aside class="reader-toc" id="readerToc"><h2>本篇目录</h2><nav aria-label="资料目录" id="tocLinks"></nav></aside>
+    <div class="reader-body">
+      <div class="pdf-controls" id="pdfControls" hidden>
+        <button class="btn btn--sm" id="pdfPrev" aria-label="上一页">上一页</button>
+        <label>第 <input id="pdfPage" type="number" min="1" value="1" aria-label="页码"> / <span id="pdfPages">—</span> 页</label>
+        <button class="btn btn--sm" id="pdfNext" aria-label="下一页">下一页</button>
+        <span class="pdf-controls__zoom"><button class="btn btn--sm" id="pdfZoomOut" aria-label="缩小">−</button><output id="pdfZoom">适合宽度</output><button class="btn btn--sm" id="pdfZoomIn" aria-label="放大">＋</button><button class="btn btn--sm" id="pdfFit">适宽</button></span>
+      </div>
+      <div class="pdf-scroll" id="pdfScroll"><section class="reader-sheet" id="readerSheet"><article class="reader-content" id="readerContent"></article></section></div>
+      <p class="reader-footnote" id="readerFootnote"></p>
+    </div>
+  </div>
+</main>
+<script src="assets/app.js?v=20261111-reader"></script>
+<script src="assets/vendor/reader/engine.min.js?v=20261111a"></script>
+<script src="assets/reader.js?v=20261111a"></script>
+</body>
+</html>

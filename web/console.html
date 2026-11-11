@@ -7,6 +7,9 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/logo-64.png">
 <link rel="stylesheet" href="assets/style.css?v=20261025j">
+<link rel="stylesheet" href="assets/vendor/reader/katex.min.css">
+<link rel="stylesheet" href="assets/vendor/reader/highlight.css">
+<link rel="stylesheet" href="assets/reader.css?v=20261111a">
 </head>
 <body>
 
@@ -262,10 +265,10 @@
     <section class="panel" id="panel-lib">
       <div class="site-block" style="padding-top:6px">
         <h3 class="site-block__title">上传资料</h3>
-        <p class="site-block__sub">支持 PDF / Word / PPT / Excel / 压缩包 / 文本，单文件不超过 50MB。先传文件，再填分类，最后保存。</p>
+        <p class="site-block__sub">Markdown 和 PDF 支持站内阅读与水印，单文件不超过 50MB。先传文件，再填分类，最后保存；也可以在下方直接编写 Markdown。</p>
 
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
-          <input type="file" id="docFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z,.txt,.md" style="display:none">
+          <input type="file" id="docFile" accept=".pdf,.md" style="display:none">
           <button class="btn btn--sm" id="btnPickDoc" type="button">选择文件</button>
           <span id="docPickName" style="font-size:12.5px;color:var(--ink-3)">未选择文件</span>
           <button class="btn btn--primary btn--sm" id="btnDocUpload" type="button" disabled>上传</button>
@@ -281,6 +284,34 @@
 
         <div style="display:flex;justify-content:flex-end;margin-top:16px">
           <button class="btn btn--primary" id="btnDocSave" type="button" disabled>保存到资料库</button>
+        </div>
+      </div>
+
+      <div class="site-block">
+        <h3 class="site-block__title">阅读水印</h3>
+        <p class="site-block__sub">默认应用于所有 Markdown 和 PDF；每份资料可在「设置」中单独调整。水印叠加在阅读页面上，不修改原文件。</p>
+        <div class="reader-settings">
+          <label><input type="checkbox" id="readerWatermarkEnabled" checked> 显示水印</label>
+          <input class="input" id="readerWatermarkText" type="text" maxlength="80" aria-label="水印文字" value="中国药科大学药学院 · 学促会">
+          <button class="btn btn--sm" type="button" id="saveReaderWatermark">保存水印设置</button>
+          <span id="readerWatermarkState" role="status"></span>
+        </div>
+      </div>
+
+      <div class="site-block" id="markdownEditorBlock">
+        <h3 class="site-block__title">编写 Markdown</h3>
+        <p class="site-block__sub">标题、年级、学科沿用上方表单。公式用 $…$ 或 $$…$$，化学方程式用公式中的 \ce{…}，结构式用 smiles 代码块。编辑已有资料请点击「编辑正文」。</p>
+        <div class="reader-editor">
+          <p id="markdownEditing" role="status">正在编写新资料</p>
+          <label for="markdownSource">资料正文</label>
+          <textarea class="input" id="markdownSource" spellcheck="false" placeholder="# 资料标题&#10;&#10;正文与公式，例如 $E=mc^2$"></textarea>
+          <div class="reader-editor__bar">
+            <button class="btn btn--sm" type="button" id="newMarkdown">新建 / 清空</button>
+            <button class="btn btn--sm" type="button" id="previewMarkdown">预览</button>
+            <button class="btn btn--primary btn--sm" type="button" id="saveMarkdown">保存 Markdown 到资料库</button>
+            <span id="markdownState" role="status"></span>
+          </div>
+          <div class="reader-editor__preview" id="markdownPreview" hidden><section class="reader-sheet" id="markdownPreviewSheet"><article class="reader-content" id="markdownPreviewContent"></article></section></div>
         </div>
       </div>
 
@@ -369,7 +400,9 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=20261106-cleanup"></script>
-<script src="assets/console.js?v=20261106-cleanup"></script>
+<script src="assets/app.js?v=20261111-reader"></script>
+<script src="assets/vendor/reader/engine.min.js?v=20261111a"></script>
+<script src="assets/reader-console.js?v=20261111a"></script>
+<script src="assets/console.js?v=20261111-reader"></script>
 </body>
 </html>

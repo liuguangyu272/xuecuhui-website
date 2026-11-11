@@ -678,6 +678,13 @@ function initAnnouncementFilters() {
 let libGrade = '全部';
 let libSubject = '全部';
 
+function docReaderURL(doc) {
+  const ext = String(doc.ext || String(doc.url || '').split(/[?#]/)[0].split('.').pop()).toLowerCase().replace(/^\./, '');
+  return ['md', 'markdown', 'pdf'].includes(ext) && doc.id
+    ? 'reader.html?id=' + encodeURIComponent(doc.id)
+    : (/^(https?:\/\/|\/?assets\/)/i.test(doc.url || '') ? doc.url : '#');
+}
+
 function renderLibrary() {
   const sideGrades = document.getElementById('libGrades');
   const sideSubjects = document.getElementById('libSubjects');
@@ -723,7 +730,7 @@ function renderLibrary() {
   }
 
   grid.innerHTML = docs.map(d => `
-    <a class="doc-card" href="${esc(d.url || '#')}" ${d.url ? 'target="_blank" rel="noopener"' : ''}>
+    <a class="doc-card" href="${esc(docReaderURL(d))}" ${d.url ? 'target="_blank" rel="noopener"' : ''}>
       <div class="doc-card__ext">${esc((d.ext || 'PDF').toUpperCase())}</div>
       <div class="doc-card__body">
         <h3 class="doc-card__name">${esc(d.name)}</h3>

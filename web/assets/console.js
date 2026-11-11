@@ -451,10 +451,11 @@ function save() {
   setSaveState('saving');
   saveQueue = saveQueue
     .then(() => Store.save(DATA))
-    .then(() => setSaveState('saved'))
+    .then(() => { setSaveState('saved'); return true; })
     .catch(e => {
       setSaveState('error');
       alert('保存失败：' + e.message + '\n\n可能是网络中断或服务器接口异常。你的修改还在当前页面，刷新会丢失。');
+      return false;
     });
   return saveQueue;
 }
@@ -515,6 +516,8 @@ function renderDocTable() {
       <td class="cell-dim">${esc(d.size || '')}</td>
       <td class="table__actions">
         <button class="btn btn--sm" data-doc-open="${esc(d.id)}">打开</button>
+        <button class="btn btn--sm" data-doc-settings="${esc(d.id)}">设置</button>
+        ${['md','markdown'].includes(String(d.ext).toLowerCase()) ? `<button class="btn btn--sm" data-doc-markdown="${esc(d.id)}">编辑正文</button>` : ''}
         <button class="btn btn--sm btn--danger" data-doc-del="${esc(d.id)}">删除</button>
       </td>
     </tr>`).join('');
@@ -617,8 +620,12 @@ function initDocUpload() {
     const docs = (DATA.library && DATA.library.docs) || [];
     if (oid) {
       const d = docs.find(x => x.id === oid);
-      if (d && d.url) window.open(d.url, '_blank');
+      if (d && d.url) window.open(docReaderURL(d), '_blank', 'noopener');
     }
+    const settingsId = e.target.dataset.docSettings;
+    const markdownId = e.target.dataset.docMarkdown;
+    if (settingsId) editDocSettings(docs.find(x => x.id === settingsId));
+    if (markdownId) loadMarkdownEditor(docs.find(x => x.id === markdownId));
     if (did) {
       const d = docs.find(x => x.id === did);
       if (d && confirm('从资料库移除「' + d.name + '」？\n（服务器上的文件不会被删除）')) {
@@ -628,6 +635,7 @@ function initDocUpload() {
       }
     }
   };
+  initReaderConsole();
 }
 
 /* ---------- 公告 ---------- */

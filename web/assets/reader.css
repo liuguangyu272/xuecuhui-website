@@ -1,0 +1,80 @@
+[hidden] { display: none !important; }
+.reader-wrap { max-width: 1240px; padding-top: 28px; padding-bottom: 72px; }
+.reader-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0 28px; }
+.reader-heading h1 { font-family: var(--serif); font-size: clamp(24px, 3vw, 34px); margin: 4px 0 10px; line-height: 1.4; overflow-wrap: anywhere; }
+.reader-kicker { color: var(--green); font-size: 12px; letter-spacing: .12em; margin: 0; }
+.reader-meta, .reader-footnote { color: var(--ink-2); font-size: 13px; margin: 0; }
+.reader-footnote { padding: 16px 0; }
+.reader-heading .btn { flex-shrink: 0; }
+.reader-status { padding: 24px; border: 1px solid var(--line); background: white; }
+.reader-layout { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 28px; align-items: start; }
+.reader-layout--pdf { display: block; }
+.reader-toc { position: sticky; top: 96px; max-height: calc(100vh - 120px); overflow: auto; padding-bottom: 12px; }
+.reader-toc h2 { font-size: 12px; color: var(--ink-2); font-weight: 500; margin: 0 0 16px; }
+.reader-toc a { display: block; padding: 7px 0 7px 12px; border-left: 1px solid var(--line); font-size: 12px; line-height: 1.6; color: var(--ink-2); }
+.reader-toc a:hover, .reader-toc a:focus { color: var(--green); border-color: var(--green); }
+.reader-toc a[data-level="3"] { padding-left: 22px; }
+.reader-body { min-width: 0; }
+.reader-sheet { position: relative; isolation: isolate; background: white; border: 1px solid var(--line); box-shadow: 0 6px 28px #1b1c1905; }
+.reader-watermark { position: absolute; inset: 0; z-index: 3; pointer-events: none; user-select: none; background-repeat: repeat; background-size: 420px 260px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+.reader-content { padding: 44px 52px; line-height: 1.9; font-size: 16px; overflow-wrap: anywhere; }
+.reader-content > :first-child { margin-top: 0; }
+.reader-content h1, .reader-content h2, .reader-content h3 { font-family: var(--serif); line-height: 1.5; scroll-margin-top: 95px; }
+.reader-content h1 { font-size: 28px; }
+.reader-content h2 { font-size: 23px; margin: 1.8em 0 .7em; padding-bottom: .4em; border-bottom: 1px solid var(--line); }
+.reader-content h3 { font-size: 19px; margin-top: 1.5em; }
+.reader-content a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+.reader-content blockquote { margin: 20px 0; border-left: 3px solid var(--green); padding: 1px 18px; color: var(--ink-2); background: var(--green-wash); }
+.reader-content table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 14px; margin: 22px 0; }
+.reader-content th, .reader-content td { border: 1px solid var(--line); padding: 9px 14px; }
+.reader-content th { background: var(--paper-2); }
+.reader-content pre { position: relative; background: #f5f6f3; padding: 36px 18px 18px; overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; line-height: 1.6; }
+.reader-content code { font-family: var(--mono); font-size: .86em; }
+.reader-content :not(pre) > code { background: var(--paper-2); padding: 2px 5px; border-radius: 3px; }
+.code-copy { position: absolute; top: 5px; right: 8px; border: 0; color: var(--ink-2); background: transparent; font-size: 12px; }
+.reader-content hr { border: 0; border-top: 1px solid var(--line); margin: 32px 0; }
+.reader-content img { max-width: 100%; height: auto; margin: 18px auto; }
+.reader-content eq { display: inline; }
+.reader-content eqn, .reader-content .math-block { display: block; overflow-x: auto; padding: 4px 0; }
+.reader-content .katex-display { overflow-x: auto; overflow-y: hidden; padding: 8px 0; }
+.reader-content .katex svg { width: auto; height: inherit; }
+.reader-content .molecule { margin: 24px 0; text-align: center; }
+.reader-content .molecule svg { display: block; width: 100%; max-width: 480px; height: auto; margin: auto; }
+.reader-content figcaption { font-size: 12px; color: var(--ink-2); }
+.reader-error { color: #9c3428; }
+.pdf-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 14px 0; border-top: 1px solid var(--line); }
+.pdf-controls label { font-size: 13px; white-space: nowrap; }
+.pdf-controls input { width: 58px; padding: 4px; border: 1px solid var(--line-2); font: inherit; background: white; }
+.pdf-controls__zoom { display: inline-flex; align-items: center; gap: 9px; margin-left: auto; font-size: 12px; }
+.pdf-scroll { max-width: 100%; overflow: auto; }
+.reader-sheet--pdf { margin: 0 auto; border: 0; }
+.reader-sheet--pdf canvas { display: block; }
+.reader-sheet--pdf .textLayer { z-index: 1; }
+.reader-editor { margin: 18px 0; }
+.reader-editor textarea { min-height: 260px; font-family: var(--mono); font-size: 13px; line-height: 1.7; resize: vertical; }
+.reader-editor__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
+.reader-editor__preview { max-height: 580px; overflow: auto; border: 1px solid var(--line); }
+.reader-editor__preview .reader-sheet { border: 0; }
+.reader-settings { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 16px 0; }
+.reader-settings label { font-size: 13px; }
+.reader-settings input[type="text"] { width: min(440px, 100%); }
+@media (max-width: 760px) {
+  .reader-wrap { padding: 18px 16px 40px; }
+  .reader-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .reader-layout { display: block; }
+  .reader-toc { position: static; max-height: 180px; margin-bottom: 20px; }
+  .reader-content { padding: 26px 20px; font-size: 15px; }
+  .reader-content h1 { font-size: 24px; }
+  .reader-content h2 { font-size: 21px; }
+  .pdf-controls { gap: 8px; }
+  .pdf-controls__zoom { margin-left: 0; }
+  .reader-watermark { background-size: 360px 224px; }
+}
+@media print {
+  .topbar, .topline, .crumb, .reader-toc, .reader-heading .btn, .pdf-controls, .reader-footnote, .code-copy { display: none !important; }
+  .reader-wrap { padding: 0; max-width: none; }
+  .reader-layout { display: block; }
+  .reader-sheet { border: 0; box-shadow: none; }
+  .reader-content { padding: 0; }
+  .reader-watermark { position: fixed; }
+}

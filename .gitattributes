@@ -4,3 +4,5 @@
 *.html text eol=lf
 *.service text eol=lf
 *.timer text eol=lf
+web/assets/vendor/** -text -whitespace
+web/assets/vendor/**/*.min.js -diff

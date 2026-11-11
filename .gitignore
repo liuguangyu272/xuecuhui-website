@@ -24,3 +24,6 @@ panel_secret_key.json
 bt-data-backup*/
 backup/
 _versions/
+
+node_modules/
+test-results/
