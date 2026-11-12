@@ -975,6 +975,7 @@ async function initConsole() {
   document.getElementById('btnSaveJoin').addEventListener('click', saveJoinForm);
   document.getElementById('btnSaveHome').addEventListener('click', saveHomeForm);
   refreshAll();
+  document.dispatchEvent(new Event('console:ready'));
 }
 
 /* ---------- 新生刊图片上传（覆盖式，只留最新一张） ---------- */

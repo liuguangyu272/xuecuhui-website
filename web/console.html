@@ -10,8 +10,9 @@
 <link rel="stylesheet" href="assets/vendor/reader/katex.min.css">
 <link rel="stylesheet" href="assets/vendor/reader/highlight.css">
 <link rel="stylesheet" href="assets/reader.css?v=20261112a">
+<link rel="stylesheet" href="assets/console-workspace.css?v=20261112a">
 </head>
-<body>
+<body class="workspace-console">
 
 <div class="topline"></div>
 
@@ -94,7 +95,28 @@
       <button class="tab" data-tab="site">站点信息</button>
       <button class="tab" data-tab="lib">资料分类</button>
       <button class="tab" data-tab="tool">小帮手模块</button>
+      <span class="workspace-nav-label">材料协作</span>
+      <button class="tab" data-tab="materials">任务与审核</button>
+      <button class="tab" data-tab="archives">正式资料归档</button>
+      <button class="tab" data-tab="requirements">要求与模板</button>
+      <a class="workspace-nav-link" href="console3/">题库内容台 ↗</a>
     </div>
+
+    <section class="panel" id="panel-materials">
+      <div class="ws-heading"><div><span class="ws-kicker">材料协作</span><h2>任务与审核</h2><p>上传成果后提交审核，通过后进入下一阶段。</p></div><button class="btn btn--primary" id="materialCreate">＋ 分配任务</button></div>
+      <div class="ws-tools"><label>操作人姓名 <input class="input" id="materialActor" placeholder="填写姓名，用于提交和审核记录"></label><button class="btn btn--sm" id="materialRefresh">刷新任务</button></div>
+      <div class="ws-metrics" id="materialMetrics"></div>
+      <div class="ws-task-panel"><div class="ws-panel-head"><h3>任务列表</h3><div class="ws-filter" id="materialFilters"><button class="is-active" data-filter="all">全部</button><button data-filter="review">待审核</button><button data-filter="returned">已退回</button><button data-filter="done">已归档</button></div></div><div id="materialTasks" aria-live="polite"></div></div>
+    </section>
+    <section class="panel" id="panel-archives">
+      <div class="ws-heading"><div><span class="ws-kicker">材料协作</span><h2>正式资料归档</h2><p>终审成果集中保存；选择年级与学科后可发布到学生资料库。</p></div><button class="btn btn--primary" id="materialUpload">↑ 上传正式资料</button></div>
+      <label class="ws-search"><input class="input" id="materialSearch" placeholder="搜索名称或说明"></label>
+      <div class="ws-resource-grid" id="materialResources"></div>
+    </section>
+    <section class="panel" id="panel-requirements">
+      <div class="ws-heading"><div><span class="ws-kicker">材料协作</span><h2>要求与模板</h2><p>统一编写、格式和提交要求，上传可直接下载使用的模板。</p></div><button class="btn" id="materialEditRequirements">编辑要求</button></div>
+      <div class="ws-two-col"><article class="ws-card"><h3>材料要求</h3><div id="materialRequirements" class="ws-prose"></div></article><article class="ws-card"><div class="ws-panel-head"><h3>模板与参考文件</h3><button class="btn btn--sm" id="materialTemplateUpload">＋ 上传模板</button></div><div id="materialTemplates"></div></article></div>
+    </section>
 
     <!-- 公告 -->
     <section class="panel is-active" id="panel-ann">
@@ -404,5 +426,6 @@
 <script src="assets/vendor/reader/engine.min.js?v=20261112a"></script>
 <script src="assets/reader-console.js?v=20261111a"></script>
 <script src="assets/console.js?v=20261111-reader"></script>
+<script src="assets/materials-console.js?v=20261112a"></script>
 </body>
 </html>

@@ -34,6 +34,7 @@ import threading
 import time
 import cms_sync
 import registrations
+import materials
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -188,6 +189,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         p = self.path.split('?')[0].rstrip('/')
+        if materials.route(self, p): return
 
         if p == '/api/health':
             n_img = 0
@@ -222,6 +224,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         p = self.path.split('?')[0].rstrip('/')
+        if materials.route(self, p): return
         if registrations.route(self, p): return
 
         if p == '/api/data':
@@ -501,4 +504,6 @@ def main():
 
 
 if __name__ == '__main__':
+    # Material publication must share this process's content lock and settings.
+    sys.modules['server'] = sys.modules[__name__]
     main()
