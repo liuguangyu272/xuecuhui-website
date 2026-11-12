@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>资料阅读 · 学习小站</title>
 <link rel="icon" href="assets/logo-64.png">
-<link rel="stylesheet" href="assets/style.css?v=20261025j">
+<link rel="stylesheet" href="assets/style.css?v=20261112a">
 <link rel="stylesheet" href="assets/vendor/reader/katex.min.css">
 <link rel="stylesheet" href="assets/vendor/reader/highlight.css">
 <link rel="stylesheet" href="assets/vendor/pdfjs/pdf_viewer.css">
-<link rel="stylesheet" href="assets/reader.css?v=20261111b">
+<link rel="stylesheet" href="assets/reader.css?v=20261112a">
 </head>
 <body class="reader-page">
 <div class="topline"></div>
@@ -22,9 +22,11 @@
   <header class="reader-heading"><div><p class="reader-kicker" id="readerType">学习资料</p><h1 id="readerTitle">正在读取资料…</h1><p id="readerMeta" class="reader-meta"></p></div><a class="btn btn--sm" id="readerDownload" hidden download>下载原文件</a></header>
   <p id="readerStatus" class="reader-status" role="status" aria-live="polite">正在加载…</p>
   <div class="reader-layout" id="readerLayout" hidden>
+    <button class="reader-toc-toggle" type="button" id="tocToggle" aria-expanded="false" aria-controls="readerToc" hidden>目录</button>
+    <div class="reader-toc-backdrop" id="tocBackdrop" hidden></div>
     <aside class="reader-toc" id="readerToc">
-      <button class="reader-toc-toggle" type="button" id="tocToggle" aria-expanded="false" aria-controls="tocLinks"><span>本篇目录 <small id="tocCount"></small></span><span class="reader-toc-action">展开</span></button>
-      <h2>本篇目录</h2><nav aria-label="资料目录" id="tocLinks"></nav>
+      <div class="reader-toc-head"><h2 id="tocTitle">本篇目录 <small id="tocCount"></small></h2><button type="button" class="reader-toc-close" id="tocClose" aria-label="关闭目录">关闭 ×</button></div>
+      <nav aria-label="资料目录" id="tocLinks"></nav>
     </aside>
     <div class="reader-body">
       <div class="pdf-controls" id="pdfControls" hidden>
@@ -38,8 +40,8 @@
     </div>
   </div>
 </main>
-<script src="assets/app.js?v=20261111-reader"></script>
-<script src="assets/vendor/reader/engine.min.js?v=20261111b"></script>
-<script src="assets/reader.js?v=20261111b"></script>
+<script src="assets/app.js?v=20261112a"></script>
+<script src="assets/vendor/reader/engine.min.js?v=20261112a"></script>
+<script src="assets/reader.js?v=20261112a"></script>
 </body>
 </html>

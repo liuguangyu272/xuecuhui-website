@@ -864,7 +864,23 @@ function renderPublicContent() {
   renderLibrary();
 }
 
+function initMobileNavigation() {
+  const nav = document.querySelector?.('.topbar .topnav');
+  if (!nav || document.getElementById('consoleApp') || document.body.classList.contains('reader-page')) return;
+  const button = document.createElement('button');
+  button.className = 'mobile-nav-toggle'; button.type = 'button'; button.textContent = '☰ 导航';
+  nav.id = 'siteNavigation'; nav.classList.add('mobile-site-menu');
+  button.setAttribute('aria-controls', nav.id); button.setAttribute('aria-expanded', 'false');
+  nav.before(button);
+  const close = () => {nav.classList.remove('is-open'); button.setAttribute('aria-expanded','false');};
+  button.onclick = () => {const open = button.getAttribute('aria-expanded') !== 'true'; nav.classList.toggle('is-open',open); button.setAttribute('aria-expanded',String(open));};
+  nav.addEventListener('click', event => {if(event.target.closest('a')) close();});
+  document.addEventListener('click', event => {if (!nav.contains(event.target) && !button.contains(event.target)) close();});
+  document.addEventListener('keydown', event => {if(event.key==='Escape' && button.getAttribute('aria-expanded')==='true'){close();button.focus();}});
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  initMobileNavigation();
   await Store.load();
   renderPublicContent();
   initAnnouncementFilters();

@@ -5,30 +5,61 @@
 
   function mountContents(headings) {
     const toc = $('readerToc'), nav = $('tocLinks'), toggle = $('tocToggle');
+    const mobile = matchMedia('(max-width: 900px)');
     if (!headings.length) { toc.hidden = true; return; }
+    toggle.hidden = false;
     $('tocCount').textContent = headings.length + ' 节';
     function setOpen(open) {
+      open = open && mobile.matches;
       toc.classList.toggle('is-open', open);
       toggle.setAttribute('aria-expanded', String(open));
-      toggle.querySelector('.reader-toc-action').textContent = open ? '收起' : '展开';
+      $('tocBackdrop').hidden = !open;
+      document.documentElement.classList.toggle('reader-drawer-open', open);
+      nav.inert = mobile.matches && !open;
+      if (mobile.matches) {
+        toc.setAttribute('role', 'dialog'); toc.setAttribute('aria-label', '本篇目录');
+        toc.setAttribute('aria-modal', 'true'); toc.setAttribute('aria-hidden', String(!open));
+      } else {
+        ['role','aria-label','aria-modal','aria-hidden'].forEach(name => toc.removeAttribute(name));
+      }
+      if (open) {
+        const current = nav.querySelector('[aria-current]') || nav.querySelector('a');
+        if (current) requestAnimationFrame(() => {
+          if (!toc.classList.contains('is-open')) return;
+          current.focus({preventScroll:true}); nav.scrollTop = Math.max(0, current.offsetTop - nav.offsetTop - 40);
+        });
+      }
     }
     toggle.onclick = () => setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    const close = () => {setOpen(false); toggle.focus({preventScroll:true});};
+    $('tocClose').onclick = close; $('tocBackdrop').onclick = close;
+    mobile.addEventListener('change', () => setOpen(false));
     headings.forEach(heading => {
       const link = document.createElement('a'); link.href = '#' + heading.id;
       link.innerHTML = heading.html; link.dataset.level = heading.level;
       link.setAttribute('aria-label', heading.text);
       link.onclick = () => {
-        if (matchMedia('(max-width: 900px)').matches) { setOpen(false); toggle.focus({preventScroll: true}); }
+        if (mobile.matches) { setOpen(false); toggle.focus({preventScroll: true}); }
       };
       nav.appendChild(link);
     });
-    toc.addEventListener('keydown', event => { if (event.key === 'Escape') {setOpen(false); toggle.focus({preventScroll:true});} });
+    document.addEventListener('keydown', event => {
+      if (!mobile.matches || !toc.classList.contains('is-open')) return;
+      if (event.key === 'Escape') close();
+      if (event.key === 'Tab') {
+        const controls = [...toc.querySelectorAll('button,a[href]')];
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {event.preventDefault(); last.focus();}
+        else if (!event.shiftKey && document.activeElement === last) {event.preventDefault(); first.focus();}
+      }
+    });
+    setOpen(false);
     // Track the last heading above the reading line, including after hash jumps.
     const titles = headings.map(item => $(item.id));
     let scheduled = false;
     function markCurrent() {
       scheduled = false;
-      const line = matchMedia('(max-width: 900px)').matches ? 135 : 110;
+      const line = mobile.matches ? 90 : 110;
       let current = titles[0];
       for (const title of titles) { if (title.getBoundingClientRect().top > line) break; current = title; }
       nav.querySelectorAll('a').forEach(link => {

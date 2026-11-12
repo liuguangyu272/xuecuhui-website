@@ -2172,3 +2172,21 @@ a.social:hover { border-color: var(--green); background: #fff; }
   .err-code { font-size: 56px; }
   .err-wrap h1 { font-size: 19px; }
 }
+.mobile-nav-toggle, .mobile-shortcuts { display: none; }
+@media (max-width: 640px) {
+  .mobile-nav-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 14px; background: white; color: var(--green); }
+  .topnav.mobile-site-menu { display: none; position: absolute; top: calc(100% + 6px); left: 12px; right: 12px; padding: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 28px #1b1c191a; z-index: 60; }
+  .topnav.mobile-site-menu.is-open { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .topnav.mobile-site-menu a { display: flex; min-height: 44px; align-items: center; justify-content: center; padding: 8px 4px; font-size: 14px; background: white; border-radius: 5px; }
+  .mobile-shortcuts { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding-top: 18px; padding-bottom: 22px; }
+  .mobile-shortcuts a { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 9px; font-size: 12px; white-space: nowrap; color: var(--ink); }
+  .shortcut-icon { display: flex; width: 52px; height: 52px; align-items: center; justify-content: center; border-radius: 15px; }
+  .shortcut-icon svg { width: 26px; height: 26px; }
+  .shortcut-icon--notice { color: #a24c3b; background: #faeae4; }
+  .shortcut-icon--activity { color: #4268a5; background: #e8eef9; }
+  .shortcut-icon--library { color: var(--green); background: var(--green-wash); }
+  .shortcut-icon--tools { color: #8061a3; background: #f0eaf8; }
+  .shortcut-icon--join { color: #927027; background: var(--gold-wash); }
+  .mobile-shortcuts a:focus-visible, .mobile-nav-toggle:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+  .section[id] { scroll-margin-top: 80px; }
+}

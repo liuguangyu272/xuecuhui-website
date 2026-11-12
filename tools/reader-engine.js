@@ -82,8 +82,9 @@ export function renderMarkdown(container, source, baseURL) {
     } catch { el.removeAttribute(attr); }
   });
   const headings = [];
-  container.querySelectorAll('h1,h2,h3').forEach((el, i) => {
-    el.id = 'section-' + i;
+  let sectionIndex = 0, subsectionIndex = 0;
+  container.querySelectorAll('h1,h2,h3,h4').forEach(el => {
+    el.id = el.tagName === 'H4' ? 'subsection-' + subsectionIndex++ : 'section-' + sectionIndex++;
     const label = el.cloneNode(true);
     // The visual KaTeX tree is already sanitized. Preserve it in the TOC;
     // MathML textContent can also contain the original TeX annotation.
