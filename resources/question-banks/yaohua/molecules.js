@@ -1,6 +1,6 @@
 // Auto-generated — 教材分组数据（掌握/熟悉按学促会标注，药名按 2025 版教材统一）
 // 结构图：教材 PDF 原图（img/book，300dpi 灰度 WebP）；教材无独立结构图的保留矢量图
-// 教学日历同步 2026-11-16（tools/update_from_calendar.py）
+// 教学日历同步 2026-11-17（tools/update_from_calendar.py）
 
 
 const CHAPTERS = {"1": "镇静催眠药 · 抗癫痫药", "2": "抗精神病药 · 抗抑郁药", "3": "镇痛药", "4": "神经退行性疾病药", "9": "非甾体抗炎药", "10": "拟胆碱药与抗胆碱药", "11": "抗变态反应药", "12": "消化系统药物", "13": "降血糖药与骨质疏松用药", "14": "肾上腺素受体药物", "15": "抗高血压药与利尿药", "16": "心脏疾病药物与调血脂药", "17": "甾体激素类药物", "18": "抗生素", "19": "合成抗菌药", "20": "抗病毒药", "21": "抗肿瘤药"};
@@ -225,7 +225,7 @@ const MOLECULES = [
 {"id": 217, "cn": "苯唑西林", "en": "Oxacillin", "group": "familiar", "chapter": 18, "chapterName": "抗生素", "klass": "β-内酰胺类 · 耐酶青霉素（异噁唑类）", "effect": "耐 β-内酰胺酶；用于产酶金黄色葡萄球菌感染", "img": "img/book/217.webp", "smi": "Cc1onc(-c2ccccc2)c1C(=O)N[C@@H]1C(=O)N2[C@@H]1SC(C)(C)[C@@H]2C(=O)O", "key": "oxacillin"},
 {"id": 218, "cn": "哌拉西林", "en": "Piperacillin", "group": "extra", "chapter": 18, "chapterName": "抗生素", "klass": "β-内酰胺类 · 广谱抗铜绿青霉素（脲基类）", "effect": "对铜绿假单胞菌强；常与他唑巴坦联用", "img": "img/book/218.webp", "smi": "CCN1CCN(C(=O)N[C@@H](C(=O)N[C@@H]2C(=O)N3[C@@H]2SC(C)(C)[C@@H]3C(=O)O)c2ccccc2)C(=O)C1=O", "key": "piperacillin"},
 {"id": 219, "cn": "罗红霉素", "en": "Roxithromycin", "group": "familiar", "chapter": 18, "chapterName": "抗生素", "klass": "大环内酯类抗生素（半合成）", "effect": "口服吸收好、半衰期长；用于呼吸道与皮肤软组织感染", "img": "img/book/219.webp", "smi": "CC[C@H]1OC(=O)[C@H](C)[C@@H](O[C@H]2C[C@@](C)(OC)[C@@H](O)[C@H](C)O2)[C@H](C)[C@@H](O[C@@H]2O[C@H](C)C[C@H](N(C)C)[C@H]2O)[C@](C)(O)C[C@@H](C)/C(=N\\OCOCCOC)[C@H](C)[C@@H](O)[C@]1(C)O", "key": "roxithromycin"},
-{"id": 220, "cn": "四环素", "en": "Tetracycline", "group": "extra", "chapter": 18, "chapterName": "抗生素", "klass": "四环素类抗生素", "effect": "抑制 30S 核糖体；用于立克次体、衣原体感染，注意牙齿着色与光敏", "img": "img/book/220.webp", "smi": "CN(C)[C@@H]1C(O)=C(C(N)=O)C(=O)[C@@]2(O)C(O)=C3C(=O)c4c(O)cccc4[C@@](C)(O)[C@H]3C[C@@H]12", "key": "tetracycline"},
+{"id": 220, "cn": "四环素", "en": "Tetracycline", "group": "know", "chapter": 18, "chapterName": "抗生素", "klass": "四环素类抗生素", "effect": "抑制 30S 核糖体；用于立克次体、衣原体感染，注意牙齿着色与光敏", "img": "img/book/220.webp", "smi": "CN(C)[C@@H]1C(O)=C(C(N)=O)C(=O)[C@@]2(O)C(O)=C3C(=O)c4c(O)cccc4[C@@](C)(O)[C@H]3C[C@@H]12", "key": "tetracycline"},
 {"id": 221, "cn": "环丙沙星", "en": "Ciprofloxacin", "group": "master", "chapter": 19, "chapterName": "合成抗菌药", "klass": "喹诺酮类抗菌药 · 氟喹诺酮（教材称第二代）", "effect": "抑制 DNA 回旋酶与拓扑异构酶 IV；用于 G- 杆菌、铜绿假单胞菌感染", "img": "img/book/221.webp", "smi": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O", "key": "ciprofloxacin"},
 {"id": 222, "cn": "盐酸乙胺丁醇", "en": "Ethambutol Hydrochloride", "group": "master", "chapter": 19, "chapterName": "合成抗菌药", "klass": "抗结核药 · 合成类（一线）", "effect": "抑制阿拉伯糖基转移酶影响细胞壁合成；用于结核联合治疗，注意视神经炎", "img": "img/book/222.webp", "smi": "CC[C@@H](CO)NCCN[C@@H](CC)CO.Cl.Cl", "key": "ethambutol_hydrochloride"},
 {"id": 223, "cn": "氟康唑", "en": "Fluconazole", "group": "master", "chapter": 19, "chapterName": "合成抗菌药", "klass": "抗真菌药 · 三唑类", "effect": "抑制 14α-去甲基化酶阻断麦角固醇合成；用于念珠菌、隐球菌感染", "img": "img/book/223.webp", "smi": "OC(Cn1cncn1)(Cn1cncn1)c1ccc(F)cc1F", "key": "fluconazole"},
