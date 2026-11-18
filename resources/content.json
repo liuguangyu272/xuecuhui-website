@@ -93,7 +93,7 @@
    ],
    "registration": {
     "enabled": true,
-    "deadline": "2026-11-18T13:07",
+    "deadline": "2026-11-19T13:07",
     "capacity": 100,
     "fields": [
      {
@@ -109,7 +109,7 @@
       "required": true
      }
     ],
-    "version": "74316d9319c8b9fcb014dd8b3bd4bf6d7bb57df482de1421e2e1fff0b116f2e9"
+    "version": "fc5a92db8b5d9da9dd27df4eab0cbd0c11c90699cd90a57636b80aa67e2ce8ab"
    }
   },
   {
@@ -282,5 +282,5 @@
    "href": "#"
   }
  ],
- "updatedAt": "2026-11-18T13:08:18.328376"
+ "updatedAt": "2026-11-18T13:08:35.986032"
 }
