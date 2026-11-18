@@ -80,15 +80,37 @@
  "activities": [
   {
    "id": "e1792933180311",
-   "title": "2",
+   "title": "基础化学",
    "date": "2026-10-25",
    "timePlace": "",
    "reward": "",
    "excerpt": "",
    "content": "",
-   "poster": "",
+   "poster": "assets/posters/c73b161105144d56.jpg",
    "videoUrl": "",
-   "tags": []
+   "tags": [
+    "基础化学"
+   ],
+   "registration": {
+    "enabled": true,
+    "deadline": "2026-11-18T13:07",
+    "capacity": 100,
+    "fields": [
+     {
+      "key": "f1794978498843_0",
+      "label": "姓名",
+      "type": "text",
+      "required": true
+     },
+     {
+      "key": "f1794978498844_1",
+      "label": "学号",
+      "type": "text",
+      "required": true
+     }
+    ],
+    "version": "74316d9319c8b9fcb014dd8b3bd4bf6d7bb57df482de1421e2e1fff0b116f2e9"
+   }
   },
   {
    "id": "e1792933182504",
@@ -260,5 +282,5 @@
    "href": "#"
   }
  ],
- "updatedAt": "2026-11-09T19:28:59.994634"
+ "updatedAt": "2026-11-18T13:08:18.328376"
 }
