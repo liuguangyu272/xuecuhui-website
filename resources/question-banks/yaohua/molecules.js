@@ -1,14 +1,13 @@
 // Auto-generated — 教材分组数据（掌握/熟悉按学促会标注，药名按 2025 版教材统一）
 // 结构图：教材 PDF 原图（img/book，300dpi 灰度 WebP）；教材无独立结构图的保留矢量图
 // 教学日历同步 2026-11-18（tools/update_from_calendar.py）
-
-
+// 2026-11-18 13:47 教学日历导入（内容台）
 
 
 const CHAPTERS = {"1": "镇静催眠药 · 抗癫痫药", "2": "抗精神病药 · 抗抑郁药", "3": "镇痛药", "4": "神经退行性疾病药", "9": "非甾体抗炎药", "10": "拟胆碱药与抗胆碱药", "11": "抗变态反应药", "12": "消化系统药物", "13": "降血糖药与骨质疏松用药", "14": "肾上腺素受体药物", "15": "抗高血压药与利尿药", "16": "心脏疾病药物与调血脂药", "17": "甾体激素类药物", "18": "抗生素", "19": "合成抗菌药", "20": "抗病毒药", "21": "抗肿瘤药"};
 
 const MOLECULES = [
-{"id": 1, "cn": "盐酸吗啡", "en": "Morphine", "group": "extra", "chapter": 3, "chapterName": "镇痛药", "klass": "镇痛药 · 阿片类生物碱", "effect": "μ阿片受体激动剂；强效镇痛、镇静，用于急性剧痛及癌痛；有成瘾性；遇酸脱水，遇空气、光照易氧化", "img": "img/book/001.webp", "smi": "CN1CC[C@]23c4c5ccc(O)c4O[C@H]2[C@@H](O)C=C[C@H]3[C@H]1C5", "key": "morphine", "alias": "吗啡"},
+{"id": 1, "cn": "盐酸吗啡", "en": "Morphine", "group": "master", "chapter": 3, "chapterName": "镇痛药", "klass": "镇痛药 · 阿片类生物碱", "effect": "μ阿片受体激动剂；强效镇痛、镇静，用于急性剧痛及癌痛；有成瘾性；遇酸脱水，遇空气、光照易氧化", "img": "img/book/001.webp", "smi": "CN1CC[C@]23c4c5ccc(O)c4O[C@H]2[C@@H](O)C=C[C@H]3[C@H]1C5", "key": "morphine", "alias": "吗啡"},
 {"id": 2, "cn": "盐酸哌替啶", "en": "Pethidine", "group": "master", "chapter": 3, "chapterName": "镇痛药", "klass": "镇痛药 · 合成阿片类-苯基哌啶类", "effect": "μ受体激动剂，镇痛约为吗啡的1/10；用于创伤性剧痛、分娩镇痛、人工冬眠；短效；有成瘾性", "img": "img/book/002.webp", "smi": "CCOC(=O)C1(CCN(C)CC1)c2ccccc2", "key": "pethidine"},
 {"id": 3, "cn": "枸橼酸芬太尼", "en": "Fentanyl", "group": "master", "chapter": 3, "chapterName": "镇痛药", "klass": "镇痛药 · 合成阿片类-苯胺基哌啶类", "effect": "强效μ受体激动剂（约为吗啡的100倍）；用于麻醉辅助、术后镇痛及癌痛", "img": "img/book/003.webp", "smi": "CCC(=O)N(c1ccccc1)C1CCN(CCc2ccccc2)CC1", "key": "fentanyl"},
 {"id": 4, "cn": "喷他佐辛", "en": "Pentazocine", "group": "master", "chapter": 3, "chapterName": "镇痛药", "klass": "镇痛药 · 阿片受体部分激动剂-苯吗喃类", "effect": "激动κ受体、弱拮抗μ受体；成瘾性较小，用于中度至重度疼痛", "img": "img/book/004.webp", "smi": "CC(C)=CCN1CCC2(C)c3cc(O)ccc3CC1C2C", "key": "pentazocine"},
