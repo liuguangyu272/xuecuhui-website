@@ -79,40 +79,6 @@
  ],
  "activities": [
   {
-   "id": "e1792933180311",
-   "title": "基础化学",
-   "date": "2026-10-25",
-   "timePlace": "",
-   "reward": "",
-   "excerpt": "",
-   "content": "",
-   "poster": "assets/posters/c73b161105144d56.jpg",
-   "videoUrl": "https://www.bilibili.com/video/BV1r7sP6CEjS/?share_source=copy_web&vd_source=2b708bcb6fc8d19cb9786d27f1cc5383",
-   "tags": [
-    "基础化学"
-   ],
-   "registration": {
-    "enabled": true,
-    "deadline": "2026-11-19T13:07",
-    "capacity": 100,
-    "fields": [
-     {
-      "key": "f1794978498843_0",
-      "label": "姓名",
-      "type": "text",
-      "required": true
-     },
-     {
-      "key": "f1794978498844_1",
-      "label": "学号",
-      "type": "text",
-      "required": true
-     }
-    ],
-    "version": "fc5a92db8b5d9da9dd27df4eab0cbd0c11c90699cd90a57636b80aa67e2ce8ab"
-   }
-  },
-  {
    "id": "e1792933182504",
    "title": "3",
    "date": "2026-10-25",
@@ -282,5 +248,5 @@
    "href": "#"
   }
  ],
- "updatedAt": "2026-11-18T13:19:12.439810"
+ "updatedAt": "2026-11-18T13:21:43.586147"
 }

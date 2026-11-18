@@ -8,13 +8,9 @@
       "sha256": "dc900737d73d51d85873a781f6976c5e944881c30e5099a6d3bfe5bfb017951f",
       "bytes": 20304459
     },
-    "resources/assets/posters/c73b161105144d56.jpg": {
-      "sha256": "abf1dd33e259445423499fbf1044cde30c147a54804b3d5b5d27f1991cfcfaf4",
-      "bytes": 306564
-    },
     "resources/content.json": {
-      "sha256": "b405ba7b4ba99797abdc549aaa43410bc7bce516ae0d52219e74fcc1d4834f51",
-      "bytes": 8684
+      "sha256": "fc100e52cf29202aa466a5cb9991d1f7c59317d9c2f0e0f1f0c9a887ed8ac2a0",
+      "bytes": 7860
     },
     "resources/editor/content_data.js": {
       "sha256": "9f4715ab0496ebc75afff7542d2bc1dc18d0ff967c384c6b6212877045ff5f10",
