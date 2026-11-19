@@ -313,6 +313,14 @@ def route(handler, path):
                     labels={'tasks':'分配材料任务','templates':'上传模板','resources':'上传正式资料','requirements':'编辑材料要求'}
                     handler._audit_action = ('提交成果' if parts[-1]=='submit' else '审核成果' if parts[-1]=='review' else '发布正式资料' if parts[-1]=='publish' else labels.get(parts[0],'修改材料'))
                     handler._audit_target = path + (' #'+str(result['id']) if result.get('id') else '')
+                    if parts[0]=='tasks':
+                        handler._audit_target = '任务：'+row(con,'tasks',int(parts[1]) if len(parts)>1 else result['id'])['title']
+                    elif parts[0]=='submissions':
+                        submitted=row(con,'submissions',int(parts[1]))
+                        handler._audit_target='任务：'+row(con,'tasks',submitted['task_id'])['title']
+                    elif parts[0] in ('resources','templates'):
+                        handler._audit_target=('资料：' if parts[0]=='resources' else '模板：')+row(con,parts[0],int(parts[1]) if len(parts)>1 else result['id'])['name']
+                    elif parts[0]=='requirements': handler._audit_target='材料要求'
                 handler._json(200, {'ok':True, **result})
     except (Invalid, ValueError, KeyError) as error:
         handler._json(400, {'ok':False, 'error':str(error)})

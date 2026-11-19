@@ -30,7 +30,8 @@ def allowed(prefix, rel):
     if prefix == 'web':
         if s.startswith(('assets/posters/', 'assets/docs/', 'assets/issue/')): return False
         if len(rel.parts) == 2 and rel.parts[0] in ('yaofen','yaoji') and rel.name.startswith('data_'): return False
-        if s in ('yaohua/index.html','yaohua/molecules.js'): return False
+        if s in ('yaohua/index.html','yaohua/molecules.js','yaohua/sar.js','yaohua/content_extra.js','yaohua/qbank.js','yaohua/syllabus.js','yaohua/materials.js','yaohua/sw.js','yaohua/manifest.json','yaohua/patch.js'): return False
+        if s.startswith('yaohua/img/'): return False
     if prefix == 'services/console':
         if s == 'content_data.js': return False
         if s.startswith('yaohua-src/') and s != 'yaohua-src/index.html': return False
@@ -92,7 +93,7 @@ def main():
             for source in (stage/prefix).rglob('*'):
                 if not source.is_file(): continue
                 rel=source.relative_to(stage/prefix)
-                if not allowed(prefix,rel): raise RuntimeError('Repository contains protected runtime data: '+str(rel))
+                if not allowed(prefix,rel): continue
                 data=source.read_bytes()
                 if source.suffix in ('.js','.html'):
                     literal=json.dumps(tokens['CONSOLE_TOKEN']).encode()
@@ -103,9 +104,10 @@ def main():
                 files[str(root/rel)]=data
         # Removed managed files can be deleted; runtime paths are never eligible.
         old_files=set(previous.get('files',[]))
-        for old in old_files:
+        for old in list(old_files):
             p=Path(old)
-            if not any(p.is_relative_to(root) and allowed(prefix,p.relative_to(root)) for prefix,root in ROOTS.items()): raise RuntimeError('Invalid deployment manifest')
+            if not any(p.is_relative_to(root) for root in ROOTS.values()): raise RuntimeError('Invalid deployment manifest')
+            if not any(p.is_relative_to(root) and allowed(prefix,p.relative_to(root)) for prefix,root in ROOTS.items()): old_files.remove(old)
         changed={p:d for p,d in files.items() if not Path(p).exists() or Path(p).read_bytes()!=d}
         removed=old_files-set(files)
         if any(Path(p).is_symlink() for p in set(changed)|removed): raise RuntimeError('Unexpected symlink target')

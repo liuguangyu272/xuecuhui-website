@@ -165,7 +165,7 @@ class Handler(BaseHTTPRequestHandler):
             if self.path.startswith('/api/materials') or self.path.split('?')[0] in actions or self.path.endswith('/import'):
                 try:
                     identity.audit(self, getattr(self, '_audit_action', actions.get(self.path, '修改材料内容')),
-                                   getattr(self, '_audit_target', self.path.split('?')[0]),
+                                   getattr(self, '_audit_target', '网站内容' if self.path=='/api/data' else '报名名单' if self.path.startswith('/api/registration-admin/') else obj.get('original','上传附件')),
                                    getattr(self, '_audit_before', None), getattr(self, '_audit_after', obj))
                 except Exception:
                     code, obj = 500, {'ok':False,'error':'内容已保存，但修改记录写入失败；请联系网站管理员核对。'}
