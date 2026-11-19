@@ -111,6 +111,25 @@ class IdentityTests(unittest.TestCase):
         self.assertNotIn('secret',json.dumps(entries))
         self.call('/api/auth/logout',{},self.owner)
         self.assertIsNone(self.call('/api/auth/session',cookie=self.owner)[1]['user'])
+    def test_audit_changes_scope_filters_before_pagination_without_deleting(self):
+        self.bootstrap()
+        self.call('/api/auth/login',{'name':'测试所有者','studentId':'ADMIN1001'})
+        self.call('/api/auth/internal-audit',{'action':'保存网站内容','before':{'title':'相同'},'after':{'title':'相同'}},self.owner,internal=True)
+        self.call('/api/auth/internal-audit',{'action':'保存网站内容','before':{'updatedAt':'昨天'},'after':{'updatedAt':'今天'}},self.owner,internal=True)
+        self.call('/edit',{},self.owner)
+        self.call('/api/auth/login',{'name':'测试所有者','studentId':'ADMIN1001'})
+        all_events=self.call('/api/auth/audit',cookie=self.owner)[1]
+        filtered=self.call('/api/auth/audit?scope=changes&limit=1',cookie=self.owner)[1]
+        self.assertEqual(filtered['entries'][0]['action'],'修改公告')
+        self.assertEqual(filtered['total'],2)  # bootstrap and actual edit
+        self.assertTrue(filtered['hasMore'])
+        second=self.call('/api/auth/audit?scope=changes&limit=1&offset=1',cookie=self.owner)[1]
+        self.assertEqual(second['entries'][0]['action'],'初始化网站管理员')
+        self.assertFalse(second['hasMore'])
+        self.assertEqual(all_events['total'],6)
+        self.assertEqual(len(self.call('/api/auth/audit',cookie=self.owner)[1]['entries']),6)
+        self.assertEqual(self.call('/api/auth/audit?scope=changes')[0],401)
+
     def test_admin_self_demotion_keeps_audit_then_revokes(self):
         self.bootstrap()
         status,data,_=self.call('/api/auth/members',{'name':'其他管理员','studentId':'SECOND1','role':'admin'},self.owner)

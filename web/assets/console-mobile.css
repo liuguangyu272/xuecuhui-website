@@ -73,4 +73,13 @@
   .ws-dialog .btn{font-size:14px;min-height:44px}
   .ws-dialog .ws-attachment{flex-wrap:wrap;overflow-wrap:anywhere}
   .ws-dialog .ws-attachment>div{min-width:0;max-width:100%}
+  .workspace-console #panel-audit .identity-table-wrap .table,
+  .workspace-console #panel-audit .identity-table-wrap .table tbody{display:block!important;min-width:0!important;width:100%}
+  .workspace-console #panel-audit .identity-table-wrap .table thead{display:none!important}
+  .workspace-console #panel-audit .identity-table-wrap .table tr{display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:16px;border-bottom:1px solid #e3e8e7}
+  .workspace-console #panel-audit .identity-table-wrap .table td{display:block!important;min-width:0;padding:0;border:0;white-space:normal;overflow-wrap:anywhere}
+  .workspace-console #panel-audit .table td:nth-child(1){grid-column:1;grid-row:3;font-size:12px;color:#7c8a90}
+  .workspace-console #panel-audit .table td:nth-child(2){grid-column:1;grid-row:1;font-weight:600}
+  .workspace-console #panel-audit .table td:nth-child(3){grid-column:1;grid-row:2}
+  .workspace-console #panel-audit .table td:nth-child(4){grid-column:2;grid-row:1/4;align-self:center}
 }

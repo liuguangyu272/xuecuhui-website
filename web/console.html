@@ -10,9 +10,9 @@
 <link rel="stylesheet" href="assets/vendor/reader/katex.min.css">
 <link rel="stylesheet" href="assets/vendor/reader/highlight.css">
 <link rel="stylesheet" href="assets/reader.css?v=20261112a">
-<link rel="stylesheet" href="assets/console-workspace.css?v=20261119a">
+<link rel="stylesheet" href="assets/console-workspace.css?v=20261119-audit1">
 <link rel="stylesheet" href="assets/console-login.css?v=20261119b">
-<link rel="stylesheet" href="assets/console-mobile.css?v=20261119-preview1">
+<link rel="stylesheet" href="assets/console-mobile.css?v=20261119-audit1">
 </head>
 <body class="workspace-console">
 
@@ -133,8 +133,8 @@
       <p id="identityMemberState" role="status"></p>
     </section>
     <section class="panel" id="panel-audit">
-      <div class="ws-heading"><h2>修改记录</h2><button class="btn" id="identityAuditRefresh">刷新</button></div>
-      <div class="identity-table-wrap"><table class="table"><thead><tr><th>时间（北京）</th><th>操作人</th><th>操作</th><th>对象</th><th>详情</th></tr></thead><tbody id="identityAudit"></tbody></table></div>
+      <div class="ws-heading"><h2>修改记录</h2><div class="identity-audit-controls"><select class="input" id="identityAuditScope" aria-label="记录范围"><option value="changes">仅看修改</option><option value="all">全部操作</option></select><button class="btn" id="identityAuditRefresh">刷新</button></div></div>
+      <div class="identity-table-wrap"><table class="table"><thead><tr><th>时间（北京）</th><th>操作人</th><th>修改内容</th><th>详情</th></tr></thead><tbody id="identityAudit"></tbody></table></div>
       <div class="ws-actions"><button class="btn" id="identityAuditPrevious">上一页</button><span id="identityAuditPage"></span><button class="btn" id="identityAuditNext">下一页</button></div>
       <p id="identityAuditState" role="status"></p>
     </section>
@@ -446,7 +446,7 @@
 <script src="assets/reader-console.js?v=20261111a"></script>
 <script src="assets/console.js?v=20261119-login2"></script>
 <script src="assets/materials-console.js?v=20261119-preview1"></script>
-<script src="assets/identity-console.js?v=20261119a"></script>
+<script src="assets/identity-console.js?v=20261119-audit1"></script>
 <script src="assets/console-mobile.js?v=20261119-preview1"></script>
 </body>
 </html>

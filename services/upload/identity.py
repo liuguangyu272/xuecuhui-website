@@ -333,8 +333,12 @@ def route(handler, path):
             offset=max(0,int(query.get('offset',['0'])[0]))
             name=clean(query.get('name',[''])[0],40)
             with database() as con:
-                where=' WHERE user_name LIKE ?' if name else ''
+                conditions=['user_name LIKE ?'] if name else []
                 args=('%'+name+'%',) if name else ()
+                if query.get('scope',['all'])[0]=='changes':
+                    conditions.append("action NOT IN ('登录内容台','退出内容台')")
+                    conditions.append("NOT (action='保存网站内容' AND NOT EXISTS (SELECT 1 FROM json_each(COALESCE(changes_json,'[]')) WHERE json_extract(value,'$.path') <> 'updatedAt'))")
+                where=' WHERE '+' AND '.join(conditions) if conditions else ''
                 total=con.execute('SELECT COUNT(*) FROM audit'+where,args).fetchone()[0]
                 rows=con.execute('SELECT * FROM audit'+where+' ORDER BY id DESC LIMIT ? OFFSET ?',args+(limit,offset)).fetchall()
             entries=[]

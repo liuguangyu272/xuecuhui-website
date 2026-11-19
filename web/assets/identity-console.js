@@ -18,6 +18,7 @@
     const dialog=document.createElement('dialog');dialog.id='identityDialog';dialog.className='ws-dialog';
     dialog.innerHTML=`<header class="ws-dialog-head"><h2>${esc(title)}</h2><button class="btn" id="identityDialogClose" aria-label="关闭">×</button></header><form class="ws-dialog-body" id="identityForm">${body}<p class="ws-error" id="identityError" hidden role="alert"></p><div class="ws-actions"><button class="btn" type="button" id="identityDialogCancel">取消</button>${buttonText?`<button class="btn btn--primary" id="identitySubmit">${esc(buttonText)}</button>`:''}</div></form>`;
     document.body.append(dialog);
+    if(!buttonText)$('identityDialogCancel').textContent='关闭';
     $('identityDialogClose').onclick=$('identityDialogCancel').onclick=()=>dialog.close();
     $('identityForm').onsubmit=async event=>{
       event.preventDefault();if(!onSubmit)return;
@@ -58,17 +59,42 @@
     if(typeof value!=='string')return value;
     try{return JSON.parse(value);}catch{return value;}
   }
+  const labels={announcements:'公告',activities:'活动',departments:'部门',site:'站点信息',library:'学习资料',docs:'资料',grades:'年级',subjects:'学科',tools:'小帮手',socials:'联系方式',title:'标题',name:'名称',description:'说明',content:'正文',url:'文件地址',ext:'文件格式',size:'文件大小',date:'日期',deadline:'截止日期',department:'部门',position:'职务',role:'权限',enabled:'账号状态',studentId:'学号',status:'状态',comment:'审核意见',note:'修改说明',material:'材料负责人',designer:'美工负责人',requirements:'材料要求',created:'新增人数',updated:'更新人数',academicYear:'学年',uniqueMembers:'成员人数',file_id:'文件',created_at:'创建时间',updated_at:'更新时间',id:'编号'};
+  const changesOf=event=>{const changes=Array.isArray(event.changes)?event.changes:parseSnapshot(event.changes_json);return Array.isArray(changes)?changes:[];};
+  const visibleChanges=event=>changesOf(event).filter(change=>change.path!=='updatedAt');
+  const fieldLabel=path=>String(path||'内容').replace(/\[id=[^\]]*\]/g,'').split('.').map(key=>labels[key]||(/^[\u3400-\u9fff\s]+$/.test(key)?key:'内容')).filter((key,index,list)=>key!==list[index-1]).join(' · ');
+  function auditSummary(event){
+    if(event.action==='保存网站内容'){
+      const sections=[...new Set(visibleChanges(event).map(change=>fieldLabel(String(change.path||'').split('.')[0])))];
+      return sections.length?'更新'+sections.slice(0,3).join('、')+(sections.length>3?'等内容':''):'保存网站内容';
+    }
+    const before=parseSnapshot(event.before),after=parseSnapshot(event.after);
+    let target=String(event.target||'');
+    if(/^成员 #/.test(target))target=after?.name||before?.name||'成员';
+    if(target.startsWith('/api/'))target='';
+    if(['登录','网站内容','上传附件'].includes(target)||target===event.action)target='';
+    return String(event.action||'修改内容')+(target?'：'+target:'');
+  }
+  function readable(value){
+    if(value===null||value===undefined)return '无';
+    if(typeof value==='boolean')return value?'启用':'停用';
+    if(Array.isArray(value))return value.length?value.map(readable).join('、'):'无';
+    if(typeof value==='object')return value.title||value.name||value.description||'一项内容';
+    return ({admin:'管理员',member:'成员',approved:'已通过',pending:'待审核',returned:'已退回',done:'已归档'})[value]||String(value);
+  }
   function auditDetail(event){
     const before=parseSnapshot(event.before_json??event.before),after=parseSnapshot(event.after_json??event.after);
-    const changes=Array.isArray(event.changes)?event.changes:parseSnapshot(event.changes_json);
-    const details=Array.isArray(changes)&&changes.length?changes.map(change=>`<h3>${esc(change.path||change.field||'修改内容')}</h3><div class="identity-change"><div><small>修改前</small><pre class="identity-diff">${esc(JSON.stringify(change.before??change.old??null,null,2))}</pre></div><div><small>修改后</small><pre class="identity-diff">${esc(JSON.stringify(change.after??change.new??null,null,2))}</pre></div></div>`).join(''):`<h3>修改前</h3><pre class="identity-diff">${esc(before===null?'无':JSON.stringify(before,null,2))}</pre><h3>修改后</h3><pre class="identity-diff">${esc(after===null?'无':JSON.stringify(after,null,2))}</pre>`;
-    showDialog('修改详情',`<p>${esc(event.actor_name||event.actorName||event.userName||event.user_name||'')} · ${esc(beijing(event.created_at||event.createdAt))}</p>${details}`,'');
+    const allChanges=changesOf(event),changes=visibleChanges(event);
+    const brief=value=>{const text=readable(value);return esc(text.length>200?text.slice(0,200)+'…':text);};
+    const details=changes.length?changes.slice(0,8).map(change=>`<div class="identity-audit-change"><strong>${esc(fieldLabel(change.path||change.field))}</strong><p><span>修改前</span>${brief(change.before??change.old)}</p><p><span>修改后</span>${brief(change.after??change.new)}</p></div>`).join('')+(changes.length>8?`<p>另有 ${changes.length-8} 项变更，可展开完整记录查看。</p>`:''):'';
+    const raw=allChanges.length||before!==null||after!==null?`<details class="identity-audit-raw"><summary>完整记录</summary><pre class="identity-diff">${esc(JSON.stringify(allChanges.length?allChanges:{before,after},null,2))}</pre></details>`:'';
+    showDialog('修改详情',`<p>${esc(event.actor_name||event.actorName||event.userName||event.user_name||'')} · ${esc(beijing(event.created_at||event.createdAt))}</p><h3>${esc(auditSummary(event))}</h3>${details}${raw}`,'');
   }
   async function loadAudit(){
     setState('identityAuditState','正在读取…');
     try{
-      const data=await api('audit?offset='+offset+'&limit=30');const events=data.events||data.entries||data.logs||[];hasMore=Boolean(data.hasMore??data.has_more??(offset+events.length<Number(data.total||0)));
-      $('identityAudit').innerHTML=events.map((e,index)=>`<tr><td>${esc(beijing(e.created_at||e.createdAt))}</td><td>${esc(e.actor_name||e.actorName||e.userName||e.user_name||'')}<small class="identity-subtext">${esc(e.actor_student_id||e.actorStudentId||e.studentId||'')}</small></td><td>${esc(e.action)}</td><td>${esc(e.target)}</td><td><button class="btn btn--sm" data-audit-detail="${index}">查看</button></td></tr>`).join('')||'<tr><td colspan="5">暂无修改记录</td></tr>';
+      const data=await api('audit?offset='+offset+'&limit=30&scope='+encodeURIComponent($('identityAuditScope').value));const events=data.events||data.entries||data.logs||[];hasMore=Boolean(data.hasMore??data.has_more??(offset+events.length<Number(data.total||0)));
+      $('identityAudit').innerHTML=events.map((e,index)=>`<tr><td>${esc(beijing(e.created_at||e.createdAt))}</td><td>${esc(e.actor_name||e.actorName||e.userName||e.user_name||'')}</td><td>${esc(auditSummary(e))}</td><td><button class="btn btn--sm" data-audit-detail="${index}">查看</button></td></tr>`).join('')||'<tr><td colspan="4">暂无修改记录</td></tr>';
       $('identityAudit').querySelectorAll('[data-audit-detail]').forEach(button=>button.onclick=()=>auditDetail(events[Number(button.dataset.auditDetail)]));
       $('identityAuditPrevious').disabled=offset===0;$('identityAuditNext').disabled=!hasMore;$('identityAuditPage').textContent='第 '+(Math.floor(offset/30)+1)+' 页';setState('identityAuditState','');
     }catch(error){setState('identityAuditState',error.message);}
@@ -80,6 +106,7 @@
     document.querySelector('[data-tab="members"]').addEventListener('click',loadMembers);
     document.querySelector('[data-tab="audit"]').addEventListener('click',()=>{offset=0;loadAudit();});
     $('identityAuditRefresh').onclick=()=>{offset=0;loadAudit();};
+    $('identityAuditScope').onchange=()=>{offset=0;loadAudit();};
     $('identityAuditPrevious').onclick=()=>{offset=Math.max(0,offset-30);loadAudit();};$('identityAuditNext').onclick=()=>{if(hasMore){offset+=30;loadAudit();}};
   });
 })();
