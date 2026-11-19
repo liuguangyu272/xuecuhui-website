@@ -11,7 +11,7 @@
   const status = task => task.status==='done'?['已归档','done']:task.status==='review'?[task.stage==='material'?'待材料审核':'待终审','review']:task.status==='returned'?['已退回','returned']:task.stage==='design'?['美工处理中','design']:['材料编写中','assigned'];
   function notify(message) { document.querySelector('.ws-toast')?.remove();const el=document.createElement('div');el.className='ws-toast';el.role='status';el.textContent=message;document.body.append(el);setTimeout(()=>el.remove(),3500); }
   async function api(path='',body) {
-    const options={headers:{'X-Token':CONFIG.consoleCode}};
+    const options={headers:{}};
     if(body!==undefined){options.method='POST';options.body=body instanceof FormData?body:JSON.stringify(body);if(!(body instanceof FormData))options.headers['Content-Type']='application/json';}
     const response=await fetch('/api/materials'+path,options);
     const data=await response.json().catch(()=>({error:'服务器响应异常'}));
@@ -19,7 +19,7 @@
     return data;
   }
   async function download(file) {
-    try { const response=await fetch('/api/materials/files/'+file.id,{headers:{'X-Token':CONFIG.consoleCode}});if(!response.ok){const error=await response.json();throw new Error(error.error||'文件下载失败');}const blob=await response.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000); }
+    try { const response=await fetch('/api/materials/files/'+file.id);if(!response.ok){const error=await response.json();throw new Error(error.error||'文件下载失败');}const blob=await response.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000); }
     catch(error){notify(error.message);}
   }
   const fileHtml = file => `<div class="ws-attachment"><span class="ws-file">${escape(file.ext.toUpperCase())}</span><div><strong>${escape(file.name)}</strong><small>${size(file.size)}${file.active===0?' · 已被替换':''}</small></div>${file.active===0?'':`<button class="btn btn--sm" data-file="${file.id}">下载</button>`}</div>`;
@@ -56,7 +56,7 @@
     $('materialResources').querySelectorAll('[data-publish]').forEach(b=>b.onclick=()=>publishDialog(Number(b.dataset.publish)));
     $('materialResources').querySelectorAll('[data-versions]').forEach(b=>b.onclick=async()=>{try{const data=await api('/versions/'+b.dataset.versions);const files=data.versions.map(v=>({id:v.file_id,name:v.name,size:v.size,ext:v.ext}));const el=dialog('保留的旧文件',files.map(fileHtml).join('')||'<div class="ws-empty">没有保留的旧文件</div>','');wireFiles(el,files);}catch(e){notify(e.message);}});
   }
-  function actor() { const name=$('materialActor').value.trim();if(!name)throw new Error('请先填写操作人姓名');return name; }
+  function actor() { const name=window.consoleIdentity?.name;if(!name)throw new Error('登录已过期，请重新登录');return name; }
   async function detail(id) {
     const data=await api('/tasks/'+id),task=data.task;currentTask=data;
     const [label,klass]=status(task);const steps=task.designer?['材料编写','材料审核','美工处理','终审归档']:['材料编写','审核归档'];const active=task.status==='done'?steps.length:task.stage==='design'?(task.status==='review'?3:2):(task.status==='review'?1:0);
@@ -97,8 +97,8 @@
   }
   document.addEventListener('console:ready',()=>{
     document.querySelectorAll('#tabs [data-tab]').forEach(button=>button.addEventListener('click',()=>document.body.classList.toggle('material-view',['materials','archives','requirements'].includes(button.dataset.tab))));
-    try{$('materialActor').value=localStorage.getItem('materials.actor')||'';}catch{}
-    $('materialActor').oninput=()=>{try{localStorage.setItem('materials.actor',$('materialActor').value);}catch{}};
+    $('materialActor').value=window.consoleIdentity?.name||'';
+    $('materialActor').readOnly=true;
     $('materialCreate').onclick=createTask;$('materialUpload').onclick=()=>uploadDialog('resources');$('materialTemplateUpload').onclick=()=>uploadDialog('templates');
     $('materialRefresh').onclick=()=>load().catch(e=>notify(e.message));$('materialSearch').oninput=renderResources;
     $('materialFilters').onclick=event=>{const filter=event.target.dataset.filter;if(!filter)return;state.filter=filter;$('materialFilters').querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b.dataset.filter===filter));render();};

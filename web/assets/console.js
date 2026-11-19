@@ -89,7 +89,6 @@ async function uploadImage(file) {
   try {
     res = await fetch('api/upload', {
       method: 'POST',
-      headers: { 'X-Token': CONFIG.consoleCode },
       body: fd
     });
   } catch (e) {
@@ -530,7 +529,6 @@ async function uploadDoc(file) {
   try {
     r = await fetch('api/upload-doc', {
       method: 'POST',
-      headers: { 'X-Token': CONFIG.consoleCode },
       body: fd
     });
   } catch (e) {
@@ -1003,7 +1001,6 @@ function initIssueUpload() {
       fd.append('file', f);
       const r = await fetch('api/upload-issue', {
         method: 'POST',
-        headers: { 'X-Token': CONFIG.consoleCode },
         body: fd
       });
       let j = null;

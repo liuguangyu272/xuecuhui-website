@@ -168,6 +168,7 @@
 </style>
 </head>
 <body>
+<div style="max-width:1200px;margin:12px auto;padding:0 20px;font-size:13px"><a href="/console.html">返回内容台</a><span id="identityName" style="margin-left:18px"></span></div>
 
 <div class="head">
   <div class="headrow">
@@ -882,13 +883,15 @@ function renderExp(){
 /* ---------- 一键更新 / 版本留档 ---------- */
 let SERVER_OK = false;
 async function api(path, opt){
-  // 部署在子路径 /console3/ 下，把绝对路径转成相对，并带上密令
+  // 同站点的 HttpOnly 登录会话由浏览器发送。
   const url = String(path).replace(/^\/api\//, "api/");
   const r = await fetch(url, Object.assign({
-    headers: { "Content-Type": "application/json", "X-Token": "__SERVER_CONSOLE_TOKEN__" }
+    headers: { "Content-Type": "application/json" }, credentials: "same-origin"
   }, opt || {}));
   let j;
   try { j = await r.json() } catch(e){ throw new Error("服务返回了非 JSON，可能是接口未启动") }
+  if (r.status === 401) { location.assign('/console.html'); throw new Error('请先登录内容台'); }
+  if (j.auditError) alert(j.auditError);
   return j;
 }
 function fmtTime(iso){
@@ -904,8 +907,9 @@ async function checkServer(){
     const s = await api("/api/status");
     if (!s.ok) throw new Error("bad");
     SERVER_OK = true;
-    tag.className = "tagline ok"; tag.textContent = "本地服务已连接";
-    ptag.className = "tagline ok"; ptag.textContent = "可直接写盘";
+    tag.className = "tagline ok"; tag.textContent = "已连接";
+    ptag.className = "tagline ok"; ptag.textContent = "可发布";
+    $("#identityName").textContent = s.user ? s.user.name + ' · ' + s.user.studentId : '';
     $("#btnPublish").disabled = false;
     if (!s.python){
       $("#pubHint").innerHTML += `<br><b style="color:var(--amber)">注意</b>：这台机器上没找到带 RDKit 的 Python，`
@@ -914,11 +918,10 @@ async function checkServer(){
     return true;
   }catch(e){
     SERVER_OK = false;
-    tag.className = "tagline off"; tag.textContent = "离线模式";
-    ptag.className = "tagline off"; ptag.textContent = "需先启动本地服务";
+    tag.className = "tagline off"; tag.textContent = "未连接";
+    ptag.className = "tagline off"; ptag.textContent = "暂不可发布";
     $("#btnPublish").disabled = true;
-    $("#pubHint").innerHTML = `没连上本地服务，现在只能「下载文件」手动覆盖。`
-      + `<br>请双击 <code>启动内容台.cmd</code>，再打开 <code>http://127.0.0.1:8788/</code>。`;
+    $("#pubHint").textContent = '无法连接题库服务，请检查内容台登录状态，稍后重试。';
     return false;
   }
 }

@@ -35,6 +35,7 @@ import time
 import cms_sync
 import registrations
 import materials
+import identity
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -159,6 +160,15 @@ class Handler(BaseHTTPRequestHandler):
     # ---- 响应 ----
 
     def _json(self, code, obj):
+        if 200 <= code < 300 and self.command == 'POST' and not self.path.startswith('/api/auth/') and identity.current_user(self):
+            actions = {'/api/data':'保存网站内容','/api/upload':'上传图片或附件','/api/upload-doc':'上传学习资料','/api/upload-issue':'上传刊物','/api/registration-admin/import':'导入活动报名名单'}
+            if self.path.startswith('/api/materials') or self.path.split('?')[0] in actions or self.path.endswith('/import'):
+                try:
+                    identity.audit(self, getattr(self, '_audit_action', actions.get(self.path, '修改材料内容')),
+                                   getattr(self, '_audit_target', self.path.split('?')[0]),
+                                   getattr(self, '_audit_before', None), getattr(self, '_audit_after', obj))
+                except Exception:
+                    code, obj = 500, {'ok':False,'error':'内容已保存，但修改记录写入失败；请联系网站管理员核对。'}
         body = json.dumps(obj, ensure_ascii=False).encode('utf-8')
         self.send_response(code)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -168,7 +178,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _auth_ok(self):
-        return self.headers.get('X-Token', '') == TOKEN
+        return identity.current_user(self) is not None
 
     def _read_json(self):
         try:
@@ -189,6 +199,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         p = self.path.split('?')[0].rstrip('/')
+        if identity.route(self, p): return
         if materials.route(self, p): return
 
         if p == '/api/health':
@@ -224,6 +235,11 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         p = self.path.split('?')[0].rstrip('/')
+        if identity.route(self, p): return
+        if p.startswith('/api/registration-admin/'):
+            user = identity.current_user(self)
+            if not user or user.get('role') != 'admin':
+                return self._json(403, {'ok':False,'error':'仅网站管理员可以管理报名名单'})
         if materials.route(self, p): return
         if registrations.route(self, p): return
 
@@ -255,6 +271,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(409, {'ok': False, 'error': '内容已被其他管理员修改。你的编辑仍留在当前页面，请先导出或复制后再刷新合并。'})
                 data['updatedAt'] = datetime.now().isoformat(timespec='microseconds')
                 previous = open(DATA_FILE, 'rb').read() if os.path.exists(DATA_FILE) else None
+                self._audit_before = json.loads(previous) if previous else None
+                self._audit_after = data
                 write_content(data)
                 try:
                     job = cms_sync.enqueue() if os.environ.get('CMS_GITHUB_SYNC') == '1' else None

@@ -21,6 +21,8 @@ if os.name == 'nt':
 os.environ.setdefault('UPLOAD_TOKEN', 'local-test-only')
 import server
 import materials
+import identity
+import time
 
 WEB = Path(__file__).resolve().parents[2] / 'web'
 
@@ -53,7 +55,10 @@ def fixture():
         content['library']['docs'] = []
         content_file = root/'content.json'
         content_file.write_text(json.dumps(content), encoding='utf-8')
-        with patch.object(materials, 'ROOT', root/'private'), patch.object(server, 'DATA_FILE', str(content_file)), patch.object(server, 'DOCS_DIR', str(root/'public/docs')), patch.dict(os.environ, {'CMS_GITHUB_SYNC':'0'}):
+        with patch.object(identity, 'ROOT', root/'identity'), patch.object(materials, 'ROOT', root/'private'), patch.object(server, 'DATA_FILE', str(content_file)), patch.object(server, 'DOCS_DIR', str(root/'public/docs')), patch.dict(os.environ, {'CMS_GITHUB_SYNC':'0'}):
+            with identity.database() as con:
+                con.execute("INSERT INTO users (name,student_id,role,is_owner) VALUES ('测试管理员','TEST0001','admin',1)")
+                con.execute('INSERT INTO sessions VALUES (?,?,?)',(identity.digest('local-test-session'),1,time.time()+3600))
             srv = server.ThreadingHTTPServer(('127.0.0.1', 0), LocalHandler)
             thread = threading.Thread(target=srv.serve_forever, daemon=True)
             thread.start()
@@ -62,7 +67,7 @@ def fixture():
 
 
 def request(srv, method, path, body=None, auth=True, upload=None):
-    headers = {'X-Token':server.TOKEN} if auth else {}
+    headers = {'Cookie':'yc_session=local-test-session'} if auth else {}
     if upload:
         name, data = upload
         boundary = 'QA-MULTIPART-BOUNDARY'
@@ -85,6 +90,24 @@ def request(srv, method, path, body=None, auth=True, upload=None):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_identity_and_cms_audit(self):
+        with fixture() as srv:
+            status,public=request(srv,'GET','/api/data')
+            data=public['data'];data['site']['home']['title']='审计测试标题'
+            con=http.client.HTTPConnection('127.0.0.1',srv.server_port,timeout=10)
+            con.request('POST','/api/data',json.dumps(data).encode(),{'Cookie':'yc_session=local-test-session','Content-Type':'application/json','If-Match':public['revision']})
+            reply=con.getresponse();self.assertEqual(reply.status,200);reply.read();con.close()
+            status,result=request(srv,'GET','/api/auth/audit')
+            self.assertEqual(status,200,result)
+            with identity.database() as db:
+                rows=db.execute("SELECT * FROM audit WHERE action='保存网站内容'").fetchall()
+                self.assertEqual(len(rows),1)
+                self.assertEqual(rows[0]['user_name'],'测试管理员')
+            # A legacy shared token cannot write after session authentication is enabled.
+            con=http.client.HTTPConnection('127.0.0.1',srv.server_port,timeout=10)
+            con.request('POST','/api/data',json.dumps(data).encode(),{'X-Token':server.TOKEN,'Content-Type':'application/json'})
+            reply=con.getresponse();self.assertEqual(reply.status,403);reply.read();con.close()
+
     def test_complete_workflow_and_publication(self):
         with fixture() as srv:
             req=lambda method,path,body=None,**kw:request(srv,method,'/api/materials'+path,body,**kw)
@@ -94,6 +117,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(req('POST',f'/tasks/{id}/submit',{'note':'缺少文件'})[0],400)
             status,result=req('POST',f'/tasks/{id}/submit',{'note':'初稿','actor':'材料同学'},upload=('draft.md',b'# Draft'))
             self.assertEqual(status,200,result)
+            self.assertEqual(req('GET',f'/tasks/{id}')[1]['submissions'][0]['actor'],'测试管理员')
             submission=result['id']
             self.assertEqual(req('POST',f'/submissions/{submission}/review',{'action':'return','actor':'审核同学'})[0],400)
             req('POST',f'/submissions/{submission}/review',{'action':'return','actor':'审核同学','comment':'请补充正文'})

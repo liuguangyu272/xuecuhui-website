@@ -12,10 +12,10 @@ catch { ({chromium}=require(process.env.PLAYWRIGHT_MODULE)); }
     const page=await browser.newPage({viewport:{width:1440,height:1050}});
     const errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.goto(url,{waitUntil:'networkidle'});
-    await page.locator('#codeInput').fill('local-test-only');await page.locator('#codeBtn').click();
+    await page.locator('#loginName').fill('测试管理员');await page.locator('#loginStudentId').fill('TEST0001');await page.locator('#codeBtn').click();
     await page.locator('[data-tab="materials"]').click();
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Desktop page overflows horizontally');
-    await page.locator('#materialActor').fill('本地验收操作人');
+    assert.equal(await page.locator('#materialActor').inputValue(),'测试管理员');
     await page.locator('#materialCreate').click();
     await page.locator('#mw-title').fill('迎新手册制作验收');
     await page.locator('#mw-description').fill('完成编写与美工排版，必须两次提交审核。');

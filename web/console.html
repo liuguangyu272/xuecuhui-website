@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="assets/vendor/reader/katex.min.css">
 <link rel="stylesheet" href="assets/vendor/reader/highlight.css">
 <link rel="stylesheet" href="assets/reader.css?v=20261112a">
-<link rel="stylesheet" href="assets/console-workspace.css?v=20261112a">
+<link rel="stylesheet" href="assets/console-workspace.css?v=20261119a">
 </head>
 <body class="workspace-console">
 
@@ -26,6 +26,7 @@
       </div>
     </a>
     <nav class="topnav">
+      <span id="consoleCurrentUser"></span>
       <a href="index.html" id="btnLock">返回主页</a>
     </nav>
   </div>
@@ -38,17 +39,19 @@
     <div class="gate__icon">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="7" width="10" height="7" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
     </div>
-    <h2>内容台</h2>
-    <p>统管公告、活动、部门与站点信息的入口。请输入密令后进入，关闭浏览器会话自动退出。</p>
+    <h2>登录内容台</h2>
 
     <div class="field">
-      <label for="codeInput">密令</label>
-      <input class="input input--code" id="codeInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••">
+      <label for="loginName">姓名</label>
+      <input class="input" id="loginName" autocomplete="name" placeholder="姓名">
+    </div>
+    <div class="field">
+      <label for="loginStudentId">学号</label>
+      <input class="input" id="loginStudentId" inputmode="numeric" autocomplete="username" placeholder="学号">
     </div>
 
-    <button class="btn btn--primary btn--full" id="codeBtn">进入内容台</button>
-    <p class="error-msg" id="codeError">密令不正确，请重试。</p>
-    <p class="hint">当前为本地版本，密令写在前端代码中，只起到遮挡作用，不构成真实权限控制。</p>
+    <button class="btn btn--primary btn--full" id="codeBtn">登录</button>
+    <p class="error-msg" id="codeError" role="alert"></p>
   </div>
 
   <!-- 内容台主体 -->
@@ -66,12 +69,6 @@
       </div>
     </div>
 
-    <div class="notice-tip" style="margin-top:22px">
-      <div>
-        <strong>已接入服务器：</strong>这里的改动会直接保存到站点服务器，所有人刷新后都能看到。
-        每次保存前服务器会自动备份上一版，改坏了可以找我回滚。
-      </div>
-    </div>
 
     <div class="stat-row">
       <div class="stat">
@@ -99,12 +96,15 @@
       <button class="tab" data-tab="materials">任务与审核</button>
       <button class="tab" data-tab="archives">正式资料归档</button>
       <button class="tab" data-tab="requirements">要求与模板</button>
+      <span class="workspace-nav-label identity-admin-only" hidden>管理员</span>
+      <button class="tab identity-admin-only" data-tab="members" hidden>成员名单</button>
+      <button class="tab identity-admin-only" data-tab="audit" hidden>修改记录</button>
       <a class="workspace-nav-link" href="console3/">题库内容台 ↗</a>
     </div>
 
     <section class="panel" id="panel-materials">
       <div class="ws-heading"><div><span class="ws-kicker">材料协作</span><h2>任务与审核</h2><p>上传成果后提交审核，通过后进入下一阶段。</p></div><button class="btn btn--primary" id="materialCreate">＋ 分配任务</button></div>
-      <div class="ws-tools"><label>操作人姓名 <input class="input" id="materialActor" placeholder="填写姓名，用于提交和审核记录"></label><button class="btn btn--sm" id="materialRefresh">刷新任务</button></div>
+      <div class="ws-tools"><label>当前账号 <input class="input" id="materialActor" readonly></label><button class="btn btn--sm" id="materialRefresh">刷新任务</button></div>
       <div class="ws-metrics" id="materialMetrics"></div>
       <div class="ws-task-panel"><div class="ws-panel-head"><h3>任务列表</h3><div class="ws-filter" id="materialFilters"><button class="is-active" data-filter="all">全部</button><button data-filter="review">待审核</button><button data-filter="returned">已退回</button><button data-filter="done">已归档</button></div></div><div id="materialTasks" aria-live="polite"></div></div>
     </section>
@@ -119,6 +119,18 @@
     </section>
 
     <!-- 公告 -->
+    <section class="panel" id="panel-members">
+      <div class="ws-heading"><h2>成员名单</h2><button class="btn btn--primary" id="identityAddMember">新增成员</button></div>
+      <label class="ws-search"><input class="input" id="identityMemberSearch" placeholder="搜索姓名、学号或部门"></label>
+      <div class="identity-table-wrap"><table class="table"><thead><tr><th>姓名</th><th>学号</th><th>部门</th><th>职务</th><th>权限</th><th>状态</th><th>操作</th></tr></thead><tbody id="identityMembers"></tbody></table></div>
+      <p id="identityMemberState" role="status"></p>
+    </section>
+    <section class="panel" id="panel-audit">
+      <div class="ws-heading"><h2>修改记录</h2><button class="btn" id="identityAuditRefresh">刷新</button></div>
+      <div class="identity-table-wrap"><table class="table"><thead><tr><th>时间（北京）</th><th>操作人</th><th>操作</th><th>对象</th><th>详情</th></tr></thead><tbody id="identityAudit"></tbody></table></div>
+      <div class="ws-actions"><button class="btn" id="identityAuditPrevious">上一页</button><span id="identityAuditPage"></span><button class="btn" id="identityAuditNext">下一页</button></div>
+      <p id="identityAuditState" role="status"></p>
+    </section>
     <section class="panel is-active" id="panel-ann">
       <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
         <button class="btn btn--primary btn--sm" id="btnAddAnn">＋ 新建公告</button>
@@ -422,10 +434,11 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=20261112a"></script>
+<script src="assets/app.js?v=20261119-identity"></script>
 <script src="assets/vendor/reader/engine.min.js?v=20261112a"></script>
 <script src="assets/reader-console.js?v=20261111a"></script>
-<script src="assets/console.js?v=20261112-materials1"></script>
-<script src="assets/materials-console.js?v=20261112a"></script>
+<script src="assets/console.js?v=20261119-identity"></script>
+<script src="assets/materials-console.js?v=20261119-identity"></script>
+<script src="assets/identity-console.js?v=20261119a"></script>
 </body>
 </html>

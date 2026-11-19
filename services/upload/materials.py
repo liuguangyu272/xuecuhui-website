@@ -13,6 +13,7 @@ import secrets
 import shutil
 import sqlite3
 import threading
+import identity
 from datetime import datetime
 from urllib.parse import parse_qs, urlsplit, quote
 
@@ -116,6 +117,7 @@ def save_file(con, handler, required_fields=()):
         raise Invalid('请选择成果文件')
     part = form['file']
     fields = {key:form.getfirst(key, '') for key in form.keys() if key != 'file'}
+    fields['actor'] = identity.current_user(handler)['name']
     for key in required_fields:
         required(fields, key)
     data = part.file.read(MAX_FILE + 1)
@@ -260,6 +262,7 @@ def route(handler, path):
                 return True
             elif handler.command == 'POST' and parts == ['tasks']:
                 data = handler._read_json()
+                data['actor'] = identity.current_user(handler)['name']
                 title, description, deadline, material, actor = [required(data, key) for key in ('title', 'description', 'deadline', 'material', 'actor')]
                 datetime.strptime(deadline, '%Y-%m-%d')
                 designer = required(data, 'designer') if data.get('designRequired') else ''
@@ -280,7 +283,11 @@ def route(handler, path):
                 con.execute("UPDATE tasks SET status='review', updated_at=CURRENT_TIMESTAMP WHERE id=?", (task['id'],))
                 result = {'id':id}
             elif handler.command == 'POST' and len(parts) == 3 and parts[0] == 'submissions' and parts[2] == 'review':
-                result = review(con, int(parts[1]), handler._read_json())
+                data = handler._read_json()
+                data['actor'] = identity.current_user(handler)['name']
+                handler._audit_before = row(con, 'submissions', int(parts[1]))
+                result = review(con, int(parts[1]), data)
+                handler._audit_after = row(con, 'submissions', int(parts[1]))
             elif handler.command == 'POST' and parts in (['resources'], ['templates']):
                 file_id, data = save_file(con, handler, ('name',))
                 name = required(data, 'name')
@@ -291,6 +298,8 @@ def route(handler, path):
                 data = handler._read_json()
                 content = text(data.get('content'), 15000)
                 if not content: raise Invalid('要求内容不能为空')
+                handler._audit_before = con.execute('SELECT value FROM settings WHERE key=?', ('requirements',)).fetchone()[0]
+                handler._audit_after = content
                 con.execute('UPDATE settings SET value=? WHERE key=?', (content,'requirements'))
                 result = {}
             elif handler.command == 'POST' and len(parts) == 3 and parts[0] == 'resources' and parts[2] == 'publish':
@@ -300,6 +309,10 @@ def route(handler, path):
             else:
                 # Commit before acknowledging success.
                 con.commit()
+                if handler.command == 'POST':
+                    labels={'tasks':'分配材料任务','templates':'上传模板','resources':'上传正式资料','requirements':'编辑材料要求'}
+                    handler._audit_action = ('提交成果' if parts[-1]=='submit' else '审核成果' if parts[-1]=='review' else '发布正式资料' if parts[-1]=='publish' else labels.get(parts[0],'修改材料'))
+                    handler._audit_target = path + (' #'+str(result['id']) if result.get('id') else '')
                 handler._json(200, {'ok':True, **result})
     except (Invalid, ValueError, KeyError) as error:
         handler._json(400, {'ok':False, 'error':str(error)})

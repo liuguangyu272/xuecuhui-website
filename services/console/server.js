@@ -436,34 +436,72 @@ function serveStatic(req, res, pathname) {
   fs.createReadStream(abs).pipe(res);
 }
 
+// Identity comes from the CMS server's HttpOnly session, never a browser token
+// or a name supplied alongside the editing request.
+function identityRequest(req, endpoint, payload) {
+  return new Promise((resolve, reject) => {
+    const data = payload === undefined ? null : Buffer.from(JSON.stringify(payload));
+    const headers = {Cookie: String(req.headers.cookie || '')};
+    if (data) Object.assign(headers, {'Content-Type':'application/json', 'Content-Length':data.length, 'X-Internal-Token':TOKEN || ''});
+    const upstream = http.request({hostname:'127.0.0.1', port:8788, path:endpoint, method:data ? 'POST' : 'GET', headers}, reply => {
+      let size = 0; const chunks = [];
+      reply.on('data', chunk => {size += chunk.length; if (size > 1024 * 1024) upstream.destroy(new Error('身份服务响应过大')); else chunks.push(chunk);});
+      reply.on('end', () => {
+        try {
+          const result = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+          if (reply.statusCode >= 400 || !result.ok) return reject(new Error(result.error || '身份服务请求失败'));
+          resolve(result);
+        } catch (error) { reject(error); }
+      });
+    });
+    upstream.setTimeout(10000, () => upstream.destroy(new Error('身份服务暂不可用')));
+    upstream.on('error', reject);
+    upstream.end(data);
+  });
+}
+
+async function auditResult(req, result, action, target, before, after) {
+  if (!result.ok) return result;
+  try {
+    await identityRequest(req, '/api/auth/internal-audit', {action, target, before, after});
+    result.audit = 'recorded';
+  } catch (error) {
+    // The write has already happened: do not invite a duplicate publication by
+    // returning a generic failed-save response.
+    result.auditError = '更改已保存，但修改记录写入失败，请联系网站管理员核查。';
+    console.error('[console3] Audit write failed for ' + action + ': ' + error.message);
+  }
+  return result;
+}
+
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://127.0.0.1');
   const p = u.pathname;
 
+  if (!p.startsWith('/api/')) return serveStatic(req, res, p);
+  let user;
+  try { user = (await identityRequest(req, '/api/auth/session')).user; }
+  catch (error) { return json(res, 503, {ok:false,error:'无法核验登录状态，请稍后重试'}); }
+  if (!user) return json(res, 401, {ok:false,error:'请先使用姓名和学号登录内容台',login:'/console.html'});
+
   // Nginx Basic Auth protects /console3/ before this server-only proxy.
   if (p.startsWith('/api/registrations/') && req.method === 'POST') {
+    if (user.role !== 'admin') return json(res,403,{ok:false,error:'只有网站管理员可以查看和维护报名名单'});
     const secret = process.env.REGISTRATION_ADMIN_SECRET;
     if (!secret) return json(res, 503, {ok:false,error:'报名管理未配置'});
     const allowed = new Set(['/api/registrations/list','/api/registrations/export','/api/registrations/import']);
     if (!allowed.has(p)) return json(res,404,{ok:false,error:'未知操作'});
-    const upstream = http.request({hostname:'127.0.0.1',port:8788,path:p.replace('/api/registrations/','/api/registration-admin/'),method:'POST',headers:{'Content-Type':'application/json','Content-Length':req.headers['content-length'] || '0','X-Registration-Admin':secret}}, reply => {
+    const upstream = http.request({hostname:'127.0.0.1',port:8788,path:p.replace('/api/registrations/','/api/registration-admin/'),method:'POST',headers:{'Content-Type':'application/json','Content-Length':req.headers['content-length'] || '0','X-Registration-Admin':secret,'Cookie':String(req.headers.cookie || '')}}, reply => {
       res.writeHead(reply.statusCode, {'Content-Type':'application/json','Cache-Control':'no-store'}); reply.pipe(res);
     });
     upstream.setTimeout(60000, () => upstream.destroy());
     upstream.on('error', () => { if (!res.headersSent) json(res,502,{ok:false,error:'报名服务暂不可用'}); else res.destroy(); });
     req.pipe(upstream); return;
   }
-  if (!p.startsWith('/api/')) return serveStatic(req, res, p);
-
-  // 鉴权：经 nginx 反代后 Host 不再是 127.0.0.1，改用口令校验
-  if (String(req.headers['x-token'] || '') !== TOKEN) {
-    return json(res, 403, { ok: false, error: '密令不正确' });
-  }
-
   try {
     if (req.method === 'GET' && p === '/api/status') {
       return json(res, 200, {
-        ok: true, mode: 'server', python: !!findPython(),
+        ok: true, mode: 'server', user, python: !!findPython(),
         targets: { p1: exists(path.join(P1, 'molecules.js')), p2: exists(path.join(P2, 'data_choice.js')) },
         versions: listVersions().length, busy: BUSY,
       });
@@ -477,20 +515,28 @@ const server = http.createServer(async (req, res) => {
       if (!ct.includes('application/json')) return json(res, 415, { ok: false, error: '需要 application/json' });
       const body = await readBody(req);
       BUSY = true;
-      try { return json(res, 200, publishWithSync(() => publish(body))) }
+      try {
+        const before = {version: listVersions()[0]?.id || null};
+        const result = publishWithSync(() => publish(body));
+        return json(res, 200, await auditResult(req, result, '题库发布', '课程题库', before, {version:result.version, counts:body.counts || {}, cardsMerged:result.cardsMerged || 0, cardsRemoved:result.cardsRemoved || 0}));
+      }
       finally { BUSY = false }
     }
     if (req.method === 'POST' && p === '/api/snapshot') {
       const body = await readBody(req);
       const snap = makeVersion((body.note || '').trim() || '手动存档', { counts: body.counts || null, manual: true });
-      return json(res, 200, { ok: true, version: snap.id });
+      return json(res, 200, await auditResult(req, {ok:true,version:snap.id}, '题库存档', snap.id, null, {note:String(body.note || '').slice(0,200), counts:body.counts || {}}));
     }
     if (req.method === 'POST' && p === '/api/rollback') {
       if (BUSY) return json(res, 429, { ok: false, error: '正在写入，稍等' });
       const body = await readBody(req);
       if (!body.version) return json(res, 400, { ok: false, error: '缺少 version' });
       BUSY = true;
-      try { return json(res, 200, publishWithSync(() => rollback(String(body.version)))) }
+      try {
+        const before = {version:listVersions()[0]?.id || null};
+        const result = publishWithSync(() => rollback(String(body.version)));
+        return json(res, 200, await auditResult(req,result,'题库回滚',String(body.version),before,{version:result.version}));
+      }
       finally { BUSY = false }
     }
     return json(res, 404, { ok: false, error: '没有这个接口' });

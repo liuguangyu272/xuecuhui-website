@@ -9,7 +9,6 @@ const CONFIG = {
   siteShort: '学促会',
   siteOrg: '中国药科大学药学院 · 学生发展中心',
   siteSub: 'Study Center',
-  consoleCode: '__SERVER_CONSOLE_TOKEN__',
   storageKey: 'ycuhui.data.v3',
   sessionKey: 'ycuhui.console.ok'
 };
@@ -287,8 +286,7 @@ const Store = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'If-Match': this._revision,
-        'X-Token': CONFIG.consoleCode
+        'If-Match': this._revision
       },
       body: JSON.stringify(data)
     });
@@ -797,54 +795,50 @@ function renderJoinPage() {
 
 /* ---------- 内容台：密令 ---------- */
 
-function consoleUnlocked() {
-  return sessionStorage.getItem(CONFIG.sessionKey) === '1';
+function consoleUnlocked() { return Boolean(window.consoleIdentity); }
+
+async function lockConsole() {
+  try { await fetch('/api/auth/logout', {method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); }
+  finally { window.consoleIdentity=null; location.href = 'console.html'; }
 }
 
-function lockConsole() {
-  sessionStorage.removeItem(CONFIG.sessionKey);
-  location.href = 'index.html';
-}
-
-function mountGate(onPass) {
+async function mountGate(onPass) {
   const gate = document.getElementById('gate');
   const app = document.getElementById('consoleApp');
-  const input = document.getElementById('codeInput');
+  const input = document.getElementById('loginName');
+  const student = document.getElementById('loginStudentId');
   const btn = document.getElementById('codeBtn');
   const err = document.getElementById('codeError');
 
-  if (consoleUnlocked()) {
-    if (gate) gate.style.display = 'none';
-    if (app) app.style.display = 'block';
-    onPass && onPass();
-    return;
-  }
-
-  if (gate) gate.style.display = 'block';
-  if (app) app.style.display = 'none';
-  if (input) setTimeout(() => input.focus(), 120);
-
-  const submit = () => {
-    const val = (input.value || '').trim();
-    if (val === CONFIG.consoleCode) {
-      sessionStorage.setItem(CONFIG.sessionKey, '1');
-      if (gate) gate.style.display = 'none';
-      if (app) app.style.display = 'block';
-      onPass && onPass();
-    } else {
-      if (err) err.classList.add('is-on');
-      input.value = '';
-      input.focus();
-    }
+  const enter = async user => {
+    window.consoleIdentity=user; document.body.classList.add('console-signed-in');
+    if(gate)gate.style.display='none';if(app)app.style.display='block';
+    const label=document.getElementById('consoleCurrentUser');if(label)label.textContent=user.name;
+    await onPass?.();
+  };
+  const showError=message=>{if(err){err.textContent=message;err.classList.add('is-on');}};
+  const submit = async () => {
+    const name=input.value.trim(),studentId=student.value.trim();
+    if(!name||!studentId)return showError('请填写姓名和学号');
+    btn.disabled=true;
+    try {
+      const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,studentId})});
+      const data=await response.json();if(!response.ok||!data.ok||!data.user)throw Error(data.error||'姓名或学号不匹配');
+      await enter(data.user);
+    } catch(error){showError(error.message);}
+    finally{btn.disabled=false;}
   };
 
   if (btn) btn.addEventListener('click', submit);
-  if (input) {
-    input.addEventListener('keydown', e => {
+  for(const control of [input,student]) if (control) {
+    control.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); submit(); }
     });
-    input.addEventListener('input', () => err && err.classList.remove('is-on'));
+    control.addEventListener('input', () => err && err.classList.remove('is-on'));
   }
+  try {const response=await fetch('/api/auth/session');const data=await response.json();if(response.ok&&data.user){await enter(data.user);return;}}
+  catch(error){showError('登录状态读取失败，请重试');}
+  if(gate)gate.style.display='block';if(app)app.style.display='none';
 }
 
 /* ---------- 启动 ---------- */
