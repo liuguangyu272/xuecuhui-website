@@ -514,7 +514,7 @@ function renderDocTable() {
       <td class="cell-dim">${esc(d.subject || '—')}</td>
       <td class="cell-dim">${esc(d.size || '')}</td>
       <td class="table__actions">
-        <button class="btn btn--sm" data-doc-open="${esc(d.id)}">打开</button>
+        <button class="btn btn--sm" data-doc-open="${esc(d.id)}">${['pdf','md','markdown'].includes(String(d.ext).toLowerCase())?'预览':'打开'}</button>
         <button class="btn btn--sm" data-doc-settings="${esc(d.id)}">设置</button>
         ${['md','markdown'].includes(String(d.ext).toLowerCase()) ? `<button class="btn btn--sm" data-doc-markdown="${esc(d.id)}">编辑正文</button>` : ''}
         <button class="btn btn--sm btn--danger" data-doc-del="${esc(d.id)}">删除</button>
@@ -585,14 +585,14 @@ function initDocUpload() {
     btnUp.textContent = '上传';
   };
 
-  btnSave.onclick = () => {
+  btnSave.onclick = async () => {
     if (!pendingDoc) return;
     const name = nameEl.value.trim();
     if (!name) { alert('资料名称不能为空'); return; }
     DATA.library = DATA.library || {};
     DATA.library.docs = DATA.library.docs || [];
-    DATA.library.docs.push({
-      id: 'doc' + Date.now(),
+    const savedDoc = {
+      id: pendingDoc.recordId || (pendingDoc.recordId = 'doc' + Date.now()),
       name,
       grade: document.getElementById('docGrade').value,
       subject: document.getElementById('docSubject').value,
@@ -601,13 +601,21 @@ function initDocUpload() {
       size: fmtSize(pendingDoc.size),
       url: pendingDoc.url,
       date: new Date().toISOString().slice(0, 10)
-    });
-    save();
+    };
+    const priorIndex = DATA.library.docs.findIndex(d=>d.id===savedDoc.id);
+    if(priorIndex<0) DATA.library.docs.push(savedDoc);
+    else DATA.library.docs[priorIndex]=savedDoc;
+    btnSave.disabled=true;
+    const saved = await save();
+    if(!saved){stateEl.textContent='保存未完成，请重试；已上传的文件仍保留。';btnSave.disabled=false;return;}
     renderDocTable();
     pendingDoc = null;
     fileInput.value = '';
     pickEl.textContent = '未选择文件';
-    stateEl.textContent = '';
+    stateEl.textContent = '已保存到资料库';
+    if (['pdf','md','markdown'].includes(String(savedDoc.ext).toLowerCase())) {
+      const preview=document.createElement('a');preview.href=docReaderURL(savedDoc);preview.target='_blank';preview.rel='noopener';preview.textContent='预览';preview.className='doc-saved-preview';stateEl.append('　',preview);
+    }
     document.getElementById('docNote').value = '';
     btnSave.disabled = true;
   };
@@ -836,8 +844,12 @@ function editTool(id) {
 
 async function initConsole() {
   const exitLink = document.getElementById('btnLock');
-  exitLink.textContent = '退出并返回主页';
-  exitLink.addEventListener('click', event => { event.preventDefault(); lockConsole(); });
+  exitLink.textContent = '退出登录';
+  exitLink.addEventListener('click', async event => {
+    event.preventDefault();exitLink.disabled=true;
+    try { await lockConsole(); }
+    catch(error){setSaveState('error',error.message);exitLink.disabled=false;}
+  });
 
   setSaveState('saving', '读取中…');
   await Store.load();

@@ -1,0 +1,76 @@
+/* Existing desktop sidebar and content styling stay authoritative above 720px. */
+.cm-bottom,.cm-subnav{display:none}
+.cm-table-scroll{display:contents}
+@media(max-width:720px){
+  .workspace-console.console-signed-in #tabs{display:none!important}
+  .workspace-console.console-signed-in .console-wrap{padding:20px 16px 0!important}
+  .workspace-console.console-signed-in #consoleApp>.console-head,
+  .workspace-console.console-signed-in #consoleApp>.stat-row,
+  .workspace-console.console-signed-in #consoleApp>.notice-tip{display:none!important}
+  .workspace-console.console-signed-in .topbar{position:relative;z-index:30}
+  .workspace-console.console-signed-in .topbar .wrap{padding:0 16px}
+  .workspace-console.console-signed-in .topbar__inner{height:auto;min-height:64px;gap:12px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+  .workspace-console.console-signed-in .brand__name{font-size:18px}
+  .workspace-console.console-signed-in .brand__sub{font-size:12px;letter-spacing:0}
+  .workspace-console.console-signed-in .topnav{gap:12px;flex-wrap:wrap;margin-left:auto}
+  .workspace-console.console-signed-in .topnav a,.workspace-console.console-signed-in .topnav button{font-size:14px;min-height:44px;display:inline-flex;align-items:center}
+  .workspace-console.console-signed-in #consoleCurrentUser{font-size:14px}
+  .workspace-console.console-signed-in .cm-subnav{display:block;margin:0 0 22px;min-width:0}
+  .cm-subtabs{display:flex;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;max-width:100%;padding-bottom:8px;border-bottom:1px solid #dce4e1;scrollbar-width:thin}
+  .cm-subtabs button,.cm-subtabs a{flex:0 0 auto;min-height:44px;padding:10px 12px;box-sizing:border-box;border:0;border-radius:7px;background:transparent;color:#596b73;font:inherit;font-size:14px;line-height:24px;text-decoration:none;white-space:nowrap;cursor:pointer}
+  .cm-subtabs .is-active{background:#e5f0ec;color:#12685f;font-weight:700}
+  .cm-title{font-size:26px;line-height:1.35;margin:20px 0 0;color:#1e2d35;font-weight:650}
+  .cm-title[hidden]{display:none}
+  .cm-one-tab .cm-subtabs{display:none}
+  .workspace-console.console-signed-in .cm-bottom{position:fixed;inset:auto 0 0;z-index:60;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dce4e1;gap:4px}
+  .cm-bottom button{border:0;border-radius:10px;min-width:0;min-height:54px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:5px 3px;background:transparent;color:#6b7b82;font:inherit;font-size:14px;line-height:1.25;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .cm-bottom button.is-active{color:#12685f;background:#edf5f1;font-weight:700}
+  .cm-bottom button svg{width:23px;height:23px;display:block}
+  .cm-bottom button:focus-visible,.cm-subtabs button:focus-visible,.cm-subtabs a:focus-visible{outline:2px solid #197f75;outline-offset:2px}
+  .workspace-console.console-signed-in{padding-bottom:calc(82px + env(safe-area-inset-bottom))}
+  .workspace-console.console-signed-in .footer{margin-top:24px;margin-bottom:0;padding-bottom:20px}
+  .workspace-console.console-signed-in .panel{padding-top:0!important;min-width:0;max-width:100%}
+  .cm-table-scroll{display:block;width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .cm-table-scroll .table{min-width:570px}
+  .workspace-console .identity-table-wrap{max-width:100%;overscroll-behavior-x:contain}
+  .workspace-console .identity-table-wrap .table{min-width:680px}
+  .workspace-console .cm-table-scroll .table,.workspace-console .identity-table-wrap .table{display:table;border-collapse:collapse}
+  .workspace-console .cm-table-scroll .table thead,.workspace-console .identity-table-wrap .table thead{display:table-header-group}
+  .workspace-console .cm-table-scroll .table tbody,.workspace-console .identity-table-wrap .table tbody{display:table-row-group}
+  .workspace-console .cm-table-scroll .table tr,.workspace-console .identity-table-wrap .table tr{display:table-row;border-radius:0;margin:0;padding:0;background:transparent;box-shadow:none}
+  .workspace-console .cm-table-scroll .table th,.workspace-console .cm-table-scroll .table td,.workspace-console .identity-table-wrap .table th,.workspace-console .identity-table-wrap .table td{display:table-cell!important;padding:12px 14px;font-size:14px;border-bottom:1px solid #e3e8e7;vertical-align:middle;white-space:normal}
+  .workspace-console .cm-table-scroll .table td:before,.workspace-console .identity-table-wrap .table td:before{display:none!important}
+  .workspace-console.console-signed-in .ws-heading{gap:14px;margin-top:0;margin-bottom:20px}
+  .workspace-console.console-signed-in .ws-heading h2{font-size:26px;line-height:1.35;margin-top:0}
+  .workspace-console.console-signed-in .ws-heading .ws-kicker,.workspace-console.console-signed-in .ws-heading p{display:none}
+  .workspace-console.console-signed-in .ws-tools{margin-bottom:18px;gap:12px}
+  .workspace-console.console-signed-in .ws-tools label{font-size:14px}
+  .workspace-console.console-signed-in .input{font-size:16px;min-height:44px;max-width:100%}
+  .workspace-console.console-signed-in textarea.input{min-height:100px}
+  .workspace-console.console-signed-in .btn{font-size:14px;min-height:44px}
+  .workspace-console.console-signed-in .ws-filter{display:flex;width:100%;overflow-x:auto;box-sizing:border-box}
+  .workspace-console.console-signed-in .ws-filter button{flex:1 0 auto;min-height:44px;font-size:14px;padding:8px 10px}
+  .workspace-console.console-signed-in .ws-metrics{gap:0;background:transparent;border-top:1px solid #dce4e1;border-bottom:1px solid #dce4e1;margin:0 0 22px}
+  .workspace-console.console-signed-in .ws-metric{padding:14px 12px;border:0;border-radius:0;background:transparent;min-width:0}
+  .workspace-console.console-signed-in .ws-metric:nth-child(odd){border-right:1px solid #dce4e1}
+  .workspace-console.console-signed-in .ws-metric:nth-child(-n+2){border-bottom:1px solid #dce4e1}
+  .workspace-console.console-signed-in .ws-metric span{font-size:14px;color:#596b73}
+  .workspace-console.console-signed-in .ws-metric b{font-size:27px;line-height:1.25}
+  .workspace-console.console-signed-in .ws-task{grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:17px 15px}
+  .workspace-console.console-signed-in .ws-task strong{font-size:16px;overflow-wrap:anywhere}
+  .workspace-console.console-signed-in .ws-task small{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+  .workspace-console.console-signed-in .ws-pill{font-size:13px;padding:5px 8px}
+  .workspace-console.console-signed-in .ws-resource p{font-size:14px;overflow-wrap:anywhere}
+  .workspace-console.console-signed-in .ws-resource footer{flex-wrap:wrap}
+  .workspace-console.console-signed-in .ws-prose{font-size:16px;padding:18px;line-height:1.8}
+  .workspace-console.console-signed-in .ws-toast{bottom:calc(88px + env(safe-area-inset-bottom));font-size:14px}
+  .workspace-console .site-grid{grid-template-columns:minmax(0,1fr)}
+  .workspace-console .site-grid>.field{min-width:0}
+  .workspace-console .ws-search{display:block;max-width:100%}
+  .ws-dialog{max-height:calc(100dvh - 32px);width:calc(100% - 24px);border-radius:12px}
+  .ws-dialog-head,.ws-dialog-body{padding:18px}
+  .ws-dialog .input{font-size:16px;min-height:44px}
+  .ws-dialog .btn{font-size:14px;min-height:44px}
+  .ws-dialog .ws-attachment{flex-wrap:wrap;overflow-wrap:anywhere}
+  .ws-dialog .ws-attachment>div{min-width:0;max-width:100%}
+}

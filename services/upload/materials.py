@@ -245,15 +245,22 @@ def route(handler, path):
                 result = {'task':task, 'submissions':submissions}
             elif handler.command == 'GET' and len(parts) == 2 and parts[0] == 'versions':
                 result = {'versions':[dict(r) for r in con.execute('SELECT v.*, f.name, f.size, f.ext FROM versions v JOIN files f ON f.id=v.file_id WHERE resource_id=? AND f.active=1 ORDER BY v.id DESC', (int(parts[1]),))]}
+            elif handler.command == 'GET' and len(parts) == 2 and parts[0] == 'file-info':
+                file = row(con, 'files', int(parts[1]))
+                if not file['active'] or not (ROOT / 'files' / file['stored']).is_file():
+                    raise Invalid('文件已被替换或不存在')
+                result = {'file':file_info(con, file['id']),
+                          'fileUrl':'/api/materials/files/'+str(file['id'])+'?preview=1'}
             elif handler.command == 'GET' and len(parts) == 2 and parts[0] == 'files':
                 file = row(con, 'files', int(parts[1]))
                 location = ROOT / 'files' / file['stored']
                 if not file['active'] or not location.is_file():
                     raise Invalid('文件已被替换或不存在')
                 handler.send_response(200)
-                handler.send_header('Content-Type', mimetypes.guess_type(file['name'])[0] or 'application/octet-stream')
+                handler.send_header('Content-Type', 'application/pdf' if file['ext']=='pdf' else mimetypes.guess_type(file['name'])[0] or 'application/octet-stream')
                 handler.send_header('Content-Length', str(file['size']))
-                handler.send_header('Content-Disposition', "attachment; filename*=UTF-8''" + quote(file['name']))
+                preview = parse_qs(urlsplit(handler.path).query).get('preview') == ['1'] and file['ext']=='pdf'
+                handler.send_header('Content-Disposition', ('inline' if preview else 'attachment') + "; filename*=UTF-8''" + quote(file['name']))
                 handler.send_header('Cache-Control', 'no-store')
                 handler.send_header('X-Content-Type-Options', 'nosniff')
                 handler.end_headers()

@@ -793,13 +793,15 @@ function renderJoinPage() {
   if (howEl && j.howText && String(j.howText).trim()) howEl.innerHTML = nl2br(j.howText);
 }
 
-/* ---------- 内容台：密令 ---------- */
+/* ---------- 内容台：登录状态 ---------- */
 
 function consoleUnlocked() { return Boolean(window.consoleIdentity); }
 
 async function lockConsole() {
-  try { await fetch('/api/auth/logout', {method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); }
-  finally { window.consoleIdentity=null; location.href = 'console.html'; }
+  const response = await fetch('/api/auth/logout', {method:'POST'});
+  if (!response.ok) throw Error('退出未完成，请重试');
+  window.consoleIdentity=null;
+  location.href = 'console.html';
 }
 
 async function mountGate(onPass) {
@@ -809,30 +811,33 @@ async function mountGate(onPass) {
   const student = document.getElementById('loginStudentId');
   const btn = document.getElementById('codeBtn');
   const err = document.getElementById('codeError');
+  const form = document.getElementById('consoleLoginForm');
 
   const enter = async user => {
     window.consoleIdentity=user; document.body.classList.add('console-signed-in');
     if(gate)gate.style.display='none';if(app)app.style.display='block';
     const label=document.getElementById('consoleCurrentUser');if(label)label.textContent=user.name;
+    const logout=document.getElementById('btnLock');if(logout)logout.hidden=false;
     await onPass?.();
   };
   const showError=message=>{if(err){err.textContent=message;err.classList.add('is-on');}};
   const submit = async () => {
     const name=input.value.trim(),studentId=student.value.trim();
     if(!name||!studentId)return showError('请填写姓名和学号');
-    btn.disabled=true;
+    btn.disabled=true;btn.textContent='正在登录…';
     try {
       const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,studentId})});
       const data=await response.json();if(!response.ok||!data.ok||!data.user)throw Error(data.error||'姓名或学号不匹配');
       await enter(data.user);
     } catch(error){showError(error.message);}
-    finally{btn.disabled=false;}
+    finally{btn.disabled=false;btn.textContent='登录';}
   };
 
-  if (btn) btn.addEventListener('click', submit);
+  if (form) form.addEventListener('submit',event=>{event.preventDefault();submit();});
+  else if (btn) btn.addEventListener('click', submit);
   for(const control of [input,student]) if (control) {
     control.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); submit(); }
+      if (!form && e.key === 'Enter') { e.preventDefault(); submit(); }
     });
     control.addEventListener('input', () => err && err.classList.remove('is-on'));
   }

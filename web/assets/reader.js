@@ -75,7 +75,7 @@
     const pdfjs = await import('./vendor/pdfjs/pdf.min.js');
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdfjs/pdf.worker.min.js', new URL('assets/reader.js', location.href)).href;
     const base = new URL('assets/vendor/pdfjs/', location.href).href;
-    const loading = pdfjs.getDocument({url: url.href, cMapUrl: base + 'cmaps/', cMapPacked: true,
+    const loading = pdfjs.getDocument({url: url.href, withCredentials: url.origin === location.origin, cMapUrl: base + 'cmaps/', cMapPacked: true,
       standardFontDataUrl: base + 'standard_fonts/', wasmUrl: base + 'wasm/', isEvalSupported: false});
     loading.onPassword = (update, reason) => {
       const password = window.prompt(reason === 2 ? '密码不正确，请重新输入 PDF 密码' : '此 PDF 需要密码');
@@ -146,10 +146,21 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      const id = new URLSearchParams(location.search).get('id');
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id'), materialFile = params.get('materialFile');
       await Store.load();
       const library = Store.library();
-      const doc = (library.docs || []).find(item => item.id === id);
+      let doc;
+      if (materialFile) {
+        if (!/^[1-9][0-9]*$/.test(materialFile)) throw Error('文件编号无效，请返回内容台重新选择。');
+        const response = await fetch('/api/materials/file-info/' + materialFile, {credentials:'same-origin'});
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) throw Error(result.error || '请先登录内容台，再打开此文件。');
+        doc = {name:result.file.name, ext:result.file.ext, url:result.fileUrl};
+        document.querySelectorAll('[data-reader-back]').forEach(link => {link.href='console.html';link.textContent=link.classList.contains('keep')?'返回内容台':'内容台';});
+      } else {
+        doc = (library.docs || []).find(item => String(item.id) === id);
+      }
       if (!doc) throw Error('这份资料不存在或已被移除，请返回资料库重新选择。');
       const url = new URL(doc.url, location.href);
       if (!['http:', 'https:'].includes(url.protocol)) throw Error('资料地址无效。');
@@ -159,6 +170,7 @@
       $('readerType').textContent = type === 'pdf' ? 'PDF · 在线阅读' : 'MARKDOWN · 在线阅读';
       $('readerMeta').textContent = [doc.grade, doc.subject, doc.note, doc.date].filter(Boolean).join(' · ');
       $('readerDownload').href = url.href; $('readerDownload').hidden = false;
+      if (materialFile) $('readerDownload').href = '/api/materials/files/' + materialFile;
       $('readerDownload').target = '_blank'; $('readerDownload').rel = 'noopener';
       const watermark = ReaderEngine.watermarkSettings(library, doc);
       $('readerFootnote').textContent = watermark.enabled ? '阅读水印：' + watermark.text + '。下载原文件保留原始内容。' : '下载原文件保留原始内容。';

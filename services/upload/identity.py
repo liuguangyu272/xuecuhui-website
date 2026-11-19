@@ -251,6 +251,8 @@ def route(handler, path):
             reply(handler,200,{'ok':True,'user':user},cookie)
             return True
         if handler.command == 'POST' and path == '/api/auth/logout':
+            if int(handler.headers.get('Content-Length','0')) > 0:
+                body(handler)
             user=current_user(handler)
             if user: audit(handler,'退出内容台','登录')
             value=token(handler)

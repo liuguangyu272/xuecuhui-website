@@ -33,8 +33,9 @@ class LocalHandler(server.Handler):
         if self.path.startswith('/api/'):
             return super().do_GET()
         relative = self.path.split('?')[0].lstrip('/') or 'console.html'
-        file = (WEB / relative).resolve()
-        if not file.is_relative_to(WEB.resolve()) or not file.is_file():
+        static_root = Path(server.DOCS_DIR) if relative.startswith('assets/docs/') else WEB
+        file = (static_root / relative[len('assets/docs/'):] if relative.startswith('assets/docs/') else WEB / relative).resolve()
+        if not file.is_relative_to(static_root.resolve()) or not file.is_file():
             return self._json(404, {'error':'missing'})
         data = file.read_bytes()
         if file.name == 'app.js':

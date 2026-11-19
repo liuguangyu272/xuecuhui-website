@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="assets/vendor/reader/highlight.css">
 <link rel="stylesheet" href="assets/reader.css?v=20261112a">
 <link rel="stylesheet" href="assets/console-workspace.css?v=20261119a">
+<link rel="stylesheet" href="assets/console-login.css?v=20261119b">
+<link rel="stylesheet" href="assets/console-mobile.css?v=20261119-preview1">
 </head>
 <body class="workspace-console">
 
@@ -27,32 +29,37 @@
     </a>
     <nav class="topnav">
       <span id="consoleCurrentUser"></span>
-      <a href="index.html" id="btnLock">返回主页</a>
+      <a href="index.html" id="btnHome">返回主页</a>
+      <button type="button" class="console-signout" id="btnLock" hidden>退出登录</button>
     </nav>
   </div>
 </header>
 
 <main class="wrap console-wrap">
 
-  <!-- 密令闸门 -->
-  <div class="gate" id="gate" style="display:none">
-    <div class="gate__icon">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="7" width="10" height="7" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+  <section class="gate auth-gate" id="gate" style="display:none" aria-labelledby="loginTitle">
+    <div class="auth-form-panel">
+      <a class="auth-brand" href="index.html"><img src="assets/logo-64.png" width="42" height="42" alt="学促会"><span>学习小站</span></a>
+      <div class="auth-form-content">
+        <h1 id="loginTitle">登录内容台</h1>
+        <form id="consoleLoginForm">
+          <div class="field"><label for="loginName">姓名</label><input class="input" id="loginName" autocomplete="name" placeholder="请输入姓名" maxlength="40" required></div>
+          <div class="field"><label for="loginStudentId">学号</label><input class="input" id="loginStudentId" inputmode="numeric" autocomplete="username" placeholder="请输入学号" maxlength="40" required></div>
+          <button type="submit" class="btn btn--primary btn--full" id="codeBtn">登录</button>
+          <p class="error-msg" id="codeError" role="alert" aria-live="polite"></p>
+        </form>
+        <p class="auth-help">无法登录？请联系网站管理员。</p>
+        <a class="auth-home" href="index.html">返回学习小站</a>
+      </div>
+      <small class="auth-footer">中国药科大学药学院 · 学生学习促进协会</small>
     </div>
-    <h2>登录内容台</h2>
-
-    <div class="field">
-      <label for="loginName">姓名</label>
-      <input class="input" id="loginName" autocomplete="name" placeholder="姓名">
-    </div>
-    <div class="field">
-      <label for="loginStudentId">学号</label>
-      <input class="input" id="loginStudentId" inputmode="numeric" autocomplete="username" placeholder="学号">
-    </div>
-
-    <button class="btn btn--primary btn--full" id="codeBtn">登录</button>
-    <p class="error-msg" id="codeError" role="alert"></p>
-  </div>
+    <aside class="auth-brand-panel" aria-label="学促会内容协作台">
+      <span class="auth-org">中国药科大学药学院</span>
+      <div class="auth-wordmark"><span>学促会</span><strong>内容协作台</strong></div>
+      <div class="auth-brand-rule"></div>
+      <small>学生学习促进协会</small>
+    </aside>
+  </section>
 
   <!-- 内容台主体 -->
   <div id="consoleApp" style="display:none">
@@ -434,11 +441,12 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=20261119-identity"></script>
+<script src="assets/app.js?v=20261119-login2"></script>
 <script src="assets/vendor/reader/engine.min.js?v=20261112a"></script>
 <script src="assets/reader-console.js?v=20261111a"></script>
-<script src="assets/console.js?v=20261119-identity"></script>
-<script src="assets/materials-console.js?v=20261119-identity"></script>
+<script src="assets/console.js?v=20261119-login2"></script>
+<script src="assets/materials-console.js?v=20261119-preview1"></script>
 <script src="assets/identity-console.js?v=20261119a"></script>
+<script src="assets/console-mobile.js?v=20261119-preview1"></script>
 </body>
 </html>
